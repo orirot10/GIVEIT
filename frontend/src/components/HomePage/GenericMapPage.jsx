@@ -94,38 +94,42 @@ const GenericMapPage = ({ apiUrl, title }) => {
     const filterCount = appliedFilters.categories.length + (appliedFilters.maxPrice !== null ? 1 : 0);
 
     return (
-        <div className="p-4 flex flex-col gap-4 items-center">
+        <div className="p-2 flex flex-col gap-2 items-center">
             <h2 className="text-2xl font-bold text-center">{title || "Explore"}</h2>
 
-            <div className="search-filter-row flex flex-col sm:flex-row gap-2 items-center">
-                <div className="search-filter-container flex-1">
-                    <SearchBar
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        onSearch={handleSearch}
-                    />
-                </div>
-                <div className="flex items-center gap-2">
-                    <FilterButton
-                        onApplyFilters={handleFilter}
-                        categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
-                    />
-                    {filterCount > 0 && (
-                        <>
-                            <button
-                                onClick={handleClearFilters}
-                                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
-                                title="Clear all filters"
-                            >
-                                Clear Filters
-                            </button>
-                            <span className="bg-gray-200 text-gray-800 text-sm font-medium px-2 py-1 rounded-full">
-                                {filterCount} {filterCount === 1 ? "filter" : "filters"} applied
-                            </span>
-                        </>
-                    )}
-                </div>
-            </div>
+            <div className="w-full flex flex-col gap-2 items-center">
+    <div className="w-full">
+        <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onSearch={handleSearch}
+        />
+    </div>
+
+    <div className="w-full flex justify-center">
+        <div className="flex items-center gap-1">
+            <FilterButton
+                onApplyFilters={handleFilter}
+                categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
+            />
+            {filterCount > 0 && (
+                <>
+                    <button
+                        onClick={handleClearFilters}
+                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
+                        title="Clear all filters"
+                    >
+                        Clear Filters
+                    </button>
+                    <span className="bg-gray-200 text-gray-800 text-sm font-medium px-2 py-1 rounded-full">
+                        {filterCount} {filterCount === 1 ? "filter" : "filters"} applied
+                    </span>
+                </>
+            )}
+        </div>
+    </div>
+</div>
+
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
