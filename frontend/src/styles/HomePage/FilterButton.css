@@ -1,0 +1,143 @@
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f5f5f5;
+    cursor: pointer;
+}
+
+.filter-btn:hover {
+    background-color: #e5e5e5;
+}
+
+.filter-icon {
+    font-size: 20px;
+    color: gray;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 340px;
+    max-width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.section {
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.categories-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.category-btn {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: #444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-content .category-btn {
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: #444;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.modal-content .category-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.modal-content .category-btn.selected {
+    background-color: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.price-slider {
+    width: 100%;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.filter-action-btn {
+    background-color: #3b82f6;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.filter-action-btn:hover {
+    background-color: #2563eb;
+}
+
+.modal-content .close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: transparent;  /* No background */
+    border: none;  /* Remove the border */
+    color: #444;  /* Set the icon color */
+    font-size: 24px;  /* Adjust the size of the 'x' icon */
+    cursor: pointer;
+    padding: 0;  /* Remove padding so the icon is not pushed away */
+}
+
+.modal-content close-btn:hover {
+    color: #ff0000;  /* Change color on hover (red) */
+}
+
+.modal-content {
+    position: relative;  /* Ensure the close button is positioned relative to the modal */
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 340px;
+    max-width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Optional: style adjustments for the icon */
+.close-btn svg {
+    vertical-align: middle;  /* Ensure the icon aligns properly */
+}

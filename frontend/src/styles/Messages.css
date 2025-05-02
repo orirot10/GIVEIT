@@ -1,0 +1,85 @@
+.messages-container {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: var(--spacing);
+}
+
+.message {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.message:last-child {
+  margin-bottom: 0;
+}
+
+/* Info message styles */
+.message.info {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+}
+
+/* Success message styles */
+.message.success {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+}
+
+/* Warning message styles */
+.message.warning {
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+}
+
+/* Error message styles */
+.message.error {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+}
+
+/* Message icon */
+.message-icon {
+  font-size: 1.25rem;
+}
+
+/* Message content */
+.message-content {
+  flex: 1;
+}
+
+/* Message timestamp */
+.message-timestamp {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+.messages-page {
+  padding: var(--spacing);
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+} 

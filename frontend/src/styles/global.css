@@ -1,0 +1,163 @@
+@import './variables.css';
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset and universal layout styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-base);
+    font-size: var(--font-size);
+    color: var(--text-color);
+    background-color: var(--background-color);
+    min-height: 100vh;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+  }
+  
+  /* This is your phone "screen" */
+  .app-container {
+    padding-top: 40px;
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-y: auto;
+  }
+
+/* main {
+    flex: 1;
+    padding: var(--spacing);
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding-bottom: 80px;
+    overflow-y: auto;
+} */
+
+main {
+  flex-grow: 1;
+  overflow-y: auto; /* Enable scrolling inside the main section */
+  padding-bottom: 80px; /* Space for footer if needed */
+}
+
+
+/* Global form styles */
+form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 15px; /* Space between form elements */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for input fields */
+input[type="email"], input[type="password"], input[type="text"], input[type="number"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  width: 100%; /* Make inputs take up the full width */
+}
+
+/* Input focus effect */
+input[type="email"]:focus, input[type="password"]:focus, input[type="text"]:focus, input[type="number"]:focus {
+  border-color: #007bff; /* Change border color on focus */
+}
+
+/* Style for input placeholders */
+input::placeholder {
+  color: #888;
+  font-size: 14px;
+}
+
+/* Style for labels */
+label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+/* Error message styles */
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+/* Link styles (for signUp, forgot password, etc.) */
+form a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Link hover effect */
+form a:hover {
+  text-decoration: underline;
+}
+
+
+
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 75vh;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.form {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form input {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  width: 100%;
+}
+
+.form input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+  margin-top: -10px;
+}

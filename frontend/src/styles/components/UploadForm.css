@@ -1,0 +1,89 @@
+.upload-form-container {
+    margin-top: 30px; /* Push it down a bit */
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+}
+
+.upload-form textarea,
+.upload-form input,
+.upload-form select {
+    background-color: #e0e0e0; /* Light gray background */
+    font-size: 1rem;
+    border: none; /* Optional: remove border for cleaner look */
+    border-radius: 4px; /* Optional: slight rounding */
+}
+
+.upload-form textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.upload-form input,
+.upload-form select {
+    height: 40px; /* Consistent height for inputs and select */
+}
+
+.upload-form .button-group {
+    display: flex;
+    gap: 20px; /* gap between buttons */
+    justify-content: flex-start;
+}
+
+/* Button styles */
+.upload-form .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 20px;
+    width: 100px; /* Fixed width for buttons */
+    text-align: center; /* Center text inside buttons */
+}
+
+.upload-form .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+.upload-form .btn-outline {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.upload-form .btn:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+.custom-file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.custom-file-label {
+    display: block;
+    padding: 10px 12px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.custom-file-input {
+    display: none;
+}
+
+.file-name-list {
+    margin-top: 8px;
+    padding-left: 20px;
+    font-size: 0.9rem;
+}

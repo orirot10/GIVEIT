@@ -1,0 +1,106 @@
+.service-form-container {
+    margin-top: 30px; /* Match upload-form's top margin */
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5); /* Match upload-form shadow */
+}
+
+.service-form-container h2 {
+    text-align: center;
+    margin-bottom: 24px;
+    color: #333;
+    font-size: 1.5rem; /* Match upload-form's title size */
+}
+
+.service-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Match upload-form's field spacing */
+}
+
+/* Override framework classes for inputs, textarea, and select */
+.service-form input,
+.service-form textarea,
+.service-form select {
+    background-color: #e0e0e0; /* Light gray background to match upload-form */
+    padding: 8px;
+    border: none; /* Remove framework borders */
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Prevent padding issues */
+}
+
+.service-form input,
+.service-form select {
+    height: 40px; /* Match upload-form's input height */
+}
+
+.service-form textarea {
+    resize: vertical;
+    height: 150px; /* Match upload-form's textarea height */
+}
+
+.service-form input:focus,
+.service-form select:focus,
+.service-form textarea:focus {
+    outline: none;
+    border-color: #007bff; /* Keep focus border for accessibility */
+}
+
+/* Button group styling */
+.service-form .button-group {
+    display: flex;
+    gap: 20px; /* Match upload-form's button spacing */
+    justify-content: flex-start; /* Align buttons to the left like upload-form */
+}
+
+/* Button styling */
+.service-form .btn {
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 20px; /* Match upload-form's button border-radius */
+    width: 100px; /* Fixed width to match upload-form */
+    text-align: center; /* Center text */
+    cursor: pointer;
+    transition: all 0.2s ease; /* Match upload-form's hover transition */
+}
+
+.service-form .btn-primary {
+    background-color: #007bff;
+    color: white;
+    border: none;
+}
+
+.service-form .btn-outline {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.service-form .btn:hover {
+    opacity: 0.9;
+    transform: scale(1.02); /* Match upload-form's hover effect */
+}
+
+/* Success message styling */
+.alert.alert-success {
+    background-color: white; /* Match service-form-container background */
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5); /* Match container shadow */
+    text-align: center;
+}
+
+.alert.alert-success span {
+    color: #2e7d32; /* Green text for success */
+    font-size: 1.25rem;
+}
+
+.alert.alert-success .btn-primary {
+    margin-top: 16px;
+}

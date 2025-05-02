@@ -1,0 +1,59 @@
+.dashboard-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background-color: #fff;
+}
+
+.dashboard-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.logout-button {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 16px;
+    margin: 8px 4px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}
+
+.dashboard-container .toggle-view-btn {
+    width: 100%;
+    max-width: 300px;
+    padding: 16px 16px;
+    margin: 8px 0;
+    
+  }
+
+.toggle-view-btn:hover {
+    background-color: #eaeaea8c;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2); /* soft blue shadow */
+    transform: translateY(-2px); /* little lift */
+    border-color: #474849; /* darker border on hover */
+}
+
+.toggle-view-btn.logout {
+    background-color: #d32f2f;
+    border-color: #dc3545;
+    color: #ffffff;
+}
+
+.toggle-view-btn.logout:hover {
+    background-color: #ffe5e5;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    border-color: #b02a37;
+    color: #b02a37;
+}
