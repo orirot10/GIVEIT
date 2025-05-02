@@ -19,7 +19,6 @@ const GenericMapPage = ({ apiUrl, title }) => {
         const fetchAndMap = async () => {
             const res = await fetch(apiUrl);
             const items = await res.json();
-
             setAllItems(items);
             const withCoords = await mapItemsToCoords(items);
             setLocations(withCoords);
@@ -36,11 +35,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
 
                 const coords = await geocodeAddress(street, city);
                 return coords
-                    ? {
-                          ...item,
-                          ...coords,
-                          id: item._id,
-                      }
+                    ? { ...item, ...coords, id: item._id }
                     : null;
             })
         );
@@ -53,7 +48,6 @@ const GenericMapPage = ({ apiUrl, title }) => {
     };
 
     const handleFilter = ({ categories, maxPrice }) => {
-        // Update applied filters
         setAppliedFilters({ categories, maxPrice });
 
         let url = `${apiUrl}/filter?`;
@@ -63,7 +57,9 @@ const GenericMapPage = ({ apiUrl, title }) => {
             url += `category=${encodedCategories}&`;
         }
 
-        url += `maxPrice=${maxPrice}`;
+        if (maxPrice !== null) {
+            url += `maxPrice=${maxPrice}`;
+        }
 
         fetch(url)
             .then((res) => res.json())
@@ -75,10 +71,8 @@ const GenericMapPage = ({ apiUrl, title }) => {
     };
 
     const handleClearFilters = () => {
-        // Reset filters
         setAppliedFilters({ categories: [], maxPrice: null });
 
-        // Refetch original data
         fetch(apiUrl)
             .then((res) => res.json())
             .then(async (data) => {
@@ -88,7 +82,15 @@ const GenericMapPage = ({ apiUrl, title }) => {
             });
     };
 
-    // Calculate number of active filters
+    const handleRemoveCategory = (catToRemove) => {
+        const updatedCategories = appliedFilters.categories.filter(cat => cat !== catToRemove);
+        handleFilter({ categories: updatedCategories, maxPrice: appliedFilters.maxPrice });
+    };
+
+    const handleRemovePrice = () => {
+        handleFilter({ categories: appliedFilters.categories, maxPrice: null });
+    };
+
     const filterCount = appliedFilters.categories.length + (appliedFilters.maxPrice !== null ? 1 : 0);
 
     return (
@@ -124,6 +126,29 @@ const GenericMapPage = ({ apiUrl, title }) => {
                     )}
                 </div>
             </div>
+
+            {/* Active Filter Buttons */}
+            {filterCount > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                    {appliedFilters.categories.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => handleRemoveCategory(cat)}
+                            className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-full hover:bg-blue-200 transition"
+                        >
+                            {cat} ✕
+                        </button>
+                    ))}
+                    {appliedFilters.maxPrice !== null && (
+                        <button
+                            onClick={handleRemovePrice}
+                            className="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded-full hover:bg-green-200 transition"
+                        >
+                            Max Price: ₪{appliedFilters.maxPrice} ✕
+                        </button>
+                    )}
+                </div>
+            )}
 
             <div className="map-wrapper w-full">
                 <ToggleViewButton view={view} setView={setView} />
