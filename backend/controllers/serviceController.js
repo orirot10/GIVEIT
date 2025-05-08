@@ -1,7 +1,7 @@
 const Service = require('../models/Service.js');
 
 const uploadNewService = async (req, res) => {
-    const { title, description, category, price, phone, city, street } = req.body;
+    const { title, description, category, price, pricePeriod, phone, city, street } = req.body;
 
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
@@ -19,6 +19,7 @@ const uploadNewService = async (req, res) => {
             description,
             category,
             price,
+            pricePeriod,
             phone,
             city,
             street,

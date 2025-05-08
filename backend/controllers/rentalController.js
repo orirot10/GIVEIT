@@ -6,6 +6,7 @@ const uploadNewRental = async (req, res) => {
     description,
     category,
     price,
+    pricePeriod,
     phone,
     status,
     city,
@@ -29,6 +30,7 @@ const uploadNewRental = async (req, res) => {
         description,
         category,
         price,
+        pricePeriod,
         images: imagePaths, // ✅ save paths instead of raw strings
         phone,
         status,

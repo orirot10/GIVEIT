@@ -15,18 +15,23 @@ const Popup = ({ item, onClose }) => {
   // Destructure item properties with default values for robustness
   const {
     title = 'Item Title Unavailable',
+    description = 'No description available', // Added description field
     street = '',
     city = '',
     state = '',
     zipCode = '',
     phone = 'Contact Info Unavailable',
-    image = '', // Assuming 'image' holds the URL or is empty/null
-    category = 'General', // Example default, adjust as needed
-    price = null, // Example default, adjust as needed
-    ownerId = null // Assuming item has an ownerId - ADJUST IF FIELD NAME IS DIFFERENT
+    images, // Changed from 'image' to 'images' (assuming it's an array)
+    category = 'General',
+    price = null,
+    pricePeriod = 'use', // Added pricePeriod with a default
+    firstName = 'N/A', // Added owner's first name
+    lastName = '',    // Added owner's last name
+    ownerId = null
   } = item;
 
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
+  const ownerName = [firstName, lastName].filter(Boolean).join(' ');
 
   const handleContact = () => {
     if (!ownerId) {
@@ -66,24 +71,34 @@ const Popup = ({ item, onClose }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 transition-colors"
+          className="absolute top-0 left-0 text-gray-500 hover:text-gray-800 transition-colors"
           aria-label="Close popup"
         >
-          <XMarkIcon className="h-6 w-6" />
+          <XMarkIcon className="h-3 w-3" />
         </button>
 
         {/* Header */}
         <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
 
         {/* Image Section */}
-        {image && (
+        {images && images[0] && ( // Check for images array and first image
           <div className="mb-4 overflow-hidden rounded-md">
-            <img src={image} alt={title} className="w-full h-48 object-cover" />
+            <img src={`http://localhost:5000${images[0]}`} alt={title} className="w-full h-12 object-cover" />
           </div>
         )}
 
         {/* Details Section */}
         <div className="space-y-2 mb-4 px-2">
+        {description && (
+            <p className="text-gray-600">
+              <span className="font-semibold">Description:</span> {description}
+            </p>
+        )}
+        {ownerName && ownerName !== 'N/A' && (
+            <p className="text-gray-600">
+                <span className="font-semibold">Owner:</span> {ownerName}
+            </p>
+        )}
         {address && (
             <p className="text-gray-600">
               <span className="font-semibold">Address:</span> {address}
@@ -96,8 +111,8 @@ const Popup = ({ item, onClose }) => {
             )}
            {price !== null && (
              <p className="text-gray-600">
-               <span className="font-semibold">Price:</span> ${price}
-            </p>
+               <span className="font-semibold">Price:</span> ${price} per {pricePeriod}
+             </p>
            )}
           <p className="text-gray-600">
             <span className="font-semibold">Contact:</span> {phone}
@@ -116,4 +131,4 @@ const Popup = ({ item, onClose }) => {
   );
 };
 
-export default Popup; 
+export default Popup;

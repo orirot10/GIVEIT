@@ -8,6 +8,7 @@ const rentalSchema = new mongoose.Schema({
     description: { type: String },
     category: { type: String, required: true },
     price: { type: Number, required: true },
+    pricePeriod: { type: String, default: 'use' },
     images: [{ type: String }], // URLs or paths
     phone: { type: String, required: true },
     status: { type: String, default: 'available' },

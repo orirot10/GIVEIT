@@ -17,6 +17,7 @@ const [form, setForm] = useState({
     description: '',
     category: '',
     price: '',
+    pricePeriod: 'use',
     phone: user?.user?.phone || '',
     city: user?.user?.city || '',
     street: user?.user?.street || ''
@@ -83,6 +84,13 @@ return (
             {categories.map((cat, index) => <option key={index} value={cat}>{cat}</option>)}
             </select>
             <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleChange} className="input input-bordered w-full" />
+            <select name="pricePeriod" value={form.pricePeriod} onChange={handleChange} className="select select-bordered w-full">
+                <option value="use">Per Use</option>
+                <option value="hour">Per Hour</option>
+                <option value="day">Per Day</option>
+                <option value="week">Per Week</option>
+                <option value="month">Per Month</option>
+            </select>
 
             {/* File input for images */}
             <div className="custom-file-input-wrapper">
