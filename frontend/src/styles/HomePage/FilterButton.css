@@ -141,3 +141,32 @@
 .close-btn svg {
     vertical-align: middle;  /* Ensure the icon aligns properly */
 }
+
+/* Keep base style */
+.search-filter-style {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  /* Allow override if needed */
+  .search-filter-style.red {
+    background-color: #cc2323; /* Tailwind bg-red-500 */
+    color: white;
+  }
+  
+  .search-filter-style.red:hover {
+    background-color: #dc2626; /* Tailwind hover:bg-red-600 */
+  }
+  
+  .search-filter-style.gray {
+    background-color: #e5e7eb; /* Tailwind bg-gray-200 */
+    color: #1f2937; /* Tailwind text-gray-800 */
+  }
+  

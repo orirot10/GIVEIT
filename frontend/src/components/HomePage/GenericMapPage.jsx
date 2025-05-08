@@ -19,8 +19,10 @@ const GenericMapPage = ({ apiUrl, title }) => {
         const fetchAndMap = async () => {
             const res = await fetch(apiUrl);
             const items = await res.json();
+            console.log('[GenericMapPage] Items fetched from API:', items);
             setAllItems(items);
             const withCoords = await mapItemsToCoords(items);
+            console.log('[GenericMapPage] Items after adding coords (locations state):', withCoords);
             setLocations(withCoords);
         };
 
@@ -98,38 +100,38 @@ const GenericMapPage = ({ apiUrl, title }) => {
             <h2 className="text-2xl font-bold text-center">{title || "Explore"}</h2>
 
             <div className="w-full flex flex-col gap-2 items-center">
-    <div className="w-full">
-        <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            onSearch={handleSearch}
-        />
-    </div>
+                <div className="w-full">
+                    <SearchBar
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        onSearch={handleSearch}
+                        onClearFilters={handleClearFilters} // Added onClearFilters prop
+                    />
+                </div>
 
-    <div className="w-full flex justify-center">
-        <div className="flex items-center gap-1">
-            <FilterButton
-                onApplyFilters={handleFilter}
-                categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
-            />
-            {filterCount > 0 && (
-                <>
-                    <button
-                        onClick={handleClearFilters}
-                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
-                        title="Clear all filters"
-                    >
-                        Clear Filters
-                    </button>
-                    <span className="bg-gray-200 text-gray-800 text-sm font-medium px-2 py-1 rounded-full">
-                        {filterCount} {filterCount === 1 ? "filter" : "filters"} applied
-                    </span>
-                </>
-            )}
-        </div>
-    </div>
-</div>
-
+                <div className="w-full flex justify-center">
+                    <div className="flex items-center gap-1">
+                        <FilterButton
+                            onApplyFilters={handleFilter}
+                            categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
+                        />
+                        {filterCount > 0 && (
+                            <>
+                                <button
+                                    onClick={handleClearFilters}
+                                    className="search-filter-style red"
+                                    title="Clear all filters"
+                                >
+                                    Clear Filters
+                                </button>
+                                <span className="search-filter-style gray">
+                                    {filterCount} {filterCount === 1 ? "filter" : "filters"} applied
+                                </span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
@@ -138,7 +140,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
                         <button
                             key={cat}
                             onClick={() => handleRemoveCategory(cat)}
-                            className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-full hover:bg-blue-200 transition"
+                            className="bg-blue-200 text-blue-800 font-medium px-3 py-2 rounded-full hover:bg-blue-200"
                         >
                             {cat} ✕
                         </button>
@@ -146,7 +148,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
                     {appliedFilters.maxPrice !== null && (
                         <button
                             onClick={handleRemovePrice}
-                            className="bg-green-100 text-green-800 text-sm font-medium px-2 py-1 rounded-full hover:bg-green-200 transition"
+                            className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
                         >
                             Max Price: ₪{appliedFilters.maxPrice} ✕
                         </button>

@@ -13,6 +13,7 @@ const rentalSchema = new mongoose.Schema({
     status: { type: String, default: 'available' },
     city: { type: String },
     street: { type: String },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 
 const Rental = mongoose.model('Rental', rentalSchema);

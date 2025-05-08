@@ -1,58 +1,57 @@
 import React, { useState } from "react";
-import ImagePopup from "./ListImagePopup.jsx"; // Import the new ImagePopup component
+// import ImagePopup from "./ListImagePopup.jsx"; // Remove ImagePopup import
+import Popup from "../Shared/Popup"; // Import the correct Popup component
 import '../../styles/HomePage/ListView.css';
 
 const ListView = ({ rentals }) => {
-const [selectedRental, setSelectedRental] = useState(null);
+  // Rename state for clarity (optional but good practice)
+  const [selectedItem, setSelectedItem] = useState(null);
 
-const handleClick = (rental) => {
-    setSelectedRental(rental);
-};
+  const handleItemClick = (item) => {
+    console.log('[ListView] Item passed to handleItemClick:', item); // Add log to check item data
+    setSelectedItem(item);
+  };
 
-const handleClosePopup = () => {
-    setSelectedRental(null);
-};
+  const handleClosePopup = () => {
+    setSelectedItem(null);
+  };
 
-return (
+  return (
     <div className="list-container-wrapper">
-    <div className="list-container">
+      <div className="list-container">
         {rentals.map((rental) => (
-        <div
-            key={rental._id}
+          <div
+            key={rental._id} // Assuming rentals have _id
             className="rental-card"
-            onClick={() => handleClick(rental)} // Show pop-up when clicked
-        >
-            {rental.photo && (
-            <img
-                src={rental.photo}
+            onClick={() => handleItemClick(rental)} // Use new handler
+          >
+            {rental.images && rental.images[0] && ( // Check for images array and first image
+              <img
+                src={rental.images[0]} // Use the first image from the array
                 alt={rental.title}
                 className="rental-image"
-            />
+              />
             )}
             <h3 className="rental-title"> {rental.title}</h3>
             <p className="rental-description">📝 {rental.description}</p>
             <p className="rental-info">
-            🏷️  {rental.category}
+                🏷️  {rental.category}
             </p>
             <p className="rental-info">
-            💸  {rental.price}₪
+                💸  {rental.price}₪
             </p>
-            <p className="rental-info">
-                {rental.status}
-            </p>
-            <p className="rental-info">
-            📞  {rental.firstName} {rental.lastName} ({rental.phone})
-            </p>
-        </div>
+            {/* Removed status as it might not be in Popup */}
+            {/* Removed contact details as Popup handles its own */}
+          </div>
         ))}
-    </div>
+      </div>
 
-    {/* Display the pop-up if a rental is selected */}
-    {selectedRental && (
-        <ImagePopup rental={selectedRental} onClose={handleClosePopup} />
-    )}
+      {/* Use the Popup component */}
+      {selectedItem && (
+        <Popup item={selectedItem} onClose={handleClosePopup} />
+      )}
     </div>
-);
+  );
 };
 
 export default ListView;

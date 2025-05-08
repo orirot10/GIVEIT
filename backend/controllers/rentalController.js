@@ -24,6 +24,7 @@ const uploadNewRental = async (req, res) => {
         firstName: req.user.firstName,
         lastName: req.user.lastName,
         email: req.user.email,
+        ownerId: req.user.id,
         title,
         description,
         category,

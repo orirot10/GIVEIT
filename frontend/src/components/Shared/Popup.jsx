@@ -1,7 +1,15 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/solid'; // Using Heroicons for the close icon
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useAuthContext } from '../../context/AuthContext'; // Import useAuthContext (adjust path if needed)
+import '../../styles/components/PopupAnimation.css'; // Import the animation CSS
 
 const Popup = ({ item, onClose }) => {
+  const navigate = useNavigate(); // Initialize navigate
+  const { user } = useAuthContext(); // Get current user context
+
+  console.log('[Popup] Received item prop:', item); // Log 4
+
   if (!item) return null; // Don't render if no item is provided
 
   // Destructure item properties with default values for robustness
@@ -14,16 +22,47 @@ const Popup = ({ item, onClose }) => {
     phone = 'Contact Info Unavailable',
     image = '', // Assuming 'image' holds the URL or is empty/null
     category = 'General', // Example default, adjust as needed
-    price = null // Example default, adjust as needed
+    price = null, // Example default, adjust as needed
+    ownerId = null // Assuming item has an ownerId - ADJUST IF FIELD NAME IS DIFFERENT
   } = item;
 
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
+
+  const handleContact = () => {
+    if (!ownerId) {
+      console.error("Cannot start conversation: Owner ID is missing from the item.");
+      // Optionally show an error message to the user
+      return;
+    }
+    if (!user) {
+        console.error("Cannot start conversation: User not logged in.");
+        // Optionally redirect to login or show a message
+        return;
+      }
+
+    if (ownerId === user.user.id) {
+        console.log("Cannot start conversation with yourself.");
+        // Optionally show a message to the user
+        return;
+    }
+
+    console.log(`Navigating to messages to chat with owner: ${ownerId}`);
+    // Navigate to the messages page, passing the ownerId, itemTitle, and a flag
+    navigate('/messages', {
+      state: {
+        contactId: ownerId,
+        itemTitle: title, // Pass the item title
+        initialMessage: true // Add a flag to trigger the message
+      }
+    });
+    onClose(); // Close the popup after navigating
+  };
 
   return (
     // Semi-transparent overlay
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2 transition-opacity duration-300 ease-in-out">
     {/* Popup container */}
-    <div className="bg-white rounded-md shadow-lg p-4 w-full max-w-xs relative transform transition-all duration-200 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
+    <div className="bg-white rounded-md shadow-lg px-7 py-6 w-full max-w-xs relative transform transition-all duration-200 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -44,8 +83,8 @@ const Popup = ({ item, onClose }) => {
         )}
 
         {/* Details Section */}
-        <div className="space-y-2 mb-4">
-          {address && (
+        <div className="space-y-2 mb-4 px-2">
+        {address && (
             <p className="text-gray-600">
               <span className="font-semibold">Address:</span> {address}
             </p>
@@ -68,28 +107,11 @@ const Popup = ({ item, onClose }) => {
         {/* Call-to-action button */}
         <button
           className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-          onClick={() => console.log('Contact button clicked for:', item)} // Replace with actual contact logic
+          onClick={handleContact}
         >
           Contact Now
         </button>
       </div>
-
-      {/* Basic CSS for fade-in/scale animation */}
-      <style jsx global>{`
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-fade-in-scale {
-          animation: fadeInScale 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 };
