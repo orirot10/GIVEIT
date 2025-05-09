@@ -140,7 +140,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
                         <button
                             key={cat}
                             onClick={() => handleRemoveCategory(cat)}
-                            className="bg-blue-200 text-blue-800 font-medium px-3 py-2 rounded-full hover:bg-blue-200"
+                            className="bg-blue-200 text-blue-800 font-medium px-4 py-3 rounded-full hover:bg-blue-200"
                         >
                             {cat} ✕
                         </button>

@@ -90,15 +90,17 @@ const MapView = ({ locations }) => {
                             onClick={() => handleMarkerClick(item)}
                         >
 <div
-    className="bg-blue-500 text-white rounded-lg max-w-[120px] px-3 py-1.5 flex items-center justify-center text-[11px] font-semibold shadow-md transition-colors text-center overflow-hidden"
+    className="bg-indigo-800 text-white rounded-md max-w-[120px] px-3 py-2 flex items-center justify-center text-[12px] font-semibold shadow-md transition-colors text-center overflow-hidden"
     title={item.title || "N/A"}
 >
-    <span className="truncate">{item.title || "N/A"}</span>
+<span className="block truncate w-full">
+&nbsp;&nbsp;{item.title || "N/A"}&nbsp;
+</span>
 </div>
 
 {(item.price !== null && item.price !== undefined) && (
-    <div className="mt-1 bg-green-900 text-white text-[10px] font-semibold rounded-full px-2 py-0.5 shadow-sm">
-        {item.price}₪
+    <div className="mt-1 bg-green-900 text-white text-[10px] font-semibold rounded-md px-2 py-0.5 shadow-sm">
+        &nbsp;{item.price}₪&nbsp;
     </div>
 )}
                         </div>
@@ -112,8 +114,8 @@ const MapView = ({ locations }) => {
     mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
 >
     <div className="relative w-3 h-3">
-        <div className="absolute inset-1 rounded-full bg-blue-500 animate-ping opacity-50"></div>
-        <div className="absolute inset-1 rounded-full bg-blue-500"></div>
+        <div className="absolute inset-1 rounded-full bg-cyan-400 animate-ping opacity-60"></div>
+        <div className="absolute inset-1 rounded-full bg-teal-500"></div>
     </div>
 </OverlayView>
 

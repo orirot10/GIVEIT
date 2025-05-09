@@ -78,7 +78,7 @@ const Popup = ({ item, onClose }) => {
         </button>
 
         {/* Header */}
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">{title}</h2>
 
         {/* Image Section */}
         {images && images[0] && ( // Check for images array and first image
@@ -88,7 +88,7 @@ const Popup = ({ item, onClose }) => {
         )}
 
         {/* Details Section */}
-        <div className="space-y-2 mb-4 px-2">
+        <div className="space-y-2 mb-4 px-2 text-center">
         {description && (
             <p className="text-gray-600">
               <span className="font-semibold">Description:</span> {description}
