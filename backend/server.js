@@ -13,9 +13,28 @@ require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
+
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+const apiUrl = process.env.API_URL; // For the deployed backend URL
+if (apiUrl) {
+  // Assuming your frontend will be served from a URL related to the API_URL
+  // For example, if API_URL is https://api.example.com, frontend might be https://example.com
+  // You might need to adjust this logic based on your actual Render setup.
+  // For now, let's assume the frontend is served from the same base domain or a known URL.
+  // If your frontend has a different URL on Render, add it here or use a separate env var.
+  const frontendUrl = apiUrl.replace(/^http(s?):\/\/api\./, 'http$1://').replace(/(:[0-9]+)?$/, ''); // Basic attempt to get frontend URL
+  if (frontendUrl && !allowedOrigins.includes(frontendUrl)) {
+    allowedOrigins.push(frontendUrl);
+  }
+  // If you have a specific frontend URL for production, add it directly or via another env var
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+}
+
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   },
@@ -26,7 +45,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: allowedOrigins,
   credentials: true, // Allow credentials for Express routes
 }));
 app.use(express.json());
@@ -84,4 +103,11 @@ io.on('connection', (socket) => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server running on http://${HOST}:${PORT}`);
+  if (process.env.NODE_ENV === 'production' && apiUrl) {
+    console.log(`Accessible via ${apiUrl}`);
+  }
+});

@@ -10,7 +10,7 @@ return (
     user={user}
     titleText="Offer a New Service"
     categories={serviceCategories}
-    submitUrl="http://localhost:5000/api/services"
+    submitUrl={`${import.meta.env.VITE_API_URL}/api/services`}
     successMessage="You successfully offered a new service!"
     submitButtonText="Create Service"
     />

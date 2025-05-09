@@ -27,7 +27,7 @@ const ListView = ({ rentals }) => {
           >
             {rental.images && rental.images[0] && ( // Check for images array and first image
               <img
-                src={`http://localhost:5000${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
+                src={`${import.meta.env.VITE_API_URL}${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
                 alt={rental.title}
                 className="rental-image"
               />

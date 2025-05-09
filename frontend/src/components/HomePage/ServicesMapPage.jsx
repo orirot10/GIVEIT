@@ -4,7 +4,7 @@ import GenericMapPage from "./GenericMapPage";
 const ServicesMapPage = () => {
 return (
     <GenericMapPage
-    apiUrl="http://localhost:5000/api/services"
+    apiUrl={`${import.meta.env.VITE_API_URL}/api/services`}
     title="Explore Services"
     />
 );

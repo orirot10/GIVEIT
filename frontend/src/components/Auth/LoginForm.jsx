@@ -7,7 +7,6 @@ const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [userData, setUserData] = useState({});
 
     const navigate = useNavigate();
 
@@ -15,7 +14,7 @@ const LoginForm = () => {
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         if (storedUser) {
-            setUserData(storedUser.user); // Set the user data from localStorage if available
+            // setUserData(storedUser.user); // Removed as unused
         }
     }, []);
 
@@ -24,7 +23,7 @@ const LoginForm = () => {
         setError('');
 
         try {
-        const res = await fetch('http://localhost:5000/api/auth/logIn', {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/logIn`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),

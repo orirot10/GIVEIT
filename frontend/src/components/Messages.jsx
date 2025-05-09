@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const socket = io('http://localhost:5000', { withCredentials: true });
+const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const socket = io(socketUrl, { withCredentials: true });
 
 const Messages = ({ userId }) => {
   const [conversations, setConversations] = useState([]);
