@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthContext } from '../context/AuthContext';
-import LoginForm from '../components/Auth/loginForm.jsx';
+import LoginForm from '../components/Auth/LoginForm.jsx';
 import './account.css';
 import { useNavigate } from 'react-router-dom';
 
