@@ -96,10 +96,10 @@ const GenericMapPage = ({ apiUrl, title }) => {
     const filterCount = appliedFilters.categories.length + (appliedFilters.maxPrice !== null ? 1 : 0);
 
     return (
-        <div className="p-2 flex flex-col gap-2 items-center">
+        <div className="p-2 flex flex-col gap-1 items-center">
             <h2 className="text-2xl font-bold text-center">{title || "Explore"}</h2>
 
-            <div className="w-full flex flex-col gap-2 items-center">
+            <div className="w-full flex flex-col gap-1 items-center">
                 <div className="w-full">
                     <SearchBar
                         searchQuery={searchQuery}
@@ -135,7 +135,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-1 mt-1">
                     {appliedFilters.categories.map((cat) => (
                         <button
                             key={cat}
@@ -150,20 +150,21 @@ const GenericMapPage = ({ apiUrl, title }) => {
                             onClick={handleRemovePrice}
                             className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
                         >
-                            Max Price: ₪{appliedFilters.maxPrice} ✕
+                            Max Price: {appliedFilters.maxPrice}₪ ✕
                         </button>
                     )}
                 </div>
             )}
 
-            <div className="map-wrapper w-full">
-                <ToggleViewButton view={view} setView={setView} />
-                {view === "map" ? (
-                    <MapView locations={locations} />
-                ) : (
-                    <ListView rentals={allItems} />
-                )}
-            </div>
+<div className="map-wrapper w-full mb-0 pb-0">
+  <ToggleViewButton view={view} setView={setView} />
+  {view === "map" ? (
+    <MapView locations={locations} />
+  ) : (
+    <ListView rentals={allItems} />
+  )}
+</div>
+
         </div>
     );
 };

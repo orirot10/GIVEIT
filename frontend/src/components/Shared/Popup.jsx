@@ -65,13 +65,13 @@ const Popup = ({ item, onClose }) => {
 
   return (
     // Semi-transparent overlay
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2 transition-opacity duration-300 ease-in-out">
-    {/* Popup container */}
-    <div className="bg-white rounded-md shadow-lg px-7 py-6 w-full max-w-xs relative transform transition-all duration-200 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
-        {/* Close button */}
+<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 sm:p-8 transition-opacity duration-300 ease-in-out">
+{/* Popup container */}
+<div className="bg-white rounded-md shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-xs relative transform transition-all duration-200 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
+    {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-0 left-0 text-gray-500 hover:text-gray-800 transition-colors"
+          className="absolute top-0 left-0 text-gray-500 hover:text-gray-500 transition-colors"
           aria-label="Close popup"
         >
           <XMarkIcon className="h-3 w-3" />
@@ -82,40 +82,41 @@ const Popup = ({ item, onClose }) => {
 
         {/* Image Section */}
         {images && images[0] && ( // Check for images array and first image
-          <div className="mb-4 overflow-hidden rounded-md">
+          <div className="mb-2 overflow-hidden rounded-md">
             <img src={`http://localhost:5000${images[0]}`} alt={title} className="w-full h-12 object-cover" />
           </div>
         )}
 
         {/* Details Section */}
-        <div className="space-y-2 mb-4 px-2 text-center">
+        
+        <div className=" space-y-4 text-left"> 
         {description && (
             <p className="text-gray-600">
-              <span className="font-semibold">Description:</span> {description}
+              <span className="font-semibold">&nbsp; Description:</span> {description}
             </p>
         )}
         {ownerName && ownerName !== 'N/A' && (
             <p className="text-gray-600">
-                <span className="font-semibold">Owner:</span> {ownerName}
+                <span className="font-semibold">&nbsp;Owner:</span> {ownerName}
             </p>
         )}
         {address && (
             <p className="text-gray-600">
-              <span className="font-semibold">Address:</span> {address}
+              <span className="font-semibold">&nbsp;Address:</span> {address}
             </p>
           )}
            {category && (
              <p className="text-gray-600 capitalize">
-               <span className="font-semibold">Category:</span> {category}
+               <span className="font-semibold">&nbsp;Category:</span> {category}
             </p>
             )}
            {price !== null && (
              <p className="text-gray-600">
-               <span className="font-semibold">Price:</span> ${price} per {pricePeriod}
+               <span className="font-semibold">&nbsp;Price:</span> ${price} per {pricePeriod}
              </p>
            )}
           <p className="text-gray-600">
-            <span className="font-semibold">Contact:</span> {phone}
+            <span className="font-semibold">&nbsp;Contact:</span> {phone}
           </p>
         </div>
 
