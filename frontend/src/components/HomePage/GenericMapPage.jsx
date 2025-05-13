@@ -110,7 +110,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
                 </div>
 
                 <div className="w-full flex justify-center">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0">
                         <FilterButton
                             onApplyFilters={handleFilter}
                             categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
@@ -135,7 +135,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
+                <div className=" flex-wrap gap-1 mt-1">
                     {appliedFilters.categories.map((cat) => (
                         <button
                             key={cat}
