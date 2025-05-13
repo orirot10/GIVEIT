@@ -54,7 +54,7 @@ function EditProfile() {
         // delete updatedData.password; // Example if password change is separate
 
         try {
-            const res = await fetch(`http://localhost:5000/api/users/${user.user._id}`, { // Assuming endpoint structure
+            const res = await fetch(`https://giveit-backend.onrender.com/api/users/${user.user._id}`, { // Assuming endpoint structure
                 method: 'PATCH', // Or PUT
                 headers: {
                     'Content-Type': 'application/json',

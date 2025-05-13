@@ -83,7 +83,7 @@ const Popup = ({ item, onClose }) => {
         {/* Image Section */}
         {images && images[0] && ( // Check for images array and first image
           <div className="mb-2 overflow-hidden rounded-md">
-            <img src={`http://localhost:5000${images[0]}`} alt={title} className="w-full h-12 object-cover" />
+            <img src={`https://giveit-backend.onrender.com${images[0]}`} alt={title} className="w-full h-12 object-cover" />
           </div>
         )}
 

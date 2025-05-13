@@ -20,7 +20,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
 
     const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:5000/api/${endpoint}/${item._id}`, {
+            const res = await fetch(`https://giveit-backend.onrender.com/api/${endpoint}/${item._id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${user.token}`,
@@ -38,7 +38,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
 
     const handleEditSave = async (updatedItem) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/${endpoint}/${item._id}`, {
+            const res = await fetch(`https://giveit-backend.onrender.com/api/${endpoint}/${item._id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
             <div className="rental-card" onClick={() => setShowDetails(true)}>
                 <img 
                     src={Array.isArray(item.images) && item.images.length > 0 
-                        ? `http://localhost:5000${item.images[0]}`
+                        ? `https://giveit-backend.onrender.com${item.images[0]}`
                         : 'placeholder.jpg'} 
                     alt={item.title} 
                 />
@@ -84,7 +84,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                         <h2>{item.title}</h2>
                         <img 
                             src={Array.isArray(item.images) && item.images.length > 0 
-                                ? `http://localhost:5000${item.images[0]}`
+                                ? `https://giveit-backend.onrender.com${item.images[0]}`
                                 : 'placeholder.jpg'} 
                             alt={item.title} 
                         />
