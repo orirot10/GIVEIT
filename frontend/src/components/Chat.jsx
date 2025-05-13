@@ -111,7 +111,7 @@ const Chat = ({ userId, contactId, userMap }) => {
             setLoading(true);
             initializeConversation();
           }}
-          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
         >
           Retry
         </button>
@@ -167,7 +167,7 @@ const Chat = ({ userId, contactId, userMap }) => {
       </div>
 
       <div className="border-t border-gray-200 p-4">
-        <div className="flex gap-2">
+        <div className="flex gap-1">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
