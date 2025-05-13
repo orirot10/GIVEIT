@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import io from 'socket.io-client';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const socketUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 const socket = io(socketUrl, { withCredentials: true });
 
 const Messages = ({ userId }) => {

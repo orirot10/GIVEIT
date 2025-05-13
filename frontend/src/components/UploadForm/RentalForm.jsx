@@ -10,7 +10,7 @@ return (
     user={user}
     titleText="Upload Item for Rent"
     categories={rentalCategories}
-    submitUrl="http://localhost:5000/api/rentals"
+    submitUrl="https://giveit-backend.onrender.com/api/rentals"
     successMessage="You successfully uploaded a new rental!"
     submitButtonText="Upload"
     />

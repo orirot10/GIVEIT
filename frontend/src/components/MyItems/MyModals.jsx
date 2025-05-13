@@ -18,7 +18,7 @@ const MyModals = () => {
         const fetchData = async () => {
             try {
                 // Fetch rentals
-                const rentalsRes = await fetch('http://localhost:5000/api/rentals/user', {
+                const rentalsRes = await fetch('https://giveit-backend.onrender.com/api/rentals/user', {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -28,7 +28,7 @@ const MyModals = () => {
                 setRentals(rentalsData);
 
                 // Fetch services
-                const servicesRes = await fetch('http://localhost:5000/api/services/user', {
+                const servicesRes = await fetch('https://giveit-backend.onrender.com/api/services/user', {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
