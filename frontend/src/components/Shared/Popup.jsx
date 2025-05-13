@@ -34,33 +34,39 @@ const Popup = ({ item, onClose }) => {
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
 
   const handleContact = () => {
-    if (!ownerId) {
-      console.error("Cannot start conversation: Owner ID is missing from the item.");
-      // Optionally show an error message to the user
+    console.log('handleContact called with item:', item);
+    console.log('Current user:', user);
+    console.log('Owner ID from item:', ownerId);
+    console.log('User ID from context:', user?.user?.id);
+
+    if (!user) {
+      alert('Please log in to start a conversation');
+      navigate('/login');
+      onClose();
       return;
     }
-    if (!user) {
-        console.error("Cannot start conversation: User not logged in.");
-        // Optionally redirect to login or show a message
-        return;
-      }
+
+    if (!ownerId) {
+      alert('Unable to start conversation: Owner information is missing');
+      onClose();
+      return;
+    }
 
     if (ownerId === user.user.id) {
-        console.log("Cannot start conversation with yourself.");
-        // Optionally show a message to the user
-        return;
+      alert('You cannot start a conversation with yourself');
+      onClose();
+      return;
     }
 
     console.log(`Navigating to messages to chat with owner: ${ownerId}`);
-    // Navigate to the messages page, passing the ownerId, itemTitle, and a flag
     navigate('/messages', {
       state: {
         contactId: ownerId,
-        itemTitle: title, // Pass the item title
-        initialMessage: true // Add a flag to trigger the message
+        itemTitle: title,
+        initialMessage: true
       }
     });
-    onClose(); // Close the popup after navigating
+    onClose();
   };
 
   return (

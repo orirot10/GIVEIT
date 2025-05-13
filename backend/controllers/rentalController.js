@@ -47,7 +47,9 @@ const uploadNewRental = async (req, res) => {
 // Get all rentals
 const getRentals = async (req, res) => {
     try {
-    const rentals = await Rental.find().sort({ createdAt: -1 });
+    const rentals = await Rental.find()
+        .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId')
+        .sort({ createdAt: -1 });
     res.status(200).json(rentals);
     } catch (err) {
     res.status(500).json({ error: 'Failed to fetch rentals' });

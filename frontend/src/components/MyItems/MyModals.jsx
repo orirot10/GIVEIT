@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import ModalCard from './ModalCard';
 import '../../styles/components/MyItems.css';
 
 const MyModals = () => {
+    const navigate = useNavigate();
     const { user } = useAuthContext();
     const [rentals, setRentals] = useState([]);
     const [services, setServices] = useState([]);
@@ -112,9 +114,12 @@ const MyModals = () => {
                         ) : (
                             <div className="services-placeholder">
                                 <p>You haven't offered any rentals yet</p>
-                                <a href="/offer-rental" className="btn-offer">
+                                <button 
+                                    onClick={() => navigate('/offer-rental')} 
+                                    className="btn-offer"
+                                >
                                     Offer a Rental
-                                </a>
+                                </button>
                             </div>
                         )
                     ) : (
@@ -131,9 +136,12 @@ const MyModals = () => {
                         ) : (
                             <div className="services-placeholder">
                                 <p>You haven't offered any services yet</p>
-                                <a href="/offer-service" className="btn-offer">
+                                <button 
+                                    onClick={() => navigate('/offer-service')} 
+                                    className="btn-offer"
+                                >
                                     Offer a Service
-                                </a>
+                                </button>
                             </div>
                         )
                     )}
