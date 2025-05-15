@@ -119,7 +119,7 @@ const MapView = ({ locations }) => {
         zoomControl: true,
         scrollwheel: false,// Optional: disable zoom by scroll to force 2-finger
         mapTypeControl: false,
-        //streetViewControl: false,
+        streetViewControl: false,
         fullscreenControl: false
     }}
             >
