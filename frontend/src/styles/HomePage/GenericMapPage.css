@@ -1,10 +1,7 @@
 .map-wrapper {
-    height: 800px;
-    width: 100%;            
-    border-radius: 1rem;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    margin: 0 auto;        
+    min-height: 400px; /* or auto */
+    height: auto;
+    max-height: 80vh; /* optional cap */
 }
 
 .search-filter-container {
