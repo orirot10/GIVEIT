@@ -41,9 +41,9 @@ const Popup = ({ item, onClose }) => {
 
     if (!user) {
       alert('Please log in to start a conversation');
-      navigate('/login');
-      onClose();
-      return;
+        // Optionally redirect to login or show a message
+
+        return;
     }
 
     if (!ownerId) {

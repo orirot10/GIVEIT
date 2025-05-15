@@ -64,16 +64,64 @@ const MapView = ({ locations }) => {
             mapRef.current.panTo(userLocation);
         }
     };
-
+    const customMapStyle = [
+        {
+          featureType: "poi", // Hide points of interest (restaurants, etc.)
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "transit", // Hide transit stations
+          elementType: "labels",
+          stylers: [{ visibility: "off" }]
+        },
+        {
+          featureType: "road",
+          elementType: "labels", // Keep street labels
+          stylers: [{ visibility: "on" }]
+        },
+        {
+          featureType: "road",
+          elementType: "geometry",
+          stylers: [{ color: "#ffffff" }] // Clean white roads
+        },
+        {
+          featureType: "landscape",
+          elementType: "geometry",
+          stylers: [{ color: "#f5f5f5" }]
+        },
+        {
+          featureType: "water",
+          elementType: "geometry",
+          stylers: [{ color: "#d6e5fb" }]
+        },
+        {
+          featureType: "administrative",
+          elementType: "labels",
+          stylers: [{ visibility: "on" }] // Optional: city names, etc.
+        }
+      ];
+      
+      
     return (
         <div className="w-full h-[500px] relative">
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={userLocation || defaultCenter}
-                zoom={15}
-                onLoad={(map) => {
-                    mapRef.current = map;
-                }}
+<GoogleMap
+    mapContainerStyle={containerStyle}
+    center={userLocation || defaultCenter}
+    zoom={15}
+    onLoad={(map) => {
+        mapRef.current = map;
+    }}
+    options={{
+        styles: customMapStyle,
+
+        gestureHandling: "greedy", // Enables full gesture control
+        zoomControl: true,
+        scrollwheel: false,// Optional: disable zoom by scroll to force 2-finger
+        mapTypeControl: false,
+        //streetViewControl: false,
+        fullscreenControl: false
+    }}
             >
                 {locations.map((item, index) => (
                     <OverlayView

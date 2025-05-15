@@ -183,7 +183,7 @@ const Messages = ({ userId }) => {
           backgroundColor: '#f1f1f1',
         }}
       >
-        <h3 style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Conversations</h3>
+        <h3 style={{ padding: '3px', borderBottom: '1px solid #ccc' }}>Conversation</h3>
         {conversations.length === 0 ? (
           <p style={{ padding: '10px' }}>No conversations yet.</p>
         ) : (
