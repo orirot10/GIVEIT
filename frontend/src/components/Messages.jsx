@@ -125,17 +125,23 @@ const Messages = ({ userId }) => {
     const itemTitleForMessage = location.state?.itemTitle;
     const shouldSendMessage = location.state?.initialMessage;
 
-    if (
-      shouldSendMessage &&
-      itemTitleForMessage &&
-      contactIdToSelect &&
-      activeConversation?.id === contactIdToSelect
-    ) {
-      console.log(`Triggering initial message for item: ${itemTitleForMessage}`);
-      sendInitialSystemMessage(contactIdToSelect, itemTitleForMessage);
+    if (shouldSendMessage && itemTitleForMessage && contactIdToSelect) {
+      // Check if conversation already exists
+      const existingConversation = conversations.find(conv => conv.receiverId === contactIdToSelect);
+      
+      if (existingConversation) {
+        // If conversation exists, just select it and send the message
+        selectConversation(contactIdToSelect);
+        sendInitialSystemMessage(contactIdToSelect, itemTitleForMessage);
+      } else {
+        // If no conversation exists, it will be created when sending the first message
+        selectConversation(contactIdToSelect);
+        sendInitialSystemMessage(contactIdToSelect, itemTitleForMessage);
+      }
+      
       navigate('.', { replace: true, state: {} });
     }
-  }, [location.state, activeConversation, sendInitialSystemMessage, navigate]);
+  }, [location.state, activeConversation, sendInitialSystemMessage, navigate, conversations, selectConversation]);
 
   const getSenderName = (senderId) => {
     if (senderId === userId) return 'You';
