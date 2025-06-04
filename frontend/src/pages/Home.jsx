@@ -1,0 +1,204 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import Popup from '../components/Shared/Popup';
+
+const categories = [
+  { id: 'tools', name: 'Tools', icon: '🔧' },
+  { id: 'vehicles', name: 'Vehicles', icon: '🚗' },
+  { id: 'electronics', name: 'Electronics', icon: '💻' },
+  { id: 'sports', name: 'Sports', icon: '⚽' },
+  { id: 'clothing', name: 'Clothing', icon: '👕' },
+  { id: 'other', name: 'Other', icon: '📦' }
+];
+
+const Home = () => {
+  const navigate = useNavigate();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [filters, setFilters] = useState({
+    category: '',
+    location: '',
+    priceRange: { min: '', max: '' },
+    availabilityDate: ''
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    fetchItems();
+  }, []);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`);
+      const data = await response.json();
+      setItems(data);
+    } catch (error) {
+      console.error('Error fetching items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      priceRange: {
+        ...prev.priceRange,
+        [name]: value
+      }
+    }));
+  };
+
+  const filteredItems = items.filter(item => {
+    return (
+      (!filters.category || item.category === filters.category) &&
+      (!filters.location || item.city.toLowerCase().includes(filters.location.toLowerCase())) &&
+      (!filters.priceRange.min || item.price >= Number(filters.priceRange.min)) &&
+      (!filters.priceRange.max || item.price <= Number(filters.priceRange.max))
+    );
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Search and Filter Section */}
+      <div className="sticky top-0 z-10 bg-white shadow-md p-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search items..."
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <AdjustmentsHorizontalIcon className="h-6 w-6 text-gray-600" />
+            </button>
+            <button
+              onClick={() => navigate('/map')}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <MapIcon className="h-6 w-6 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Filter Options */}
+          {showFilters && (
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+              <select
+                name="category"
+                value={filters.category}
+                onChange={handleFilterChange}
+                className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Categories</option>
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.icon} {category.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                name="location"
+                placeholder="Location"
+                value={filters.location}
+                onChange={handleFilterChange}
+                className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  name="min"
+                  placeholder="Min Price"
+                  value={filters.priceRange.min}
+                  onChange={handlePriceChange}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="number"
+                  name="max"
+                  placeholder="Max Price"
+                  value={filters.priceRange.max}
+                  onChange={handlePriceChange}
+                  className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <input
+                type="date"
+                name="availabilityDate"
+                value={filters.availabilityDate}
+                onChange={handleFilterChange}
+                className="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Items Grid */}
+      <div className="max-w-7xl mx-auto p-4">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredItems.map(item => (
+              <div
+                key={item._id}
+                onClick={() => setSelectedItem(item)}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+              >
+                <div className="aspect-w-16 aspect-h-9">
+                  <img
+                    src={item.images?.[0] ? `https://giveit-backend.onrender.com${item.images[0]}` : '/placeholder.jpg'}
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{categories.find(c => c.id === item.category)?.icon}</span>
+                    <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-2">{item.description.substring(0, 100)}...</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-600 font-semibold">${item.price}/{item.pricePeriod}</span>
+                    <span className="text-sm text-gray-500">{item.city}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Item Popup */}
+      {selectedItem && (
+        <Popup
+          item={selectedItem}
+          onClose={() => setSelectedItem(null)}
+        />
+      )}
+    </div>
+  );
+};
+
+export default Home; 
