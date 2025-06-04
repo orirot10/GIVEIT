@@ -7,6 +7,8 @@
     height: 100%; /* Ensure it takes up full height of the container */
     min-height: 100vh; /* Allow scrolling if the content is bigger than the viewport */
     overflow-y: auto; /* Enable vertical scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scroll-behavior: smooth; /* Smooth scrolling behavior */
 }
 
 /* List container styles */
@@ -16,6 +18,7 @@
     gap: 0.5rem;
     padding: 0;
     flex-grow: 1; /* Allow it to expand and fill available space */
+    contain: layout style paint; /* Optimize rendering performance */
 }
 
 /* Styling for rental card (list items) */
@@ -26,19 +29,47 @@
     margin: 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    contain: layout style paint; /* Optimize rendering performance */
+    min-height: 300px; /* Set minimum height to prevent layout shifts */
+    display: flex;
+    flex-direction: column;
 }
 
 .rental-card:hover {
+    transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.rental-image {
+/* Image container with fixed aspect ratio */
+.rental-image-container {
+    position: relative;
     width: 100%;
-    height: 12rem;
+    padding-top: 75%; /* 4:3 aspect ratio */
+    margin-bottom: 1rem;
+    background-color: #f3f4f6; /* Placeholder color */
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.rental-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
     border-radius: 0.5rem;
-    margin-bottom: 1rem;
+    transition: opacity 0.3s ease;
+}
+
+/* Loading state for images */
+.rental-image.loading {
+    opacity: 0;
+}
+
+.rental-image.loaded {
+    opacity: 1;
 }
 
 .rental-title {
@@ -46,16 +77,54 @@
     font-weight: 600;
     color: #1f2937;
     margin-bottom: 0.5rem;
+    line-height: 1.4;
+    /* Prevent text from causing layout shifts */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8em; /* 2 lines of text */
 }
 
 .rental-description {
     font-size: 0.875rem;
     color: #4b5563;
     margin-bottom: 0.5rem;
+    line-height: 1.4;
+    /* Prevent text from causing layout shifts */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 2.8em; /* 2 lines of text */
 }
 
 .rental-info {
     font-size: 0.875rem;
     color: #374151;
     margin-bottom: 0.25rem;
+    line-height: 1.4;
+    /* Prevent text from causing layout shifts */
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 1.4em; /* 1 line of text */
+}
+
+/* Add loading skeleton animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 0.25rem;
 }
