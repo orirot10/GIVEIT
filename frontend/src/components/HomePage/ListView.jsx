@@ -6,6 +6,7 @@ import '../../styles/HomePage/ListView.css';
 const ListView = ({ rentals }) => {
   // Rename state for clarity (optional but good practice)
   const [selectedItem, setSelectedItem] = useState(null);
+  const [loadedImages, setLoadedImages] = useState({});
 
   const handleItemClick = (item) => {
     console.log('[ListView] Item passed to handleItemClick:', item); // Add log to check item data
@@ -14,6 +15,13 @@ const ListView = ({ rentals }) => {
 
   const handleClosePopup = () => {
     setSelectedItem(null);
+  };
+
+  const handleImageLoad = (itemId) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
   };
 
   return (
@@ -25,13 +33,18 @@ const ListView = ({ rentals }) => {
             className="rental-card"
             onClick={() => handleItemClick(rental)} // Use new handler
           >
-            {rental.images && rental.images[0] && ( // Check for images array and first image
-              <img
-                src={`${import.meta.env.VITE_API_URL}${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
-                alt={rental.title}
-                className="rental-image"
-              />
-            )}
+            <div className="rental-image-container">
+              {rental.images && rental.images[0] ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
+                  alt={rental.title}
+                  className={`rental-image ${loadedImages[rental._id] ? 'loaded' : 'loading'}`}
+                  onLoad={() => handleImageLoad(rental._id)}
+                />
+              ) : (
+                <div className="rental-image skeleton" />
+              )}
+            </div>
             <h3 className="rental-title"> {rental.title}</h3>
             <p className="rental-description">📝 {rental.description}</p>
             <p className="rental-info">
