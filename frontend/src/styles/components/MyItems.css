@@ -27,9 +27,25 @@
 /* View Switch Styles */
 .view-switch-container {
     display: flex;
-    align-items: center;
+    justify-content: center;
     gap: 1rem;
     margin: 1rem 0;
+}
+
+.view-button {
+    padding: 0.5rem 1.5rem;
+    border: 2px solid #007bff;
+    background-color: white;
+    color: #007bff;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.view-button.active {
+    background-color: #007bff;
+    color: white;
 }
 
 .view-label {

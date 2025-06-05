@@ -7,7 +7,7 @@ const RentalsMapPage = () => {
 return (
     <GenericMapPage
     apiUrl={`${import.meta.env.VITE_API_URL}/api/rentals`}
-    title={t("Explore Rentals")}
+    title={t("Explore offers")}
     />
 );
 };

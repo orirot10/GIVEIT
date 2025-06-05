@@ -3,31 +3,42 @@ import MapView from "./MapView";
 import ListView from "./ListView";
 import FilterButton from './FilterButton';
 import ToggleViewButton from "./ToggleViewButton";
+import ContentTypeToggle from "./ContentTypeToggle";
 import { geocodeAddress } from "./geocode";
 import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 
-const GenericMapPage = ({ apiUrl, title }) => {
+const GenericMapPage = ({ title }) => {
     const [allItems, setAllItems] = useState([]);
     const [locations, setLocations] = useState([]);
     const [view, setView] = useState("map");
+    const [contentType, setContentType] = useState("rentals");
     const [searchQuery, setSearchQuery] = useState("");
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], maxPrice: null });
 
+    // Function to get the appropriate API URL based on content type
+    const getApiUrl = () => {
+        const baseUrl = import.meta.env.VITE_API_URL;
+        return contentType === 'rentals' 
+            ? `${baseUrl}/api/rentals`
+            : `${baseUrl}/api/services`;
+    };
+
     useEffect(() => {
         const fetchAndMap = async () => {
-            const res = await fetch(apiUrl);
+            const currentApiUrl = getApiUrl();
+            const res = await fetch(currentApiUrl);
             const items = await res.json();
-            console.log('[GenericMapPage] Items fetched from API:', items);
+            console.log(`[GenericMapPage] ${contentType} fetched from API:`, items);
             setAllItems(items);
             const withCoords = await mapItemsToCoords(items);
-            console.log('[GenericMapPage] Items after adding coords (locations state):', withCoords);
+            console.log(`[GenericMapPage] ${contentType} after adding coords:`, withCoords);
             setLocations(withCoords);
         };
 
         fetchAndMap();
-    }, [apiUrl]);
+    }, [contentType]); // Re-fetch when content type changes
 
     const mapItemsToCoords = async (items) => {
         const mapped = await Promise.all(
@@ -46,13 +57,15 @@ const GenericMapPage = ({ apiUrl, title }) => {
     };
 
     const handleSearch = () => {
-        searchItems({ apiUrl, searchQuery, setAllItems, setLocations });
+        const currentApiUrl = getApiUrl();
+        searchItems({ apiUrl: currentApiUrl, searchQuery, setAllItems, setLocations });
     };
 
     const handleFilter = ({ categories, maxPrice }) => {
         setAppliedFilters({ categories, maxPrice });
+        const currentApiUrl = getApiUrl();
 
-        let url = `${apiUrl}/filter?`;
+        let url = `${currentApiUrl}/filter?`;
 
         if (categories.length > 0) {
             const encodedCategories = categories.map(encodeURIComponent).join(",");
@@ -74,8 +87,9 @@ const GenericMapPage = ({ apiUrl, title }) => {
 
     const handleClearFilters = () => {
         setAppliedFilters({ categories: [], maxPrice: null });
+        const currentApiUrl = getApiUrl();
 
-        fetch(apiUrl)
+        fetch(currentApiUrl)
             .then((res) => res.json())
             .then(async (data) => {
                 setAllItems(data);
@@ -105,15 +119,20 @@ const GenericMapPage = ({ apiUrl, title }) => {
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         onSearch={handleSearch}
-                        onClearFilters={handleClearFilters} // Added onClearFilters prop
+                        onClearFilters={handleClearFilters}
                     />
                 </div>
+
+                <ContentTypeToggle 
+                    contentType={contentType}
+                    setContentType={setContentType}
+                />
 
                 <div className="w-full flex justify-center">
                     <div className="flex items-center gap-0">
                         <FilterButton
                             onApplyFilters={handleFilter}
-                            categoryType={apiUrl.includes("rentals") ? "rental" : "service"}
+                            categoryType={contentType === "rentals" ? "rental" : "service"}
                         />
                         {filterCount > 0 && (
                             <>
@@ -135,7 +154,7 @@ const GenericMapPage = ({ apiUrl, title }) => {
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
-                <div className=" flex-wrap gap-1 mt-1">
+                <div className="flex-wrap gap-1 mt-1">
                     {appliedFilters.categories.map((cat) => (
                         <button
                             key={cat}
@@ -156,15 +175,14 @@ const GenericMapPage = ({ apiUrl, title }) => {
                 </div>
             )}
 
-<div className="map-wrapper w-full mb-0 pb-0">
-  <ToggleViewButton view={view} setView={setView} />
-  {view === "map" ? (
-    <MapView locations={locations} />
-  ) : (
-    <ListView rentals={allItems} />
-  )}
-</div>
-
+            <div className="map-wrapper w-full mb-0 pb-0">
+                <ToggleViewButton view={view} setView={setView} />
+                {view === "map" ? (
+                    <MapView locations={locations} />
+                ) : (
+                    <ListView rentals={allItems} />
+                )}
+            </div>
         </div>
     );
 };

@@ -5,7 +5,7 @@ const ServicesMapPage = () => {
 return (
     <GenericMapPage
     apiUrl={`${import.meta.env.VITE_API_URL}/api/services`}
-    title="Explore Services"
+    title=" Explore needs"
     />
 );
 };
