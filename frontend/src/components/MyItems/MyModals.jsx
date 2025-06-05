@@ -84,17 +84,19 @@ const MyModals = () => {
 
             {/* View Toggle Switch */}
             <div className="view-switch-container">
-                <span className={`view-label ${view === 'rentals' ? 'active' : ''}`}>Rentals</span>
-                <label className="switch">
-                    <input 
-                        type="checkbox" 
-                        checked={view === 'services'} 
-                        onChange={() => setView(view === 'rentals' ? 'services' : 'rentals')}
-                    />
-                    <span className="slider round"></span>
-                </label>
-                <span className={`view-label ${view === 'services' ? 'active' : ''}`}>Services</span>
-            </div>
+            <button
+                className={`view-button ${view === 'rentals' ? 'active' : ''}`}
+                onClick={() => setView('rentals')}
+            >
+                Rentals
+            </button>
+            <button
+                className={`view-button ${view === 'services' ? 'active' : ''}`}
+                onClick={() => setView('services')}
+            >
+                Services
+            </button>
+        </div>
 
             {loading ? (
                 <p>Loading...</p>

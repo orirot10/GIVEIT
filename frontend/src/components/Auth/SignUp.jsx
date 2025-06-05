@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import '../../styles/components/SignUp.css';
 
 function SignUp() {
@@ -84,19 +84,97 @@ return (
         <>
         <h2>Sign Up</h2>
         <form onSubmit={handleSubmit} className="form">
-            <input name="firstName" type="text" placeholder="First Name" value={formData.firstName} onChange={handleChange} required disabled={isLoading} />
-            <input name="lastName" type="text" placeholder="Last Name" value={formData.lastName} onChange={handleChange} required disabled={isLoading} />
-            <input name="phone" type="tel" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required disabled={isLoading} />
-            <input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} required disabled={isLoading} />
-            <input name="password" type="password" placeholder="Password" value={formData.password} onChange={handleChange} required disabled={isLoading} />
-            <input name="country" type="text" placeholder="Country" value={formData.country} onChange={handleChange} required disabled={isLoading} />
-            <input name="city" type="text" placeholder="City" value={formData.city} onChange={handleChange} disabled={isLoading} />
-            <input name="street" type="text" placeholder="Street" value={formData.street} onChange={handleChange} disabled={isLoading} />
+            <div className="form-group">
+                <input 
+                    name="firstName" 
+                    type="text" 
+                    placeholder="First Name" 
+                    value={formData.firstName} 
+                    onChange={handleChange} 
+                    required 
+                    disabled={isLoading} 
+                />
+                <input 
+                    name="lastName" 
+                    type="text" 
+                    placeholder="Last Name" 
+                    value={formData.lastName} 
+                    onChange={handleChange} 
+                    required 
+                    disabled={isLoading} 
+                />
+            </div>
+            <input 
+                name="email" 
+                type="email" 
+                placeholder="Email" 
+                value={formData.email} 
+                onChange={handleChange} 
+                required 
+                disabled={isLoading} 
+            />
+            <input 
+                name="phone" 
+                type="tel" 
+                placeholder="Phone Number" 
+                value={formData.phone} 
+                onChange={handleChange} 
+                required 
+                disabled={isLoading} 
+            />
+            <input 
+                name="password" 
+                type="password" 
+                placeholder="Password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                required 
+                disabled={isLoading} 
+            />
+            
+            <div className="optional-fields">
+                <h3>Optional Information</h3>
+                <input 
+                    name="country" 
+                    type="text" 
+                    placeholder="Country" 
+                    value={formData.country} 
+                    onChange={handleChange} 
+                    disabled={isLoading} 
+                />
+                <input 
+                    name="city" 
+                    type="text" 
+                    placeholder="City" 
+                    value={formData.city} 
+                    onChange={handleChange} 
+                    disabled={isLoading} 
+                />
+                <input 
+                    name="street" 
+                    type="text" 
+                    placeholder="Street" 
+                    value={formData.street} 
+                    onChange={handleChange} 
+                    disabled={isLoading} 
+                />
+            </div>
 
             {error && <p className="error">{error}</p>}
             <button className="primary-button" type="submit" disabled={isLoading}>
                 {isLoading ? 'Processing...' : 'Sign Up'}
             </button>
+            
+            <div className="auth-links">
+                <p>Already have an account?</p>
+                <button 
+                    type="button" 
+                    className="login-link" 
+                    onClick={() => navigate('/login')}
+                >
+                    Return to Login
+                </button>
+            </div>
         </form>
         </>
     ) : (
