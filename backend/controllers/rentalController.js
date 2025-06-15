@@ -139,7 +139,7 @@ const searchRentals = async (req, res) => {
 
 const filterRentals = async (req, res) => {
     try {
-    const { category, maxPrice } = req.query;
+    const { category, minPrice, maxPrice } = req.query;
 
     const query = {};
     
@@ -150,7 +150,12 @@ const filterRentals = async (req, res) => {
         query.category = { $in: categoriesArray };
     }
 
-    if (maxPrice) query.price = { $lte: parseFloat(maxPrice) };
+    // Handle price range
+    if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = parseFloat(minPrice);
+        if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
 
     const rentals = await Rental.find(query);
     res.status(200).json(rentals);

@@ -114,7 +114,7 @@ const searchServices = async (req, res) => {
 
 const filterServices = async (req, res) => {
     try {
-    const { category, maxPrice } = req.query;
+    const { category, minPrice, maxPrice } = req.query;
 
     const query = {};
 
@@ -125,7 +125,12 @@ const filterServices = async (req, res) => {
         query.category = { $in: categoriesArray };
     }
 
-    if (maxPrice) query.price = { $lte: parseFloat(maxPrice) };
+    // Handle price range
+    if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = parseFloat(minPrice);
+        if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
 
     const services = await Service.find(query);
     res.status(200).json(services);

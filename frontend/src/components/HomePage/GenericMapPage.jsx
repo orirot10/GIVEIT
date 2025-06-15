@@ -15,7 +15,7 @@ const GenericMapPage = ({ title }) => {
     const [view, setView] = useState("map");
     const [contentType, setContentType] = useState("rentals");
     const [searchQuery, setSearchQuery] = useState("");
-    const [appliedFilters, setAppliedFilters] = useState({ categories: [], maxPrice: null });
+    const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
 
     // Function to get the appropriate API URL based on content type
     const getApiUrl = () => {
@@ -61,8 +61,8 @@ const GenericMapPage = ({ title }) => {
         searchItems({ apiUrl: currentApiUrl, searchQuery, setAllItems, setLocations });
     };
 
-    const handleFilter = ({ categories, maxPrice }) => {
-        setAppliedFilters({ categories, maxPrice });
+    const handleFilter = ({ categories, minPrice, maxPrice }) => {
+        setAppliedFilters({ categories, minPrice, maxPrice });
         const currentApiUrl = getApiUrl();
 
         let url = `${currentApiUrl}/filter?`;
@@ -70,6 +70,10 @@ const GenericMapPage = ({ title }) => {
         if (categories.length > 0) {
             const encodedCategories = categories.map(encodeURIComponent).join(",");
             url += `category=${encodedCategories}&`;
+        }
+
+        if (minPrice !== null) {
+            url += `minPrice=${minPrice}&`;
         }
 
         if (maxPrice !== null) {
@@ -86,7 +90,7 @@ const GenericMapPage = ({ title }) => {
     };
 
     const handleClearFilters = () => {
-        setAppliedFilters({ categories: [], maxPrice: null });
+        setAppliedFilters({ categories: [], minPrice: null, maxPrice: null });
         const currentApiUrl = getApiUrl();
 
         fetch(currentApiUrl)
@@ -100,14 +104,14 @@ const GenericMapPage = ({ title }) => {
 
     const handleRemoveCategory = (catToRemove) => {
         const updatedCategories = appliedFilters.categories.filter(cat => cat !== catToRemove);
-        handleFilter({ categories: updatedCategories, maxPrice: appliedFilters.maxPrice });
+        handleFilter({ categories: updatedCategories, minPrice: appliedFilters.minPrice, maxPrice: appliedFilters.maxPrice });
     };
 
     const handleRemovePrice = () => {
-        handleFilter({ categories: appliedFilters.categories, maxPrice: null });
+        handleFilter({ categories: appliedFilters.categories, minPrice: null, maxPrice: null });
     };
 
-    const filterCount = appliedFilters.categories.length + (appliedFilters.maxPrice !== null ? 1 : 0);
+    const filterCount = appliedFilters.categories.length + (appliedFilters.minPrice !== null ? 1 : 0) + (appliedFilters.maxPrice !== null ? 1 : 0);
 
     return (
         <div className="p-2 flex flex-col gap-1 items-center">
@@ -164,12 +168,20 @@ const GenericMapPage = ({ title }) => {
                             {cat} ✕
                         </button>
                     ))}
+                    {appliedFilters.minPrice !== null && (
+                        <button
+                            onClick={handleRemovePrice}
+                            className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
+                        >
+                            : {appliedFilters.minPrice}₪ ✕
+                        </button>
+                    )}
                     {appliedFilters.maxPrice !== null && (
                         <button
                             onClick={handleRemovePrice}
                             className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
                         >
-                            Max Price: {appliedFilters.maxPrice}₪ ✕
+                            : {appliedFilters.maxPrice}₪ ✕
                         </button>
                     )}
                 </div>
