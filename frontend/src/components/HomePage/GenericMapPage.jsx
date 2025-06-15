@@ -9,7 +9,7 @@ import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 
-const GenericMapPage = ({ title }) => {
+const GenericMapPage = ({ title, apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
     const [locations, setLocations] = useState([]);
     const [view, setView] = useState("map");
@@ -20,25 +20,41 @@ const GenericMapPage = ({ title }) => {
     // Function to get the appropriate API URL based on content type
     const getApiUrl = () => {
         const baseUrl = import.meta.env.VITE_API_URL;
-        return contentType === 'rentals' 
-            ? `${baseUrl}/api/rentals`
-            : `${baseUrl}/api/services`;
+        if (apiUrl.includes('service_requests')) {
+            return `${baseUrl}/api/service_requests`;
+        } else if (apiUrl.includes('rental_requests')) {
+            return `${baseUrl}/api/rental_requests`;
+        } else if (apiUrl.includes('services')) {
+            return `${baseUrl}/api/services`;
+        } else {
+            return `${baseUrl}/api/rentals`;
+        }
     };
 
     useEffect(() => {
         const fetchAndMap = async () => {
-            const currentApiUrl = getApiUrl();
-            const res = await fetch(currentApiUrl);
-            const items = await res.json();
-            console.log(`[GenericMapPage] ${contentType} fetched from API:`, items);
-            setAllItems(items);
-            const withCoords = await mapItemsToCoords(items);
-            console.log(`[GenericMapPage] ${contentType} after adding coords:`, withCoords);
-            setLocations(withCoords);
+            try {
+                const currentApiUrl = getApiUrl();
+                console.log('Fetching from URL:', currentApiUrl);
+                const res = await fetch(currentApiUrl);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const items = await res.json();
+                console.log(`[GenericMapPage] ${contentType} fetched from API:`, items);
+                setAllItems(items);
+                const withCoords = await mapItemsToCoords(items);
+                console.log(`[GenericMapPage] ${contentType} after adding coords:`, withCoords);
+                setLocations(withCoords);
+            } catch (error) {
+                console.error('Error fetching items:', error);
+                setAllItems([]);
+                setLocations([]);
+            }
         };
 
         fetchAndMap();
-    }, [contentType]); // Re-fetch when content type changes
+    }, [contentType, apiUrl]); // Re-fetch when content type or apiUrl changes
 
     const mapItemsToCoords = async (items) => {
         const mapped = await Promise.all(

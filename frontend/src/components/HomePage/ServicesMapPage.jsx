@@ -6,7 +6,7 @@ return (
     <GenericMapPage
     //apiUrl={`${import.meta.env.VITE_API_URL}/api/services`}
     apiUrl={`${import.meta.env.VITE_API_URL}/api/service_requests`}   
-    title=" Explore Requests"
+    title="Explore Requests"
     />
 );
 };
