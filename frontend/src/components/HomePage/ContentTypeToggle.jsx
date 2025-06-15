@@ -21,9 +21,7 @@ const ContentTypeToggle = ({ contentType, setContentType }) => {
                     <span>Services</span>
                 </button>
             </div>
-            <div className="content-type-indicator">
-                {contentType === 'rentals' ? 'Showing Rentals' : 'Showing Services'}
-            </div>
+
         </div>
     );
 };

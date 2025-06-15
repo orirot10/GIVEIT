@@ -170,3 +170,61 @@
     color: #1f2937; /* Tailwind text-gray-800 */
   }
   
+.price-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.price-filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.price-range {
+    margin-bottom: 1rem;
+}
+
+.price-range p {
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.filter-button-large {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-button-large:hover {
+    background-color: #e9ecef;
+    transform: translateY(-1px);
+}
+
+.price-error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8d7da;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+}
+
+.filter-action-btn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+  
