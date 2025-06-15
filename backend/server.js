@@ -7,6 +7,8 @@ const connectDB = require('./config/db');
 const rentalRoutes = require('./routes/rentalRoutes');
 const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
+const rentalRequestRoutes = require('./routes/rentalRequestRoutes');
+const serviceRequestRoutes = require('./routes/serviceRequestRoutes');
 const { loadMessages, sendMessage, getConversations, getMessages } = require('./controllers/messageController');
 
 require('dotenv').config();
@@ -46,6 +48,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
+app.use('/api/rental_requests', rentalRequestRoutes);
+app.use('/api/service_requests', serviceRequestRoutes);
 
 // Socket.IO
 io.on('connection', (socket) => {
