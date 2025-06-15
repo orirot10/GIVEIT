@@ -1,27 +1,37 @@
 import React from 'react';
-import { FaHome, FaTools } from 'react-icons/fa';
 import '../../styles/HomePage/ContentTypeToggle.css';
 
 const ContentTypeToggle = ({ contentType, setContentType }) => {
+    const handleToggle = (type) => {
+        setContentType(type);
+    };
+
     return (
         <div className="content-type-toggle">
-            <div className="toggle-container">
-                <button
-                    onClick={() => setContentType('rentals')}
-                    className={`toggle-option ${contentType === 'rentals' ? 'active' : ''}`}
-                >
-                    <FaHome size={20} />
-                    <span>Rentals</span>
-                </button>
-                <button
-                    onClick={() => setContentType('services')}
-                    className={`toggle-option ${contentType === 'services' ? 'active' : ''}`}
-                >
-                    <FaTools size={20} />
-                    <span>Services</span>
-                </button>
-            </div>
-
+            <button
+                className={`toggle-btn ${contentType === 'rentals' ? 'active' : ''}`}
+                onClick={() => handleToggle('rentals')}
+            >
+                Available Products
+            </button>
+            <button
+                className={`toggle-btn ${contentType === 'services' ? 'active' : ''}`}
+                onClick={() => handleToggle('services')}
+            >
+                Available Services
+            </button>
+            <button
+                className={`toggle-btn ${contentType === 'rental_requests' ? 'active' : ''}`}
+                onClick={() => handleToggle('rental_requests')}
+            >
+                Wanted Products
+            </button>
+            <button
+                className={`toggle-btn ${contentType === 'service_requests' ? 'active' : ''}`}
+                onClick={() => handleToggle('service_requests')}
+            >
+                Wanted Services
+            </button>
         </div>
     );
 };

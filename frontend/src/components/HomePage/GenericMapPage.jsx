@@ -20,14 +20,47 @@ const GenericMapPage = ({ title, apiUrl }) => {
     // Function to get the appropriate API URL based on content type
     const getApiUrl = () => {
         const baseUrl = import.meta.env.VITE_API_URL;
-        if (apiUrl.includes('service_requests')) {
-            return `${baseUrl}/api/service_requests`;
-        } else if (apiUrl.includes('rental_requests')) {
-            return `${baseUrl}/api/rental_requests`;
-        } else if (apiUrl.includes('services')) {
-            return `${baseUrl}/api/services`;
-        } else {
-            return `${baseUrl}/api/rentals`;
+        switch (contentType) {
+            case 'rentals':
+                return `${baseUrl}/api/rentals`;
+            case 'services':
+                return `${baseUrl}/api/services`;
+            case 'rental_requests':
+                return `${baseUrl}/api/rental_requests`;
+            case 'service_requests':
+                return `${baseUrl}/api/service_requests`;
+            default:
+                return `${baseUrl}/api/rentals`;
+        }
+    };
+
+    // Function to get the appropriate category type for FilterButton
+    const getCategoryType = () => {
+        switch (contentType) {
+            case 'rentals':
+            case 'rental_requests':
+                return 'rental';
+            case 'services':
+            case 'service_requests':
+                return 'service';
+            default:
+                return 'rental';
+        }
+    };
+
+    // Function to get the display title based on content type
+    const getDisplayTitle = () => {
+        switch (contentType) {
+            case 'rentals':
+                return 'Available Products';
+            case 'services':
+                return 'Available Services';
+            case 'rental_requests':
+                return 'Wanted Products';
+            case 'service_requests':
+                return 'Wanted Services';
+            default:
+                return title || 'Explore';
         }
     };
 
@@ -54,7 +87,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
         };
 
         fetchAndMap();
-    }, [contentType, apiUrl]); // Re-fetch when content type or apiUrl changes
+    }, [contentType]); // Re-fetch when content type changes
 
     const mapItemsToCoords = async (items) => {
         const mapped = await Promise.all(
@@ -63,9 +96,16 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 if (!street || !city || street.length < 3 || city.length < 2) return null;
 
                 const coords = await geocodeAddress(street, city);
-                return coords
-                    ? { ...item, ...coords, id: item._id }
-                    : null;
+                if (!coords) return null;
+
+                // Create a new object that includes all original item properties
+                return {
+                    ...item,  // Spread all original properties
+                    lat: coords.lat,
+                    lng: coords.lng,
+                    id: item._id || item.id,  // Use _id if available, fallback to id
+                    type: contentType // Add the type to help distinguish items
+                };
             })
         );
 
@@ -131,7 +171,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     return (
         <div className="p-2 flex flex-col gap-1 items-center">
-            <h2 className="text-2xl font-bold text-center">{title || "Explore"}</h2>
+            <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
 
             <div className="w-full flex flex-col gap-1 items-center">
                 <div className="w-full">
@@ -152,7 +192,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     <div className="flex items-center gap-0">
                         <FilterButton
                             onApplyFilters={handleFilter}
-                            categoryType={contentType === "rentals" ? "rental" : "service"}
+                            categoryType={getCategoryType()}
                         />
                         {filterCount > 0 && (
                             <>
@@ -189,7 +229,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             onClick={handleRemovePrice}
                             className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
                         >
-                            : {appliedFilters.minPrice}₪ ✕
+                            Min: {appliedFilters.minPrice}₪ ✕
                         </button>
                     )}
                     {appliedFilters.maxPrice !== null && (
@@ -197,7 +237,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             onClick={handleRemovePrice}
                             className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
                         >
-                            : {appliedFilters.maxPrice}₪ ✕
+                            Max: {appliedFilters.maxPrice}₪ ✕
                         </button>
                     )}
                 </div>

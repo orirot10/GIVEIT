@@ -52,6 +52,10 @@ const MapView = ({ locations }) => {
 
     const handleMarkerClick = (item) => {
         console.log('[MapView] Item passed to handleMarkerClick:', item);
+        if (!item) {
+            console.error('[MapView] No item data provided to handleMarkerClick');
+            return;
+        }
         setSelectedItem(item);
     };
 
