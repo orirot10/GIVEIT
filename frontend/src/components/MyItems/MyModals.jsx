@@ -13,6 +13,7 @@ const MyModals = () => {
     const [serviceRequests, setServiceRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState('rentals'); // 'rentals', 'services', 'rental_requests', 'service_requests'
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
     useEffect(() => {
         if (!user) {
@@ -22,7 +23,7 @@ const MyModals = () => {
         const fetchData = async () => {
             try {
                 // Fetch rentals
-                const rentalsRes = await fetch('https://giveit-backend.onrender.com/api/rentals/user', {
+                const rentalsRes = await fetch(`${baseUrl}/api/rentals/user`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -32,7 +33,7 @@ const MyModals = () => {
                 setRentals(rentalsData);
 
                 // Fetch services
-                const servicesRes = await fetch('https://giveit-backend.onrender.com/api/services/user', {
+                const servicesRes = await fetch(`${baseUrl}/api/services/user`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -42,7 +43,7 @@ const MyModals = () => {
                 setServices(servicesData);
 
                 // Fetch rental requests
-                const rentalRequestsRes = await fetch('https://giveit-backend.onrender.com/api/rental_requests/user', {
+                const rentalRequestsRes = await fetch(`${baseUrl}/api/rental_requests/user`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -52,7 +53,7 @@ const MyModals = () => {
                 setRentalRequests(rentalRequestsData);
 
                 // Fetch service requests
-                const serviceRequestsRes = await fetch('https://giveit-backend.onrender.com/api/service_requests/user', {
+                const serviceRequestsRes = await fetch(`${baseUrl}/api/service_requests/user`, {
                     headers: {
                         Authorization: `Bearer ${user.token}`,
                     },
@@ -68,7 +69,7 @@ const MyModals = () => {
         };
 
         fetchData();
-    }, [user]);
+    }, [user, baseUrl]);
 
     const handleDeleteSuccess = (deletedId, type) => {
         switch (type) {

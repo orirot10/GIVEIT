@@ -12,6 +12,7 @@ import MessagesPage from './pages/Messages';
 import ServiceForm from './components/UploadForm/ServiceForm';
 import RentalsMapPage from './components/HomePage/RentalsMapPage.jsx';
 import ServicesMapPage from './components/HomePage/ServicesMapPage.jsx';
+import RequestRentalForm from './components/RequestRental/RequestRentalForm';
 import { useAuthContext } from './context/AuthContext';
 import GoogleMapsLoader from './components/GoogleMapsLoader.jsx';
 import { I18nextProvider } from 'react-i18next';
@@ -33,9 +34,9 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/offer-rental" element={<RentalForm />} />
+                <Route path="/request-rental" element={<RequestRentalForm />} />
                 <Route path="/my-items" element={<MyModals />} />
                 <Route path="/messages" element={<MessagesPage />} />
-                {/* <Route path="/messages" element={<MessagesPage />} /> */}
                 <Route path="/offer-service" element={<ServiceForm />} />
              </Route>
             </Routes>

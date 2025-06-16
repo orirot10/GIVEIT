@@ -25,44 +25,75 @@ const [form, setForm] = useState({
 
 const [images, setImages] = useState([]);
 const [success, setSuccess] = useState(false);
+const [error, setError] = useState(null);
+const [isSubmitting, setIsSubmitting] = useState(false);
 
 const handleChange = e => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 };
 
 const handleFileChange = e => {
-    setImages([...e.target.files]); // up to 5 files
+    const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
+    setImages(files);
 };
 
 const handleSubmit = async e => {
     e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     const formData = new FormData();
 
+    // Append form fields
     Object.entries(form).forEach(([key, value]) => {
-    formData.append(key, value);
+        if (value) formData.append(key, value);
     });
 
+    // Append images
     images.forEach((file, index) => {
-    formData.append('images', file); // assuming backend expects: images[]
+        formData.append('images', file);
     });
 
     try {
-    const res = await fetch(submitUrl, {
-        method: 'POST',
-        headers: {
-        Authorization: `Bearer ${user.token}`,
-        },
-        body: formData,
-    });
+        console.log('Submitting to:', submitUrl);
+        console.log('Form data:', Object.fromEntries(formData));
+        console.log('Auth token:', user.token);
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
+        const res = await fetch(submitUrl, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: formData,
+        });
 
-    setSuccess(true);
+        console.log('Response status:', res.status);
+        console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+
+        // First try to parse as JSON
+        let data;
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+            console.log('Response data:', data);
+        } else {
+            // If not JSON, get the text
+            const text = await res.text();
+            console.error('Server returned non-JSON response:', text);
+            throw new Error('Server returned an invalid response');
+        }
+
+        if (!res.ok) {
+            throw new Error(data.error || `HTTP error! status: ${res.status}`);
+        }
+
+        console.log('Response:', data);
+        setSuccess(true);
     } catch (err) {
-    console.error(err);
-    alert(err.message);
+        console.error('Submission error:', err);
+        setError(err.message || 'Failed to submit form');
+    } finally {
+        setIsSubmitting(false);
     }
 };
 
@@ -76,14 +107,19 @@ return (
     ) : (
         <>
         <h2 className="text-xl font-bold mb-4">{titleText}</h2>
+        {error && (
+            <div className="alert alert-error mb-4">
+                <span>{error}</span>
+            </div>
+        )}
         <form onSubmit={handleSubmit} className="upload-form space-y-4" encType="multipart/form-data">
-            <input name="title" placeholder="Title" value={form.title} onChange={handleChange} className="input input-bordered w-full" />
-            <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="textarea textarea-bordered w-full" />
-            <select name="category" value={form.category} onChange={handleChange} className="select select-bordered w-full">
+            <input name="title" placeholder="Title" value={form.title} onChange={handleChange} className="input input-bordered w-full" required />
+            <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="textarea textarea-bordered w-full" required />
+            <select name="category" value={form.category} onChange={handleChange} className="select select-bordered w-full" required>
             <option value="">Select category</option>
             {categories.map((cat, index) => <option key={index} value={cat}>{cat}</option>)}
             </select>
-            <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleChange} className="input input-bordered w-full" />
+            <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleChange} className="input input-bordered w-full" required />
             <select name="pricePeriod" value={form.pricePeriod} onChange={handleChange} className="select select-bordered w-full">
                 <option value="use">Per Use</option>
                 <option value="hour">Per Hour</option>
@@ -113,12 +149,14 @@ return (
             </ul>
             )}
 
-            <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="input input-bordered w-full" />
-            <input name="city" placeholder="City" value={form.city} onChange={handleChange} className="input input-bordered w-full" />
-            <input name="street" placeholder="Street" value={form.street} onChange={handleChange} className="input input-bordered w-full" />
+            <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="input input-bordered w-full" required />
+            <input name="city" placeholder="City" value={form.city} onChange={handleChange} className="input input-bordered w-full" required />
+            <input name="street" placeholder="Street" value={form.street} onChange={handleChange} className="input input-bordered w-full" required />
 
             <div className="button-group flex gap-2">
-            <button type="submit" className="btn btn-primary">{submitButtonText}</button>
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : submitButtonText}
+            </button>
             <button type="button" className="btn btn-outline" onClick={() => navigate('/dashboard')}>Cancel</button>
             </div>
         </form>

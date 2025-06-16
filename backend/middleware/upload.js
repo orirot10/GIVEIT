@@ -2,8 +2,8 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs'); // Import fs module
 
-// Define the upload directory
-const uploadDir = path.join(__dirname, '../uploads');
+// Define the upload directory using absolute path
+const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
 
 const storage = multer.diskStorage({
 destination: (req, file, cb) => {
@@ -20,6 +20,21 @@ filename: (req, file, cb) => {
 },
 });
 
-const upload = multer({ storage });
+// Add file filter to only allow images
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image files are allowed!'), false);
+    }
+};
+
+const upload = multer({ 
+    storage,
+    fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
 
 module.exports = upload;

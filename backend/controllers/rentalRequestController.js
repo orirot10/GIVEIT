@@ -1,6 +1,10 @@
 const RentalRequest = require('../models/RentalRequest');
 
 const uploadNewRentalRequest = async (req, res) => {
+    console.log('Received rental request:', req.body);
+    console.log('Files:', req.files);
+    console.log('User:', req.user);
+
     const {
         title,
         description,
@@ -14,12 +18,14 @@ const uploadNewRentalRequest = async (req, res) => {
     } = req.body;
 
     if (!req.user) {
+        console.log('No user found in request');
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
     }
 
     try {
         // Get uploaded file paths
         const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+        console.log('Image paths:', imagePaths);
 
         const newRentalRequest = await RentalRequest.create({
             firstName: req.user.firstName,
@@ -38,8 +44,10 @@ const uploadNewRentalRequest = async (req, res) => {
             street
         });
 
+        console.log('Created rental request:', newRentalRequest);
         res.status(201).json(newRentalRequest);
     } catch (error) {
+        console.error('Error creating rental request:', error);
         res.status(400).json({ error: error.message });
     }
 };
@@ -62,6 +70,9 @@ const getUserRentalRequests = async (req, res) => {
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit); // optionally support a custom limit
 
+    console.log('Fetching rental requests for user:', email);
+    console.log('Auth user data:', req.user);
+
     try {
         let query = RentalRequest.find({ email }).sort({ createdAt: -1 });
 
@@ -71,8 +82,10 @@ const getUserRentalRequests = async (req, res) => {
         }
 
         const requests = await query;
+        console.log('Found rental requests:', requests.length);
         res.status(200).json(requests);
     } catch (err) {
+        console.error('Error fetching user rental requests:', err);
         res.status(500).json({ error: 'Failed to fetch user rental requests' });
     }
 };
