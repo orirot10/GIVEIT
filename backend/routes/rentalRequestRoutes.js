@@ -1,30 +1,16 @@
 const express = require('express');
-// Import functions from the new controller
-const {
-    getRentalRequests,
-    searchRentalRequests,
-    filterRentalRequests
-} = require('../controllers/rentalRequestController'); // Corrected path
-// const requireAuth = require('../middleware/authMiddleware.js'); // Uncomment if auth is needed
+const { uploadNewRentalRequest, getRentalRequests, getUserRentalRequests, searchRentalRequests, filterRentalRequests, deleteRentalRequest } = require('../controllers/rentalRequestController.js');
+const requireAuth = require('../middleware/authMiddleware.js');
+const upload = require('../middleware/upload');
 
 const router = express.Router();
 
-// GET /api/rental_requests - Fetch all rental requests
+// Protected route
+router.post('/', requireAuth, upload.array('images', 5), uploadNewRentalRequest);
 router.get('/', getRentalRequests);
-
-// GET /api/rental_requests/search?query=... - Search rental requests
-router.get('/search', searchRentalRequests);
-
-// GET /api/rental_requests/filter?category=...&maxPrice=... - Filter rental requests
+router.get('/user', requireAuth, getUserRentalRequests);
+router.delete('/:id', requireAuth, deleteRentalRequest);
+router.get("/search", searchRentalRequests);
 router.get('/filter', filterRentalRequests);
 
-// Remove or comment out unused routes like the old :type route
-// router.get('/:type', getRentalRequestsByType); // This was likely incorrect
-
-// Future: Add routes for creating, updating, deleting rental requests if needed
-// Example:
-// router.post('/', requireAuth, createRentalRequest);
-// router.put('/:id', requireAuth, updateRentalRequest);
-// router.delete('/:id', requireAuth, deleteRentalRequest);
-
-module.exports = router; 
+module.exports = router;

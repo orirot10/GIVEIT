@@ -8,17 +8,13 @@ const rentalRequestSchema = new mongoose.Schema({
     description: { type: String },
     category: { type: String, required: true },
     price: { type: Number, required: true },
+    pricePeriod: { type: String, default: 'use' },
     images: [{ type: String }], // URLs or paths
     phone: { type: String, required: true },
-    status: { type: String, default: 'pending' }, // Changed default status for requests
-    type: { 
-        type: String, 
-        required: true,
-        enum: ['offers', 'requests'], 
-        default: 'requests' 
-    },
+    status: { type: String, default: 'available' },
     city: { type: String },
     street: { type: String },
+    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 
 // Note: Ensure the collection name matches your MongoDB collection for requests
