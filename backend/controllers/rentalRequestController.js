@@ -1,85 +1,156 @@
 const RentalRequest = require('../models/RentalRequest');
 
-// Helper function to build search query
-const buildSearchQuery = (query) => {
-    const searchRegex = { $regex: query, $options: 'i' }; // Case-insensitive search
-    return {
-        $or: [
-            { title: searchRegex },
-            { description: searchRegex },
-            { city: searchRegex },
-        ],
-    };
+const uploadNewRentalRequest = async (req, res) => {
+    const {
+        title,
+        description,
+        category,
+        price,
+        pricePeriod,
+        phone,
+        status,
+        city,
+        street
+    } = req.body;
+
+    if (!req.user) {
+        return res.status(401).json({ error: 'Unauthorized. User data missing.' });
+    }
+
+    try {
+        // Get uploaded file paths
+        const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+
+        const newRentalRequest = await RentalRequest.create({
+            firstName: req.user.firstName,
+            lastName: req.user.lastName,
+            email: req.user.email,
+            ownerId: req.user.id,
+            title,
+            description,
+            category,
+            price,
+            pricePeriod,
+            images: imagePaths,
+            phone,
+            status,
+            city,
+            street
+        });
+
+        res.status(201).json(newRentalRequest);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 };
 
-// Helper function to build filter query
-const buildFilterQuery = (params) => {
-    const filter = {};
-    if (params.category) {
-        // Handle comma-separated categories
-        const categories = params.category.split(',').map(cat => cat.trim());
-        if (categories.length > 0) {
-            filter.category = { $in: categories };
-        }
-    }
-    if (params.maxPrice) {
-        const price = parseFloat(params.maxPrice);
-        if (!isNaN(price)) {
-            filter.price = { $lte: price }; // Less than or equal to maxPrice
-        }
-    }
-    // Add 'type' filter to ensure we only get requests if needed, though model default helps
-    filter.type = 'requests';
-    return filter;
-};
-
-// Controller function to get all rental requests (or based on type if needed later)
+// Get all rental requests
 const getRentalRequests = async (req, res) => {
     try {
-        // For now, fetch all requests. Can add filtering by type if needed.
-        const requests = await RentalRequest.find({ type: 'requests' }).sort({ createdAt: -1 });
-        console.log(`Fetched ${requests.length} rental requests`);
-        res.status(200).json(requests.length ? requests : []);
+        const requests = await RentalRequest.find()
+            .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId')
+            .sort({ createdAt: -1 });
+        res.status(200).json(requests);
     } catch (err) {
-        console.error('Error fetching rental requests:', err);
-        res.status(500).json({ error: 'Failed to fetch rental requests', details: err.message });
+        res.status(500).json({ error: 'Failed to fetch rental requests' });
     }
 };
 
-
-// Controller function for searching rental requests
-const searchRentalRequests = async (req, res) => {
-    const { query } = req.query;
-    if (!query) {
-        return res.status(400).json({ error: 'Search query is required' });
-    }
+// Get rental requests for a specific user
+const getUserRentalRequests = async (req, res) => {
+    const { email } = req.user; // set by auth middleware
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit); // optionally support a custom limit
 
     try {
-        const searchQuery = buildSearchQuery(query);
-        const results = await RentalRequest.find(searchQuery).sort({ createdAt: -1 });
-        console.log(`Found ${results.length} rental requests matching query: "${query}"`);
-        res.status(200).json(results.length ? results : []);
+        let query = RentalRequest.find({ email }).sort({ createdAt: -1 });
+
+        // Only apply pagination if `page` and `limit` are provided
+        if (!isNaN(page) && !isNaN(limit)) {
+            query = query.skip((page - 1) * limit).limit(limit);
+        }
+
+        const requests = await query;
+        res.status(200).json(requests);
     } catch (err) {
-        console.error('Error searching rental requests:', err);
-        res.status(500).json({ error: 'Failed to search rental requests', details: err.message });
+        res.status(500).json({ error: 'Failed to fetch user rental requests' });
     }
 };
 
-// Controller function for filtering rental requests
+// Search rental requests
+const searchRentalRequests = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        if (!query || query.trim() === "") {
+            return res.status(400).json({ message: "Query is required." });
+        }
+
+        // Split words for ordered search
+        const words = query.trim().split(/\s+/);
+
+        // Create a case-insensitive, ordered regex pattern
+        const regexPattern = words.join(".*"); // e.g. "bike red" => /bike.*red/
+        const regex = new RegExp(regexPattern, "i");
+
+        const results = await RentalRequest.find({
+            title: { $regex: regex },
+        });
+
+        res.status(200).json(results);
+    } catch (err) {
+        console.error("Search error:", err);
+        res.status(500).json({ message: "Server error during search." });
+    }
+};
+
+// Filter rental requests
 const filterRentalRequests = async (req, res) => {
     try {
-        const filterQuery = buildFilterQuery(req.query);
-        const results = await RentalRequest.find(filterQuery).sort({ createdAt: -1 });
-        console.log(`Found ${results.length} rental requests matching filter:`, req.query);
-        res.status(200).json(results.length ? results : []);
+        const { category, minPrice, maxPrice } = req.query;
+
+        const query = {};
+        
+        if (category) {
+            const categoriesArray = Array.isArray(category)
+                ? category
+                : category.split(',');
+            query.category = { $in: categoriesArray };
+        }
+
+        // Handle price range
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+        }
+
+        const requests = await RentalRequest.find(query);
+        res.status(200).json(requests);
     } catch (err) {
-        console.error('Error filtering rental requests:', err);
-        res.status(500).json({ error: 'Failed to filter rental requests', details: err.message });
+        res.status(500).json({ error: "Failed to filter rental requests", details: err.message });
+    }
+};
+
+// Delete a rental request
+const deleteRentalRequest = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const deleted = await RentalRequest.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ error: 'Rental request not found' });
+
+        res.status(200).json({ message: 'Rental request deleted' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete rental request' });
     }
 };
 
 module.exports = {
+    uploadNewRentalRequest,
     getRentalRequests,
+    getUserRentalRequests,
     searchRentalRequests,
     filterRentalRequests,
+    deleteRentalRequest
 }; 
