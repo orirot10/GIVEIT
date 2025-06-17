@@ -1,4 +1,4 @@
-const Service = require('../models/serviceRequest.js');
+const Service = require('../models/ServiceRequest.js');
 
 const uploadNewService = async (req, res) => {
     const { title, description, category, price, pricePeriod, phone, city, street } = req.body;
