@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import ModalCard from './ModalCard';
 import '../../styles/components/MyItems.css';
 
 const MyModals = () => {
     const navigate = useNavigate();
     const { user } = useAuthContext();
+    const { t, i18n } = useTranslation();
+    const isRTL = i18n.language === 'he';
     const [rentals, setRentals] = useState([]);
     const [services, setServices] = useState([]);
     const [rentalRequests, setRentalRequests] = useState([]);
@@ -116,9 +119,9 @@ const MyModals = () => {
     // Show message if not logged in
     if (!user) {
         return (
-            <div className="my-items-container">
-                <h2>My Items</h2>
-                <p className="not-logged-in">You must be logged in to view your items.</p>
+            <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <h2>{t('my_items.title')}</h2>
+                <p className="not-logged-in">{t('my_items.login_required')}</p>
             </div>
         );
     }
@@ -126,15 +129,15 @@ const MyModals = () => {
     const getDisplayTitle = () => {
         switch (view) {
             case 'rentals':
-                return 'My Rentals';
+                return t('my_items.my_rentals');
             case 'services':
-                return 'My Services';
+                return t('my_items.my_services');
             case 'rental_requests':
-                return 'My Rental Requests';
+                return t('my_items.my_rental_requests');
             case 'service_requests':
-                return 'My Service Requests';
+                return t('my_items.my_service_requests');
             default:
-                return 'My Items';
+                return t('my_items.title');
         }
     };
 
@@ -171,15 +174,15 @@ const MyModals = () => {
     const getEmptyMessage = () => {
         switch (view) {
             case 'rentals':
-                return "You haven't offered any rentals yet";
+                return t('my_items.no_rentals');
             case 'services':
-                return "You haven't offered any services yet";
+                return t('my_items.no_services');
             case 'rental_requests':
-                return "You haven't made any rental requests yet";
+                return t('my_items.no_rental_requests');
             case 'service_requests':
-                return "You haven't made any service requests yet";
+                return t('my_items.no_service_requests');
             default:
-                return "You haven't added any items yet";
+                return t('my_items.no_items');
         }
     };
 
@@ -187,22 +190,22 @@ const MyModals = () => {
         switch (view) {
             case 'rentals':
                 return {
-                    text: 'Offer a Rental',
+                    text: t('my_items.offer_rental'),
                     path: '/offer-rental'
                 };
             case 'services':
                 return {
-                    text: 'Offer a Service',
+                    text: t('my_items.offer_service'),
                     path: '/offer-service'
                 };
             case 'rental_requests':
                 return {
-                    text: 'Request a Rental',
+                    text: t('my_items.request_rental'),
                     path: '/request-rental'
                 };
             case 'service_requests':
                 return {
-                    text: 'Request a Service',
+                    text: t('my_items.request_service'),
                     path: '/request-service'
                 };
             default:
@@ -211,7 +214,7 @@ const MyModals = () => {
     };
 
     return (
-        <div className="my-items-container">
+        <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
             <h2>{getDisplayTitle()}</h2>
 
             {/* View Toggle Switch */}
@@ -220,49 +223,49 @@ const MyModals = () => {
                     className={`view-button ${view === 'rentals' ? 'active' : ''}`}
                     onClick={() => setView('rentals')}
                 >
-                    Rentals
+                    {t('my_items.rentals')}
                 </button>
                 <button
                     className={`view-button ${view === 'services' ? 'active' : ''}`}
                     onClick={() => setView('services')}
                 >
-                    Services
+                    {t('my_items.services')}
                 </button>
                 <button
                     className={`view-button ${view === 'rental_requests' ? 'active' : ''}`}
                     onClick={() => setView('rental_requests')}
                 >
-                    Rental Requests
+                    {t('my_items.rental_requests')}
                 </button>
                 <button
                     className={`view-button ${view === 'service_requests' ? 'active' : ''}`}
                     onClick={() => setView('service_requests')}
                 >
-                    Service Requests
+                    {t('my_items.service_requests')}
                 </button>
             </div>
 
             {loading ? (
-                <p>Loading...</p>
+                <p>{t('common.loading')}</p>
             ) : (
                 <div className="items-list">
                     {getItems().length > 0 ? (
                         getItems().map(item => (
-                            <ModalCard 
-                                key={item._id} 
-                                item={item} 
+                            <ModalCard
+                                key={item._id}
+                                item={item}
                                 type={getItemType()}
-                                onDeleteSuccess={(id) => handleDeleteSuccess(id, getItemType())}
-                                onEditSuccess={(updatedItem) => handleEditSuccess(updatedItem, getItemType())}
+                                onDeleteSuccess={handleDeleteSuccess}
+                                onEditSuccess={handleEditSuccess}
                             />
                         ))
                     ) : (
-                        <div className="services-placeholder">
+                        <div className="empty-state">
                             <p>{getEmptyMessage()}</p>
                             {getActionButton() && (
-                                <button 
-                                    onClick={() => navigate(getActionButton().path)} 
+                                <button
                                     className="btn-offer"
+                                    onClick={() => navigate(getActionButton().path)}
                                 >
                                     {getActionButton().text}
                                 </button>

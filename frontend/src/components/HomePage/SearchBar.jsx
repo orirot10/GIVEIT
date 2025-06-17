@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { CiSearch } from "react-icons/ci";
+import { useTranslation } from 'react-i18next';
 
 const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) => {
   const [isSearched, setIsSearched] = useState(false);
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'he';
 
   const handleSearch = () => {
     if (typeof onSearch === 'function') {
@@ -19,10 +22,10 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
     setSearchQuery("");
     setIsSearched(false);
     if (typeof onSearch === 'function') {
-      onSearch(); // Call onSearch to handle empty query
+      onSearch();
     }
     if (typeof onClearFilters === 'function') {
-      onClearFilters(); // Call onClearFilters to reset filters and fetch all items
+      onClearFilters();
     }
   };
 
@@ -40,12 +43,12 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
   };
 
   return (
-    <div className="w-full max-w-md flex items-center space-x-2">
+    <div className="w-full max-w-md flex items-center space-x-2" dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="relative flex-grow">
         <CiSearch
           style={{
             position: "absolute",
-            left: "8px",
+            [isRTL ? 'right' : 'left']: "8px",
             top: "50%",
             transform: "translateY(-50%)",
             color: "gray",
@@ -55,11 +58,11 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
         />
         <input
           type="text"
-          placeholder="      what do you need?"
+          placeholder={t('rentals.search_placeholder')}
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
-          className="w-full pl-8 pr-4 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className={`w-full ${isRTL ? 'pr-8 pl-4' : 'pl-8 pr-4'} py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
         />
       </div>
       {isSearched ? (
@@ -67,14 +70,14 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
           onClick={handleClearSearch}
           className="search-filter-style red"
         >
-          Clear
+          {t('common.clear')}
         </button>
       ) : (
         <button
           onClick={handleSearch}
           className="search-filter-style gray"
         >
-          Search
+          {t('common.search')}
         </button>
       )}
     </div>

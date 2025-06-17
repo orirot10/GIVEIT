@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/components/Modal.css';
 import { rentalCategories, serviceCategories } from '../../constants/categories';
 
 const EditModal = ({ item, type, onSave, onCancel }) => {
+    const { t, i18n } = useTranslation();
+    const isRTL = i18n.language === 'he';
     const [form, setForm] = useState({ ...item });
 
     const handleChange = (e) => {
@@ -18,13 +21,13 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
 
     return (
         <div className="modal">
-            <div className="modal-content">
-                <h3>Edit {type === 'rental' ? 'Rental' : 'Service'}</h3>
+            <div className="modal-content" dir={isRTL ? 'rtl' : 'ltr'}>
+                <h3>{t('common.edit')} {type === 'rental' ? t('common.rental') : t('common.service')}</h3>
 
-                <label htmlFor="title">Title</label>
+                <label htmlFor="title">{t('common.title')}</label>
                 <input name="title" value={form.title} onChange={handleChange} />
 
-                <label htmlFor="description">Description</label>
+                <label htmlFor="description">{t('common.description')}</label>
                 <textarea
                     name="description"
                     value={form.description}
@@ -32,9 +35,9 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                     rows={4}
                 />
 
-                <label htmlFor="category">Category</label>
+                <label htmlFor="category">{t('common.category')}</label>
                 <select name="category" value={form.category} onChange={handleChange}>
-                    <option value="">Select a category</option>
+                    <option value="">{t('common.select_category')}</option>
                     {categoryOptions.map((category) => (
                         <option key={category} value={category}>
                             {category}
@@ -42,10 +45,10 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                     ))}
                 </select>
 
-                <label htmlFor="phone">Phone</label>
+                <label htmlFor="phone">{t('common.phone')}</label>
                 <input name="phone" value={form.phone} onChange={handleChange} />
 
-                <label htmlFor="price">Price (₪)</label>
+                <label htmlFor="price">{t('common.price')} (₪)</label>
                 <input
                     name="price"
                     type="number"
@@ -54,8 +57,8 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                 />
 
                 <div className="modal-buttons">
-                    <button onClick={handleSubmit}>Save</button>
-                    <button className="danger" onClick={onCancel}>Cancel</button>
+                    <button onClick={handleSubmit}>{t('common.save')}</button>
+                    <button className="danger" onClick={onCancel}>{t('common.cancel')}</button>
                 </div>
             </div>
         </div>
