@@ -1,16 +1,31 @@
 const Service = require('../models/ServiceRequest.js');
 
-const uploadNewService = async (req, res) => {
-    const { title, description, category, price, pricePeriod, phone, city, street } = req.body;
+const uploadNewServiceRequest = async (req, res) => {
+    console.log('Received service request:', req.body);
+    console.log('Files:', req.files);
+    console.log('User:', req.user);
+
+    const {
+        title,
+        description,
+        category,
+        price,
+        phone,
+        city,
+        street
+    } = req.body;
 
     if (!req.user) {
+        console.log('No user found in request');
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
     }
 
     try {
+        // Get uploaded file paths
         const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+        console.log('Image paths:', imagePaths);
 
-        const newService = await Service.create({
+        const newServiceRequest = await Service.create({
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             email: req.user.email,
@@ -19,15 +34,17 @@ const uploadNewService = async (req, res) => {
             description,
             category,
             price,
-            pricePeriod,
+            images: imagePaths,
             phone,
             city,
             street,
-            images: imagePaths
+            type: 'requests' // Explicitly set type as requests
         });
 
-        res.status(201).json(newService);
+        console.log('Created service request:', newServiceRequest);
+        res.status(201).json(newServiceRequest);
     } catch (error) {
+        console.error('Error creating service request:', error);
         res.status(400).json({ error: error.message });
     }
 };
@@ -140,7 +157,7 @@ const filterServiceRequests = async (req, res) => {
 };
 
 module.exports = {
-    uploadNewService,
+    uploadNewServiceRequest,
     getServiceRequests,
     getUserServiceRequests,
     editService,

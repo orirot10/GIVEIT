@@ -3,11 +3,16 @@ const {
     getServiceRequests,
     getUserServiceRequests,
     searchServiceRequests,
-    filterServiceRequests
+    filterServiceRequests,
+    uploadNewServiceRequest
 } = require('../controllers/serviceRequestController');
 const requireAuth = require('../middleware/authMiddleware.js');
+const upload = require('../middleware/upload.js');
 
 const router = express.Router();
+
+// POST /api/service_requests - Create a new service request
+router.post('/', requireAuth, upload.array('images', 5), uploadNewServiceRequest);
 
 // GET /api/service_requests - Fetch all service requests
 router.get('/', getServiceRequests);

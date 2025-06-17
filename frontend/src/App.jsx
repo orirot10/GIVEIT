@@ -17,6 +17,7 @@ import { useAuthContext } from './context/AuthContext';
 import GoogleMapsLoader from './components/GoogleMapsLoader.jsx';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
+import RequestServiceForm from './components/RequestService/RequestServiceForm';
 
 function App() {
   const { user } = useAuthContext();
@@ -38,6 +39,7 @@ function App() {
                 <Route path="/my-items" element={<MyModals />} />
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/offer-service" element={<ServiceForm />} />
+                <Route path="/request-service" element={<RequestServiceForm />} />
              </Route>
             </Routes>
           </div>
