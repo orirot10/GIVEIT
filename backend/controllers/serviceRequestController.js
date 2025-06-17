@@ -32,16 +32,16 @@ const uploadNewService = async (req, res) => {
     }
 };
 
-const getServices = async (req, res) => {
+const getServiceRequests = async (req, res) => {
     try {
         const services = await Service.find().sort({ createdAt: -1 });
         res.status(200).json(services);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch services' });
+        res.status(500).json({ error: 'Failed to fetch service requests' });
     }
 };
 
-const getUserServices = async (req, res) => {
+const getUserServiceRequests = async (req, res) => {
     const { email } = req.user;
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
@@ -56,7 +56,7 @@ const getUserServices = async (req, res) => {
         const services = await query;
         res.status(200).json(services);
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch user services' });
+        res.status(500).json({ error: 'Failed to fetch user service requests' });
     }
 };
 
@@ -92,59 +92,59 @@ const deleteService = async (req, res) => {
     }
 };
 
-const searchServices = async (req, res) => {
+const searchServiceRequests = async (req, res) => {
     try {
-    const query = req.query.query;
+        const query = req.query.query;
 
-    if (!query) {
-        return res.status(400).json({ message: "Query parameter is required" });
-    }
+        if (!query) {
+            return res.status(400).json({ message: "Query parameter is required" });
+        }
 
-    // Use a case-insensitive and diacritic-insensitive regex for partial match (works for Hebrew/English)
-    const regex = new RegExp(query, "i");
+        // Use a case-insensitive and diacritic-insensitive regex for partial match (works for Hebrew/English)
+        const regex = new RegExp(query, "i");
 
-    const services = await Service.find({ title: { $regex: regex } });
+        const services = await Service.find({ title: { $regex: regex } });
 
-    res.json(services);
+        res.json(services);
     } catch (err) {
-    console.error("Search services error:", err);
-    res.status(500).json({ message: "Server error during service search" });
+        console.error("Search service requests error:", err);
+        res.status(500).json({ message: "Server error during service request search" });
     }
 };
 
-const filterServices = async (req, res) => {
+const filterServiceRequests = async (req, res) => {
     try {
-    const { category, minPrice, maxPrice } = req.query;
+        const { category, minPrice, maxPrice } = req.query;
 
-    const query = {};
+        const query = {};
 
-    if (category) {
-        const categoriesArray = Array.isArray(category)
-        ? category
-        : category.split(',');
-        query.category = { $in: categoriesArray };
-    }
+        if (category) {
+            const categoriesArray = Array.isArray(category)
+                ? category
+                : category.split(',');
+            query.category = { $in: categoriesArray };
+        }
 
-    // Handle price range
-    if (minPrice || maxPrice) {
-        query.price = {};
-        if (minPrice) query.price.$gte = parseFloat(minPrice);
-        if (maxPrice) query.price.$lte = parseFloat(maxPrice);
-    }
+        // Handle price range
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+        }
 
-    const services = await Service.find(query);
-    res.status(200).json(services);
+        const services = await Service.find(query);
+        res.status(200).json(services);
     } catch (err) {
-    res.status(500).json({ error: "Failed to filter services", details: err.message });
+        res.status(500).json({ error: "Failed to filter service requests", details: err.message });
     }
 };
 
-module.exports = { 
+module.exports = {
     uploadNewService,
-    getServices,
-    getUserServices,
+    getServiceRequests,
+    getUserServiceRequests,
     editService,
     deleteService,
-    searchServices,
-    filterServices,
+    searchServiceRequests,
+    filterServiceRequests
 };
