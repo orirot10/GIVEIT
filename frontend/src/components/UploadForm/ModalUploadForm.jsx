@@ -42,6 +42,11 @@ const handleSubmit = async e => {
     setError(null);
     setIsSubmitting(true);
 
+    // Debug authentication
+    console.log('Current user:', user);
+    console.log('Auth token:', user?.token);
+    console.log('Auth header:', `Bearer ${user?.token}`);
+
     const formData = new FormData();
 
     // Append form fields
@@ -57,7 +62,6 @@ const handleSubmit = async e => {
     try {
         console.log('Submitting to:', submitUrl);
         console.log('Form data:', Object.fromEntries(formData));
-        console.log('Auth token:', user.token);
 
         const res = await fetch(submitUrl, {
             method: 'POST',

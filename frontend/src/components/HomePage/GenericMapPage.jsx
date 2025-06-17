@@ -3,7 +3,7 @@ import MapView from "./MapView";
 import ListView from "./ListView";
 import FilterButton from './FilterButton';
 import ToggleViewButton from "./ToggleViewButton";
-import ContentTypeToggle from "./ContentTypeToggle";
+import TabBar from "./TabBar";
 import { geocodeAddress } from "./geocode";
 import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
@@ -13,9 +13,24 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
     const [locations, setLocations] = useState([]);
     const [view, setView] = useState("map");
-    const [contentType, setContentType] = useState("rentals");
+    const [contentType, setContentType] = useState(apiUrl.includes('/services') ? 'services' : 'rentals');
     const [searchQuery, setSearchQuery] = useState("");
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
+
+    // Define tabs based on the page type (rentals or services)
+    const getTabs = () => {
+        if (apiUrl.includes('/rentals')) {
+            return [
+                { id: 'rentals', label: 'Available Products' },
+                { id: 'rental_requests', label: 'Wanted Products' }
+            ];
+        } else {
+            return [
+                { id: 'services', label: 'Available Services' },
+                { id: 'service_requests', label: 'Wanted Services' }
+            ];
+        }
+    };
 
     // Function to get the appropriate API URL based on content type
     const getApiUrl = () => {
@@ -183,9 +198,10 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     />
                 </div>
 
-                <ContentTypeToggle 
-                    contentType={contentType}
-                    setContentType={setContentType}
+                <TabBar
+                    activeTab={contentType}
+                    onTabChange={setContentType}
+                    tabs={getTabs()}
                 />
 
                 <div className="w-full flex justify-center">
