@@ -46,6 +46,7 @@ function Dashboard() {
     const handleRentalOffer = () => navigate('/offer-rental');
     const handleServiceOffer = () => navigate('/offer-service');
     const handleRentalRequest = () => navigate('/request-rental');
+    const handleServiceRequest = () => navigate('/request-service');
 
     const handleLogout = () => {
         // Remove the token or user data
@@ -70,6 +71,7 @@ function Dashboard() {
             <button className="toggle-view-btn" onClick={handleRentalOffer}>Offer item to rent</button>
             <button className="toggle-view-btn" onClick={handleRentalRequest}>Request an item</button>
             <button className="toggle-view-btn" onClick={handleServiceOffer}>Offer service</button>
+            <button className="toggle-view-btn" onClick={handleServiceRequest}>Request a service</button>
             <button className="toggle-view-btn">Edit profile</button>
             <button className="toggle-view-btn logout" onClick={handleLogout}>Logout</button>
         </div>

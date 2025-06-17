@@ -6,7 +6,7 @@ const Rental = require('./models/Rental');
 const Service = require('./models/Service');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5173;
 
 app.use(express.json());
 app.use(cors({ origin: 'https://gleeful-mooncake-c16405.netlify.app' }));
