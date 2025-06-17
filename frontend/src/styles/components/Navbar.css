@@ -22,8 +22,7 @@
     align-items: center;
     justify-content: center;
     flex: 1;
-    font-size: 14px;
-    color: #333;
+    font-size: 30px;
     padding: 6px 0;
 }
 
@@ -39,6 +38,7 @@
     padding: 6px 0;
     border-bottom: 2px solid transparent;
     transition: border-color 0.3s;
+    gap: 0.25rem;
 }
 
 .nav-tab.active {
@@ -53,4 +53,29 @@
     width: 40px; 
     background-color: #000000; 
     border-radius: 2px;
+}
+
+.nav-label {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* RTL Support */
+[dir="rtl"] .nav-tab {
+    flex-direction: column;
+}
+
+[dir="rtl"] .nav-label {
+    margin-top: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .nav-label {
+        font-size: 0.7rem;
+    }
+    
+    .nav-tab {
+        padding: 0.4rem;
+    }
 }

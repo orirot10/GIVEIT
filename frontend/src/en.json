@@ -1,4 +1,103 @@
 {
-    "welcome": "Welcome to our application!",
-    "description": "This is a sample application."
+  "common": {
+    "welcome": "Welcome to GiveIt",
+    "change_language": "Change Language",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "user": "User",
+    "welcome_back": "Nice to see you again!"
+  },
+  "navigation": {
+    "home": "Home",
+    "services": "Services",
+    "rentals": "Rentals",
+    "messages": "Messages",
+    "account": "Account",
+    "dashboard": "Dashboard",
+    "my_items": "My Items",
+    "sign_up": "Sign Up",
+    "sign_in": "Sign In",
+    "sign_out": "Sign Out"
+  },
+  "rentals": {
+    "explore": "Explore Rentals",
+    "search_placeholder": "Search rentals or services...",
+    "offer_rental": "Offer Rental",
+    "request_rental": "Request Rental",
+    "price": "Price",
+    "duration": "Duration",
+    "location": "Location",
+    "description": "Description",
+    "availability": "Availability",
+    "add_rental": "Add New Rental",
+    "edit_rental": "Edit Rental",
+    "delete_rental": "Delete Rental",
+    "rental_details": "Rental Details"
+  },
+  "services": {
+    "explore": "Explore Services",
+    "search_placeholder": "Search services...",
+    "offer_service": "Offer Service",
+    "request_service": "Request Service",
+    "service_type": "Service Type",
+    "rate": "Rate",
+    "experience": "Experience",
+    "add_service": "Add New Service",
+    "edit_service": "Edit Service",
+    "delete_service": "Delete Service",
+    "service_details": "Service Details"
+  },
+  "messages": {
+    "new_message": "New Message",
+    "no_messages": "No messages yet",
+    "type_message": "Type your message...",
+    "send": "Send",
+    "conversations": "Conversations",
+    "search_messages": "Search messages...",
+    "message_sent": "Message sent",
+    "message_error": "Failed to send message"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "forgot_password": "Forgot Password?",
+    "reset_password": "Reset Password",
+    "name": "Name",
+    "phone": "Phone Number",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "profile": "Profile",
+    "edit_profile": "Edit Profile"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "password_mismatch": "Passwords do not match",
+    "invalid_phone": "Invalid phone number",
+    "general_error": "Something went wrong. Please try again.",
+    "login_required": "Please login to continue",
+    "session_expired": "Your session has expired. Please login again"
+  },
+  "dashboard": {
+    "welcome": "Welcome to your dashboard",
+    "my_rentals": "My Rentals",
+    "my_services": "My Services",
+    "recent_activity": "Recent Activity",
+    "no_items": "No items found",
+    "add_new": "Add New",
+    "view_all": "View All"
+  }
 }

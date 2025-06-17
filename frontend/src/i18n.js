@@ -15,10 +15,24 @@ i18n
     en: { translation: enTranslations },
     he: { translation: heTranslations },
     },
-    fallbackLng: 'en', // Default language
+    fallbackLng: 'he', // Changed default to Hebrew
+    lng: 'he', // Force initial language to Hebrew
     interpolation: {
     escapeValue: false, // React already escapes
     },
+    detection: {
+    order: ['localStorage', 'navigator'],
+    caches: ['localStorage'],
+    },
+    react: {
+    useSuspense: false,
+    },
+});
+
+// Add RTL support
+i18n.on('languageChanged', (lng) => {
+    document.documentElement.dir = lng === 'he' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lng;
 });
 
 export default i18n;

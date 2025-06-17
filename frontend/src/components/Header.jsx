@@ -1,21 +1,23 @@
 import React from 'react';
-import logo from '../assets/logoGiveIt.jpg';
 import { useAuthContext } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
     const { user } = useAuthContext();
+    const { t } = useTranslation();
+
     return (
-        <header className="flex flex-col sm:flex-row justify-between items-center p-4">
+        <header className="flex flex-col sm:flex-row justify-between items-center p-4" dir={t('navigation.home') === 'מוצרים' ? 'rtl' : 'ltr'}>
             {/* Logo & Greeting */}
             <div className="flex flex-col items-center sm:items-start">
                 {/* <img src={logo} alt="GiveIt Logo" className="w-40 h-auto mb-1" /> */}
                 {user && (
                     <div className="flex flex-col">
                         <div className="text-2xl text-gray-700 font-semibold mt-2 ml-2">
-                            Hello {user.user?.firstName || user.firstName || 'User'}! 👋
+                            {t('common.welcome')} {user.user?.firstName || user.firstName || t('common.user')}! 👋
                         </div>
                         <div className="text-lg text-gray-500 ml-2">
-                            nice to see you again:)
+                            {t('common.welcome_back')}
                         </div>
                     </div>
                 )}
