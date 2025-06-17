@@ -11,12 +11,34 @@
         "edit": "ערוך",
         "search": "חיפוש",
         "filter": "סנן",
+        "filter_options": "אפשרויות סינון",
+        "categories": "קטגוריות",
+        "price_range": "טווח מחירים",
+        "apply_price_filter": "החל סינון מחירים",
+        "min_price": "מחיר מינימום",
+        "max_price": "מחיר מקסימום",
         "submit": "שלח",
         "back": "חזור",
         "next": "הבא",
         "close": "סגור",
         "user": "משתמש",
-        "welcome_back": "טוב לראות אותך שוב!"
+        "welcome_back": "טוב לראות אותך שוב!",
+        "clear": "נקה",
+        "per_day": "יום",
+        "per_hour": "שעה",
+        "status": "סטטוס",
+        "available": "זמין",
+        "not_available": "לא זמין",
+        "description": "תיאור",
+        "category": "קטגוריה",
+        "phone": "טלפון",
+        "price": "מחיר",
+        "city": "עיר",
+        "street": "רחוב",
+        "title": "כותרת",
+        "rental": "השכרה",
+        "service": "שירות",
+        "select_category": "בחר קטגוריה"
     },
     "navigation": {
         "home": "מוצרים",
@@ -89,7 +111,8 @@
         "invalid_phone": "מספר טלפון לא תקין",
         "general_error": "משהו השתבש. אנא נסה שוב.",
         "login_required": "אנא התחבר כדי להמשיך",
-        "session_expired": "הסשן שלך פג תוקף. אנא התחבר מחדש"
+        "session_expired": "הסשן שלך פג תוקף. אנא התחבר מחדש",
+        "price_range_invalid": "מחיר מקסימום לא יכול להיות נמוך ממחיר מינימום"
     },
     "dashboard": {
         "welcome": "ברוך הבא ללוח הבקרה שלך",
@@ -101,5 +124,29 @@
         "view_all": "הצג הכל"
     },
     "Explore Rentals" : "הצעות",
-    "Search rentals or services ..." : "חפש השכרות או שירותים" 
+    "Search rentals or services ..." : "חפש השכרות או שירותים",
+    "my_items": {
+        "title": "הפריטים שלי",
+        "login_required": "עליך להתחבר כדי לצפות בפריטים שלך.",
+        "my_rentals": "ההשכרות שלי",
+        "my_services": "השירותים שלי",
+        "my_rental_requests": "בקשות ההשכרה שלי",
+        "my_service_requests": "בקשות השירות שלי",
+        "rentals": "השכרות",
+        "services": "שירותים",
+        "rental_requests": "בקשות השכרה",
+        "service_requests": "בקשות שירות",
+        "no_rentals": "עדיין לא הצעת השכרות",
+        "no_services": "עדיין לא הצעת שירותים",
+        "no_rental_requests": "עדיין לא ביקשת השכרות",
+        "no_service_requests": "עדיין לא ביקשת שירותים",
+        "no_items": "עדיין לא הוספת פריטים",
+        "offer_rental": "הצע השכרה",
+        "offer_service": "הצע שירות",
+        "request_rental": "בקש השכרה",
+        "request_service": "בקש שירות",
+        "delete_confirmation": "האם אתה בטוח שברצונך למחוק?"
+    },
+    "mark_available": "סמן כזמין",
+    "mark_unavailable": "סמן כלא זמין"
 }
