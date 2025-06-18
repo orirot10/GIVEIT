@@ -40,7 +40,7 @@
     padding: 0.6rem 1.2rem;
     border: none;
     background-color: #f0f4ff;
-    color: #0077ff;
+    color: #1c4f72;
     cursor: pointer;
     border-radius: 30px;
     font-weight: 600;
@@ -54,12 +54,12 @@
 }
 
 .view-button:hover {
-    background-color: #0077ff;
+    background-color: #79bfee;
     color: #ffffff;
 }
 
 .view-button.active {
-    background-color: #007bff;
+    background-color: #3f99d4;
     color: white;
     box-shadow: 0 3px 8px rgba(0, 123, 255, 0.3);
 }
@@ -68,11 +68,11 @@
 .view-label {
     font-size: 1.1rem;
     color: #666;
-    transition: color 0.3s;
+    transition: color 0.9s;
 }
 
 .view-label.active {
-    color: #007bff;
+    color: #8cc9f1;
     font-weight: bold;
 }
 

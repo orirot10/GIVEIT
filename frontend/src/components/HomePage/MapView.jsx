@@ -139,7 +139,7 @@ const MapView = ({ locations }) => {
                             onClick={() => handleMarkerClick(item)}
                         >
              <div
-    className="bg-indigo-800 text-white rounded-md max-w-[120px] px-3 py-2 flex items-center justify-center text-[12px] font-semibold shadow-md transition-colors text-center overflow-hidden"
+    className="bg-[#1b7bd9] text-white rounded-md max-w-[120px] px-3 py-2 flex items-center justify-center text-[15px] font-semibold shadow-md transition-colors text-center overflow-hidden"
     title={item.title || "N/A"}
 >
 <span className="block truncate w-full">
@@ -148,7 +148,7 @@ const MapView = ({ locations }) => {
 </div>
 
                             {(item.price !== null && item.price !== undefined) && (
-                                 <div className="mt-1 bg-green-900 text-white text-[10px] font-semibold rounded-md px-2 py-0.5 shadow-sm">
+                                 <div className="mt-2 bg-[#f55363] text-white text-[13px] font-semibold rounded-md px-5 py-3 shadow-sm">
                                  &nbsp;{item.price}₪&nbsp;
                              </div>
                             )}

@@ -180,25 +180,25 @@ const Messages = ({ userId }) => {
   };
 
   return (
-    <div style={{ display: 'flex', maxWidth: '1000px', margin: '0 auto', height: '80vh' }}>
-      <div
-        style={{
-          width: '100px',
-          borderRight: '1px solid #ccc',
-          overflowY: 'auto',
-          backgroundColor: '#f1f1f1',
-        }}
-      >
-        <h3 style={{ padding: '3px', borderBottom: '1px solid #ccc' }}>Conversation</h3>
-        {conversations.length === 0 ? (
-          <p style={{ padding: '10px' }}>No conversations yet.</p>
-        ) : (
+<div style={{ display: 'flex', maxWidth: '1000px', margin: '0 auto', height: '90vh' }}>
+  <div
+    style={{
+      width: '120px',
+      borderRight: '1px solid #ccc',
+      overflowY: 'auto',
+      backgroundColor: '#f1f1f1',
+    }}
+  >
+    <h6 style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#8cc9f1' }}>Conversation</h6>
+    {conversations.length === 0 ? (
+      <p style={{ padding: '10px' }}>No conversations yet.</p>
+    ) : (
           conversations.map((conv) => (
             <div
               key={conv.receiverId}
               onClick={() => selectConversation(conv.receiverId)}
               style={{
-                padding: '10px',
+                padding: '5px',
                 cursor: 'pointer',
                 backgroundColor: activeConversation?.id === conv.receiverId ? '#E0E0FF' : 'transparent',
                 borderBottom: '1px solid #eee',
@@ -231,7 +231,7 @@ const Messages = ({ userId }) => {
       >
         {activeConversation ? (
           <>
-            <div style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#f9f9f9' }}>
+            <div style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#8cc9f1' }}>
               <h3>Chat with {activeConversation.name}</h3>
             </div>
             <div style={{ flex: 1, overflowY: 'scroll', padding: '10px', backgroundColor: '#fff' }}>

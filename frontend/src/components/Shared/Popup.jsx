@@ -70,9 +70,8 @@ const Popup = ({ item, onClose }) => {
   };
 
   return (
-    // Semi-transparent overlay
-<div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4 sm:p-8 transition-opacity duration-300 ease-in-out">
-{/* Popup container */}
+    // Light/transparent overlay
+<div className="fixed inset-0 flex justify-center items-center z-50 p-4 sm:p-8 transition-opacity duration-300 ease-in-out">{/* Popup container */}
 <div className="bg-white rounded-md shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-xs relative transform transition-all duration-200 ease-in-out scale-95 opacity-0 animate-fade-in-scale">
     {/* Close button */}
         <button
@@ -128,8 +127,7 @@ const Popup = ({ item, onClose }) => {
 
         {/* Call-to-action button */}
         <button
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-          onClick={handleContact}
+className="w-full bg-[#8cc9f1] hover:bg-[#7bb8e8] text-white font-semibold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-in-out border border-[#7bb8e8] backdrop-blur-sm"          onClick={handleContact}
         >
           Contact Now
         </button>
