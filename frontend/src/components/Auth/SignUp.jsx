@@ -39,6 +39,12 @@ function SignUp() {
         setError('');
         clearError();
 
+        // Validate password - Firebase requires at least 6 characters
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
+
         try {
             await signUp(formData);
             navigate('/dashboard');

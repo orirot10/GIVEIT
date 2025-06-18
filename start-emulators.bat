@@ -1,0 +1,3 @@
+@echo off
+echo Starting Firebase Emulators...
+firebase emulators:start

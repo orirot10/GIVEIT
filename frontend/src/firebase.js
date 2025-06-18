@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
-import { getAnalytics } from 'firebase/analytics';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,7 +18,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const analytics = getAnalytics(app);
+
+// Initialize analytics only if supported
+let analytics = null;
+isSupported().then(yes => {
+  if (yes) analytics = getAnalytics(app);
+}).catch(e => console.log('Analytics not supported:', e.message));
 
 // Configure Google provider
 const googleProvider = new GoogleAuthProvider();
@@ -26,13 +31,30 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-// Use auth emulator for local development to bypass domain restrictions
-if (window.location.hostname === 'localhost') {
-  try {
-    connectAuthEmulator(auth, 'http://localhost:9099');
-    console.log('Using Auth Emulator for local development');
-  } catch (error) {
-    console.warn('Failed to connect to Auth Emulator:', error);
+// Check if we're in a local development environment
+const isLocalhost = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1';
+
+// Connect to emulators in development
+if (isLocalhost) {
+  // Check if we should use emulators
+  const useEmulators = false; // Set to true to use emulators, false to use production services
+  
+  if (useEmulators) {
+    try {
+      // Connect to Auth emulator
+      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+      console.log('✅ Connected to Firebase Auth Emulator');
+      
+      // Connect to Firestore emulator
+      connectFirestoreEmulator(db, 'localhost', 8080);
+      console.log('✅ Connected to Firestore Emulator');
+    } catch (error) {
+      console.error('❌ Failed to connect to Firebase Emulators:', error);
+      console.warn('Make sure to run: firebase emulators:start');
+    }
+  } else {
+    console.log('🔥 Using production Firebase services');
   }
 }
 
