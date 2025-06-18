@@ -57,7 +57,16 @@ function SignUp() {
             navigate('/dashboard');
         } catch (err) {
             console.error('Google login error:', err);
-            // Error is handled by the AuthContext
+            // If it's an unauthorized domain error, provide more helpful information
+            if (err.code === 'auth/unauthorized-domain') {
+                setError('This domain is not authorized for Google sign-in. Please contact the administrator or use email/password signup instead.');
+                
+                // For development, show more detailed error info
+                if (process.env.NODE_ENV === 'development') {
+                    window.open('/auth-domain-error.html', '_blank');
+                }
+            }
+            // Other errors are handled by the AuthContext
         }
     };
 

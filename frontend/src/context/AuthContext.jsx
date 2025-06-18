@@ -162,7 +162,9 @@ export const AuthProvider = ({ children }) => {
       
       // Set custom parameters
       provider.setCustomParameters({
-        prompt: 'select_account'
+        prompt: 'select_account',
+        // Allow localhost for development
+        ...(window.location.hostname === 'localhost' && { host: 'localhost' })
       });
       
       const userCredential = await signInWithPopup(auth, provider);
