@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/GoogleAuth.css';
+import '../../styles/components/LoginForm.css';
 
 const LoginForm = () => {
     const { login, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
@@ -107,12 +108,21 @@ const LoginForm = () => {
             
             <p>
                 Don't have an account?{' '}
-                <span
+                <button
+                    type="button"
                     onClick={() => navigate('/signup')}
-                    style={{ color: 'blue', cursor: 'pointer' }}
+                    style={{ 
+                        color: 'blue', 
+                        cursor: 'pointer',
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        font: 'inherit',
+                        textDecoration: 'underline'
+                    }}
                 >
                     Sign Up
-                </span>
+                </button>
             </p>
         </form>
     );  

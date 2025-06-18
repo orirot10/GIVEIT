@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
 import { getAnalytics } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
@@ -20,9 +20,20 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const analytics = getAnalytics(app);
 
+// Configure Google provider
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
+
 // Use auth emulator for local development to bypass domain restrictions
 if (window.location.hostname === 'localhost') {
-  connectAuthEmulator(auth, 'http://localhost:9099');
+  try {
+    connectAuthEmulator(auth, 'http://localhost:9099');
+    console.log('Using Auth Emulator for local development');
+  } catch (error) {
+    console.warn('Failed to connect to Auth Emulator:', error);
+  }
 }
 
-export { db, auth, analytics };
+export { db, auth, analytics, googleProvider };

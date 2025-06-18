@@ -5,6 +5,7 @@ import Account from './pages/account.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import SignUp from './components/Auth/SignUp.jsx';
+import LoginForm from './components/Auth/LoginForm.jsx';
 import './styles/global.css';
 import RentalForm from './components/UploadForm/RentalForm.jsx';
 import MyModals from './components/MyItems/MyModals.jsx';
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginForm />} />
                 <Route path="/offer-rental" element={<RentalForm />} />
                 <Route path="/request-rental" element={<RequestRentalForm />} />
                 <Route path="/my-items" element={<MyModals />} />
