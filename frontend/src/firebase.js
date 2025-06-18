@@ -43,7 +43,7 @@ if (isLocalhost) {
   if (useEmulators) {
     try {
       // Connect to Auth emulator
-      connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+      //connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
       console.log('✅ Connected to Firebase Auth Emulator');
       
       // Connect to Firestore emulator
