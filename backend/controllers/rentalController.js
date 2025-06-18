@@ -25,7 +25,7 @@ const uploadNewRental = async (req, res) => {
         firstName: req.user.firstName,
         lastName: req.user.lastName,
         email: req.user.email,
-        ownerId: req.user.id,
+        ownerId: req.user.uid || req.user.id, // Support both Firebase uid and MongoDB id
         title,
         description,
         category,
@@ -52,7 +52,8 @@ const getRentals = async (req, res) => {
         .sort({ createdAt: -1 });
     res.status(200).json(rentals);
     } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch rentals' });
+    console.error('Error fetching rentals:', err);
+    res.status(500).json({ error: 'Failed to fetch rentals', details: err.message });
     }
 };
 
