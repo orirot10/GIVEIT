@@ -136,12 +136,22 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: false });
       let errorMessage = 'Signup failed. Please try again.';
       
+      console.log('Signup error code:', error.code);
+      console.log('Signup error message:', error.message);
+      
       if (error.code === 'auth/email-already-in-use') {
         errorMessage = 'Email is already in use. Please use a different email or login.';
       } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak. Please use a stronger password.';
+        errorMessage = 'Password is too weak. Please use a stronger password (at least 6 characters).';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else if (error.message) {
+        // Use the error message if available
+        errorMessage = error.message;
       }
       
       dispatch({ type: 'SET_ERROR', payload: errorMessage });

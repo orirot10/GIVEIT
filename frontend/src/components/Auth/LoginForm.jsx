@@ -42,16 +42,20 @@ const LoginForm = () => {
             navigate('/dashboard');
         } catch (err) {
             console.error('Google login error:', err);
-            // If it's an unauthorized domain error, provide more helpful information
+            
             if (err.code === 'auth/unauthorized-domain') {
                 setError('This domain is not authorized for Google sign-in. Please contact the administrator or use email/password login instead.');
-                
-                // For development, show more detailed error info
-                if (process.env.NODE_ENV === 'development') {
-                    window.open('/auth-domain-error.html', '_blank');
-                }
+            } else if (err.code === 'auth/operation-not-allowed') {
+                setError('Google sign-in is not enabled for this application. Please use email/password login instead.');
+            } else {
+                setError('Google sign-in failed. Please try again or use email/password login.');
             }
-            // Other errors are handled by the AuthContext
+            
+            // For development, show more detailed error info
+            if (process.env.NODE_ENV === 'development') {
+                console.log('Error code:', err.code);
+                console.log('Error message:', err.message);
+            }
         }
     };
 
