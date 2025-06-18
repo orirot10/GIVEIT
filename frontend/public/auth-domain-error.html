@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Firebase Authentication Domain Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #d32f2f;
+        }
+        .steps {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        code {
+            background-color: #e0e0e0;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .note {
+            background-color: #fff9c4;
+            padding: 10px;
+            border-left: 4px solid #fbc02d;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fix Firebase Authentication Domain Error</h1>
+    
+    <div class="note">
+        <strong>Error message:</strong> Firebase: Error (auth/unauthorized-domain)
+    </div>
+    
+    <p>This error occurs because your current domain is not authorized in Firebase Authentication settings.</p>
+    
+    <h2>How to Fix</h2>
+    
+    <div class="steps">
+        <h3>Option 1: Add Your Domain to Firebase</h3>
+        <ol>
+            <li>Go to the <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+            <li>Select your project (giveit-3003)</li>
+            <li>In the left sidebar, click on <strong>Authentication</strong></li>
+            <li>Click on the <strong>Settings</strong> tab</li>
+            <li>Scroll down to the <strong>Authorized domains</strong> section</li>
+            <li>Click <strong>Add domain</strong></li>
+            <li>Add your domain (e.g., <code>localhost</code>, <code>giveit-frontend.onrender.com</code>)</li>
+            <li>Click <strong>Add</strong></li>
+        </ol>
+        
+        <h3>Option 2: Use Email/Password Authentication</h3>
+        <p>Until the domain is authorized, you can use email/password authentication instead of Google sign-in.</p>
+    </div>
+    
+    <h2>For Developers</h2>
+    <p>If you're developing locally:</p>
+    <ol>
+        <li>Make sure <code>localhost</code> is added to the authorized domains</li>
+        <li>If using Firebase Emulator, make sure it's properly configured</li>
+        <li>Check that your Firebase configuration matches the project where you've authorized domains</li>
+    </ol>
+    
+    <div class="note">
+        <p>After adding your domain, it may take a few minutes for the changes to take effect. Try refreshing the page after a few minutes.</p>
+    </div>
+    
+    <p><a href="/">Return to the application</a></p>
+</body>
+</html>
