@@ -1,34 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/GoogleAuth.css';
 
 const LoginForm = () => {
-    const { login, signInWithGoogle, loading } = useAuthContext();
+    const { login, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const navigate = useNavigate();
 
+    // Use auth context error if available
+    useEffect(() => {
+        if (authError) {
+            setError(authError);
+        }
+    }, [authError]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        clearError();
 
         try {
             await login(email, password);
             navigate('/dashboard');
         } catch (err) {
             console.error('Login error:', err);
-            
-            // Handle specific Firebase auth errors
-            if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-                setError('Invalid email or password');
-            } else if (err.code === 'auth/too-many-requests') {
-                setError('Too many failed login attempts. Please try again later.');
-            } else {
-                setError(err.message || 'Login failed. Please check your credentials.');
-            }
+            // Error is handled by the AuthContext
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setError('');
+        clearError();
+        
+        try {
+            await signInWithGoogle();
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Google login error:', err);
+            // Error is handled by the AuthContext
         }
     };
 
@@ -53,7 +66,11 @@ const LoginForm = () => {
                 disabled={loading}
             />
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            {error && (
+                <div className="error-message" style={{ color: 'red', margin: '10px 0', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(255,0,0,0.05)' }}>
+                    {error}
+                </div>
+            )}
 
             <button type="submit" disabled={loading}>
                 {loading ? 'Logging in...' : 'Log In'}
@@ -66,16 +83,7 @@ const LoginForm = () => {
             
             <button 
                 type="button" 
-                onClick={async () => {
-                    try {
-                        setError('');
-                        await signInWithGoogle();
-                        navigate('/dashboard');
-                    } catch (err) {
-                        console.error('Google login error:', err);
-                        setError('Google sign-in failed. Please try again.');
-                    }
-                }}
+                onClick={handleGoogleSignIn}
                 disabled={loading}
                 className="google-btn"
             >

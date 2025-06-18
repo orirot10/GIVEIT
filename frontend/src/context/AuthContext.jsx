@@ -24,6 +24,10 @@ const authReducer = (state, action) => {
       return { user: null, loading: false };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
+    case 'SET_ERROR':
+      return { ...state, error: action.payload, loading: false };
+    case 'CLEAR_ERROR':
+      return { ...state, error: null };
     default:
       return state;
   }
@@ -32,7 +36,8 @@ const authReducer = (state, action) => {
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, { 
     user: JSON.parse(localStorage.getItem('user')) || null, 
-    loading: true 
+    loading: true,
+    error: null
   });
 
   useEffect(() => {
@@ -52,6 +57,7 @@ export const AuthProvider = ({ children }) => {
               uid: firebaseUser.uid,
               email: firebaseUser.email,
               displayName: firebaseUser.displayName,
+              photoURL: firebaseUser.photoURL,
               token,
               ...userData
             }
@@ -73,12 +79,22 @@ export const AuthProvider = ({ children }) => {
   // Login function
   const login = async (email, password) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       // Auth state listener will handle the state update
       return userCredential.user;
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Login failed. Please check your credentials.';
+      
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        errorMessage = 'Invalid email or password';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed login attempts. Please try again later.';
+      }
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
   };
@@ -86,6 +102,7 @@ export const AuthProvider = ({ children }) => {
   // Sign up function
   const signUp = async (userData) => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
     try {
       // Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
@@ -111,24 +128,24 @@ export const AuthProvider = ({ children }) => {
         city: userData.city || '',
         street: userData.street || '',
         createdAt: new Date().toISOString(),
+        authProvider: 'email'
       });
       
       // Auth state listener will handle the state update
       return user;
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
-      throw error;
-    }
-  };
-
-  // Logout function
-  const logout = async () => {
-    dispatch({ type: 'SET_LOADING', payload: true });
-    try {
-      await signOut(auth);
-      // Auth state listener will handle the state update
-    } catch (error) {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Signup failed. Please try again.';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email is already in use. Please use a different email or login.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please use a stronger password.';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      }
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
   };
@@ -136,8 +153,18 @@ export const AuthProvider = ({ children }) => {
   // Google sign-in function
   const signInWithGoogle = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
+    dispatch({ type: 'CLEAR_ERROR' });
     try {
       const provider = new GoogleAuthProvider();
+      // Add scopes if needed
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      // Set custom parameters
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
       const userCredential = await signInWithPopup(auth, provider);
       const user = userCredential.user;
       
@@ -155,6 +182,7 @@ export const AuthProvider = ({ children }) => {
           lastName,
           email: user.email,
           phone: user.phoneNumber || '',
+          photoURL: user.photoURL || '',
           country: '',
           city: '',
           street: '',
@@ -166,8 +194,37 @@ export const AuthProvider = ({ children }) => {
       return user;
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Google sign-in failed. Please try again.';
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in popup was closed. Please try again.';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
+      }
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
+  };
+
+  // Logout function
+  const logout = async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    try {
+      await signOut(auth);
+      // Auth state listener will handle the state update
+    } catch (error) {
+      dispatch({ type: 'SET_LOADING', payload: false });
+      dispatch({ type: 'SET_ERROR', payload: 'Logout failed. Please try again.' });
+      throw error;
+    }
+  };
+
+  // Clear error function
+  const clearError = () => {
+    dispatch({ type: 'CLEAR_ERROR' });
   };
 
   return (
@@ -176,7 +233,8 @@ export const AuthProvider = ({ children }) => {
       login, 
       signUp, 
       logout,
-      signInWithGoogle
+      signInWithGoogle,
+      clearError
     }}>
       {children}
     </AuthContext.Provider>
