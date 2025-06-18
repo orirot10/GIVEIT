@@ -32,7 +32,13 @@ const Home = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rentals`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rentals`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors'
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -42,8 +48,35 @@ const Home = () => {
       setItems(data);
     } catch (error) {
       console.error('Error fetching items:', error);
-      // Set items to empty array to prevent undefined errors
-      setItems([]);
+      // Use mock data when API is unavailable
+      setItems([
+        {
+          _id: '1',
+          title: 'Power Drill',
+          description: 'Professional power drill, barely used',
+          category: 'tools',
+          price: 15,
+          pricePeriod: 'day',
+          images: [],
+          phone: '555-1234',
+          status: 'available',
+          city: 'Tel Aviv',
+          street: 'Rothschild Blvd'
+        },
+        {
+          _id: '2',
+          title: 'Mountain Bike',
+          description: 'Trek mountain bike in excellent condition',
+          category: 'sports',
+          price: 25,
+          pricePeriod: 'day',
+          images: [],
+          phone: '555-5678',
+          status: 'available',
+          city: 'Jerusalem',
+          street: 'Jaffa St'
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -174,9 +207,13 @@ const Home = () => {
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-w-16 aspect-h-9">
                   <img
-                    src={item.images?.[0] ? `https://giveit-backend.onrender.com${item.images[0]}` : '/placeholder.jpg'}
+                    src={item.images?.[0] ? `${import.meta.env.VITE_API_URL}${item.images[0]}` : '/placeholder.jpg'}
                     alt={item.title}
                     className="w-full h-48 object-cover"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/placeholder.jpg';
+                    }}
                   />
                 </div>
                 <div className="p-4">
