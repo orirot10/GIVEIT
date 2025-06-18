@@ -8,7 +8,7 @@ const {
     filterRentalRequests,
     deleteRentalRequest
 } = require('../controllers/rentalRequestController'); // Corrected path
-const requireAuth = require('../middleware/authMiddleware.js');
+const { protect: requireAuth } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/upload');
 const RentalRequest = require('../models/RentalRequest');
 
