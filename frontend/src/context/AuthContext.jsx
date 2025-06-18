@@ -1,38 +1,64 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
+import { auth } from '../firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile
+} from 'firebase/auth';
 
 const AuthContext = createContext();
 
 const authReducer = (state, action) => {
-switch (action.type) {
+  switch (action.type) {
     case 'LOGIN':
-        localStorage.setItem('user', JSON.stringify(action.payload)); // <-- Save user
-        return { user: action.payload };
+      localStorage.setItem('user', JSON.stringify(action.payload));
+      localStorage.setItem('token', action.payload.token);
+      return { user: action.payload, loading: false };
     case 'LOGOUT':
-        localStorage.removeItem('user'); // <-- Remove user
-        return { user: null };
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+      return { user: null, loading: false };
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
     default:
-        return state;
-}
+      return state;
+  }
 };
 
 export const AuthProvider = ({ children }) => {
-const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [state, dispatch] = useReducer(authReducer, { user: null, loading: true });
 
-// Check for user in localStorage on app start
-useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-    dispatch({ type: 'LOGIN', payload: storedUser });
-    }
-}, []);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const token = await firebaseUser.getIdToken();
+        dispatch({
+          type: 'LOGIN',
+          payload: {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            token
+          }
+        });
+      } else {
+        dispatch({ type: 'LOGOUT' });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
-return (
+  return (
     <AuthContext.Provider value={{ ...state, dispatch }}>
-    {children}
+      {children}
     </AuthContext.Provider>
-);
+  );
 };
 
 export const useAuthContext = () => {
-    return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuthContext must be used within an AuthProvider');
+  return context;
 };
