@@ -1,13 +1,20 @@
-const mongoose = require('mongoose');
+const { db } = require('./firebase');
 
 const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('Connected to MongoDB Atlas');
-    } catch (err) {
-        console.error('MongoDB connection error:', err);
-        process.exit(1);
-    }
+  try {
+    // Test connection to Firestore
+    await db.collection('test').doc('connection').set({
+      timestamp: new Date().toISOString(),
+      status: 'connected'
+    });
+    console.log('Connected to Firebase Firestore');
+    
+    // Clean up test document
+    await db.collection('test').doc('connection').delete();
+  } catch (err) {
+    console.error('Firebase connection error:', err);
+    process.exit(1);
+  }
 };
 
 module.exports = connectDB;

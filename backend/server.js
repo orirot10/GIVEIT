@@ -13,6 +13,9 @@ const { loadMessages, sendMessage, getConversations, getMessages } = require('./
 
 require('dotenv').config();
 
+// Initialize Firebase
+require('./config/firebase');
+
 const app = express();
 const server = http.createServer(app);
 
