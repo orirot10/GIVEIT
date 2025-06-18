@@ -6,7 +6,6 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -155,19 +154,14 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
-      const provider = new GoogleAuthProvider();
-      // Add scopes if needed
-      provider.addScope('profile');
-      provider.addScope('email');
+      // Import the pre-configured Google provider
+      const { googleProvider } = await import('../firebase');
       
-      // Set custom parameters
-      provider.setCustomParameters({
-        prompt: 'select_account',
-        // Allow localhost for development
-        ...(window.location.hostname === 'localhost' && { host: 'localhost' })
-      });
+      // Add additional scopes if needed
+      googleProvider.addScope('profile');
+      googleProvider.addScope('email');
       
-      const userCredential = await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, googleProvider);
       const user = userCredential.user;
       
       // Check if user exists in Firestore

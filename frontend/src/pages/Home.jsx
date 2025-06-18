@@ -32,7 +32,7 @@ const Home = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/items`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rentals`);
       const data = await response.json();
       setItems(data);
     } catch (error) {
@@ -167,11 +167,11 @@ const Home = () => {
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-w-16 aspect-h-9">
                   <img
-                    src={item.images?.[0] ? `https://giveit-backend.onrender.com${item.images[0]}` : '/placeholder.jpg'}`
+                    src={item.images?.[0] ? `https://giveit-backend.onrender.com${item.images[0]}` : '/placeholder.jpg'}
                     alt={item.title}
-                    className="w-full h-48 object-cover">
-                  </img>
-                }
+                    className="w-full h-48 object-cover"
+                  />
+                </div>
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-2xl">{categories.find((c) => c.id === item.category)?.icon}</span>
