@@ -1,28 +1,57 @@
-const { auth } = require('../config/firebase');
+const { auth, firebaseInitialized } = require('../config/firebase');
 
 const protect = async (req, res, next) => {
   try {
+    // Check if Firebase is properly initialized
+    if (!firebaseInitialized) {
+      console.warn('Firebase not properly initialized, skipping authentication');
+      // For development only - add a mock user
+      if (process.env.NODE_ENV !== 'production') {
+        req.user = { uid: 'dev-user-id', email: 'dev@example.com' };
+        return next();
+      } else {
+        return res.status(503).json({ 
+          error: 'Authentication service unavailable',
+          message: 'The authentication service is currently unavailable. Please try again later.'
+        });
+      }
+    }
+
     // Check if authorization header exists
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Not authorized, no token' });
+      return res.status(401).json({ 
+        error: 'Not authorized', 
+        message: 'Authentication required. Please log in.'
+      });
     }
 
     // Get token from header
     const token = req.headers.authorization.split(' ')[1];
 
-    // Verify token
-    const decodedToken = await auth.verifyIdToken(token);
-    
-    // Add user info to request
-    req.user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email
-    };
+    try {
+      // Verify token
+      const decodedToken = await auth.verifyIdToken(token);
+      
+      // Add user info to request
+      req.user = {
+        uid: decodedToken.uid,
+        email: decodedToken.email
+      };
 
-    next();
+      next();
+    } catch (tokenError) {
+      console.error('Token verification error:', tokenError.message);
+      return res.status(401).json({ 
+        error: 'Invalid token', 
+        message: 'Your session has expired. Please log in again.'
+      });
+    }
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ error: 'Not authorized, token failed' });
+    res.status(500).json({ 
+      error: 'Authentication error',
+      message: 'An error occurred during authentication. Please try again.'
+    });
   }
 };
 

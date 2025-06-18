@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/SignUp.css';
@@ -6,7 +6,7 @@ import '../../styles/components/GoogleAuth.css';
 
 function SignUp() {
     const navigate = useNavigate();
-    const { signUp, signInWithGoogle, loading } = useAuthContext();
+    const { signUp, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -20,6 +20,13 @@ function SignUp() {
 
     const [error, setError] = useState('');
 
+    // Use auth context error if available
+    useEffect(() => {
+        if (authError) {
+            setError(authError);
+        }
+    }, [authError]);
+
     const handleChange = (e) => {
         setFormData((prev) => ({
             ...prev,
@@ -30,23 +37,27 @@ function SignUp() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        clearError();
 
         try {
             await signUp(formData);
             navigate('/dashboard');
         } catch (err) {
             console.error('Signup error:', err);
-            
-            // Handle specific Firebase auth errors
-            if (err.code === 'auth/email-already-in-use') {
-                setError('Email is already in use. Please use a different email or login.');
-            } else if (err.code === 'auth/weak-password') {
-                setError('Password is too weak. Please use a stronger password.');
-            } else if (err.code === 'auth/invalid-email') {
-                setError('Invalid email address.');
-            } else {
-                setError(err.message || 'Signup failed. Please try again.');
-            }
+            // Error is handled by the AuthContext
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setError('');
+        clearError();
+        
+        try {
+            await signInWithGoogle();
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Google login error:', err);
+            // Error is handled by the AuthContext
         }
     };
 
@@ -130,7 +141,12 @@ function SignUp() {
                     />
                 </div>
 
-                {error && <p className="error">{error}</p>}
+                {error && (
+                    <div className="error-message" style={{ color: 'red', margin: '10px 0', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(255,0,0,0.05)' }}>
+                        {error}
+                    </div>
+                )}
+
                 <button className="primary-button" type="submit" disabled={loading}>
                     {loading ? 'Processing...' : 'Sign Up'}
                 </button>
@@ -142,16 +158,7 @@ function SignUp() {
                 
                 <button 
                     type="button" 
-                    onClick={async () => {
-                        try {
-                            setError('');
-                            await signInWithGoogle();
-                            navigate('/dashboard');
-                        } catch (err) {
-                            console.error('Google login error:', err);
-                            setError('Google sign-in failed. Please try again.');
-                        }
-                    }}
+                    onClick={handleGoogleSignIn}
                     disabled={loading}
                     className="google-btn"
                     style={{ marginBottom: '15px' }}
