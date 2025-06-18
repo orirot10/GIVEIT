@@ -1,0 +1,47 @@
+.google-btn {
+  background-color: #4285F4;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  margin: 10px 0;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.google-btn:hover {
+  background-color: #357ae8;
+}
+
+.google-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.or-divider {
+  margin: 15px 0;
+  text-align: center;
+  position: relative;
+}
+
+.or-divider hr {
+  margin: 10px 0;
+  border: 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+.or-divider span {
+  position: absolute;
+  top: 0;
+  background-color: white;
+  padding: 0 10px;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 14px;
+}
