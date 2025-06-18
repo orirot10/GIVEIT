@@ -27,10 +27,10 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container" dir={isRTL ? 'rtl' : 'ltr'}>
-            <h2>{t('welcome', { firstName: user.user.firstName, lastName: user.user.lastName })}</h2>
-            <p>{t('common.email')}: {user.user.email}</p>
-            <p>{t('common.city')}: {user.user.city}</p>
-            <p>{t('common.street')}: {user.user.street}</p>
+            <h2>{t('welcome', { firstName: user.firstName || user.user?.firstName || '', lastName: user.lastName || user.user?.lastName || '' })}</h2>
+            <p>{t('common.email')}: {user.email || user.user?.email || ''}</p>
+            <p>{t('common.city')}: {user.city || user.user?.city || ''}</p>
+            <p>{t('common.street')}: {user.street || user.user?.street || ''}</p>
             <button className="toggle-view-btn" onClick={handleRentalOffer}>
                 {t('offer rental')}
             </button>
