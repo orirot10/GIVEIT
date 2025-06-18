@@ -9,7 +9,7 @@ const Account = () => {
     const { user } = useAuthContext();
     
     return (
-        <div className="account-container">
+        <div className="acontainerccount-">
             <div className="login-form-container">
             {!user && <LoginForm />}
             </div>

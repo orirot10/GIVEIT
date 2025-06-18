@@ -8,7 +8,7 @@ const MessagesPage = () => {
 
   return (
     <div>
-      <h2>Chat</h2>
+      <h2 style={{ textAlign: 'center' }}>Chat</h2>
       {!user ? (
         <p>Loading... you're not logged in yet.</p>
       ) : (
