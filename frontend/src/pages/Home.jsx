@@ -33,10 +33,17 @@ const Home = () => {
     try {
       setLoading(true);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/rentals`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
       setItems(data);
     } catch (error) {
       console.error('Error fetching items:', error);
+      // Set items to empty array to prevent undefined errors
+      setItems([]);
     } finally {
       setLoading(false);
     }

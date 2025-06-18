@@ -1,7 +1,21 @@
 const { db } = require('./firebase');
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const connectDB = async () => {
   try {
+    // Connect to MongoDB
+    const mongoURI = process.env.MONGO_URI;
+    if (mongoURI) {
+      await mongoose.connect(mongoURI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log('Connected to MongoDB successfully');
+    } else {
+      console.warn('⚠️ MongoDB URI not found. MongoDB operations will fail.');
+    }
+    
     // Test connection to Firestore with error handling
     if (db) {
       try {
