@@ -12,7 +12,7 @@ const MessagesPage = () => {
       {!user ? (
         <p>Loading... you're not logged in yet.</p>
       ) : (
-        <Messages userId={user.user.id} />
+        <Messages userId={user.id || user.user?.id} />
       )}
     </div>
   );
