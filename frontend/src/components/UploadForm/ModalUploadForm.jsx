@@ -52,27 +52,23 @@ const handleSubmit = async e => {
             throw new Error('You must be logged in to create a listing');
         }
 
-        // Get the latest token
-        let token = user.token;
-        
-        // If token is missing, try to get it from Firebase Auth directly
-        if (!token) {
-            try {
-                const { getAuth } = await import('firebase/auth');
-                const auth = getAuth();
-                const currentUser = auth.currentUser;
-                
-                if (currentUser) {
-                    token = await currentUser.getIdToken(true);
-                    console.log('Retrieved fresh token from Firebase');
-                } else {
-                    console.error('No current user in Firebase Auth');
-                    throw new Error('Authentication error: No current user');
-                }
-            } catch (tokenError) {
-                console.error('Failed to get token:', tokenError);
-                throw new Error('Authentication error: Failed to get token');
+        // Get fresh token from Firebase Auth
+        let token;
+        try {
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            const currentUser = auth.currentUser;
+            
+            if (currentUser) {
+                token = await currentUser.getIdToken(true);
+                console.log('Retrieved fresh token from Firebase');
+            } else {
+                console.error('No current user in Firebase Auth');
+                throw new Error('Authentication error: No current user');
             }
+        } catch (tokenError) {
+            console.error('Failed to get token:', tokenError);
+            throw new Error('Authentication error: Failed to get token');
         }
         
         if (!token) {
