@@ -1,24 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/Dashboard.css';
 import { useAuthContext } from '../context/AuthContext';
+import ListingForm from '../components/ListingForm';
 
 function Dashboard() {
-    const { user, dispatch } = useAuthContext();
+    const { user, logout } = useAuthContext();
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'he';
+    const [showRentalForm, setShowRentalForm] = useState(false);
+    const [showServiceForm, setShowServiceForm] = useState(false);
 
-    const handleRentalOffer = () => navigate('/offer-rental');
-    const handleServiceOffer = () => navigate('/offer-service');
     const handleRentalRequest = () => navigate('/request-rental');
     const handleServiceRequest = () => navigate('/request-service');
+    const handleOfferRental = () => navigate('/offer-rental');
+    const  handleOfferService = () => navigate('/offer-service')
+    const handleEditProfile = () => navigate('/edit-profile');
+    const handleMessages = () => navigate('/messages');
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        dispatch({ type: "LOGOUT" });
-        navigate('/account');
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/account');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
+    const handleListingSuccess = (listing) => {
+        console.log('Listing created:', listing);
+        setShowRentalForm(false);
+        setShowServiceForm(false);
+        // Optionally show success message or redirect
     };
 
     if (!user) {
@@ -27,28 +42,66 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container" dir={isRTL ? 'rtl' : 'ltr'}>
-            <h2>{t('welcome', { firstName: user.firstName || user.user?.firstName || '', lastName: user.lastName || user.user?.lastName || '' })}</h2>
-            <p>{t('common.email')}: {user.email || user.user?.email || ''}</p>
-            <p>{t('common.city')}: {user.city || user.user?.city || ''}</p>
-            <p>{t('common.street')}: {user.street || user.user?.street || ''}</p>
-            <button className="toggle-view-btn" onClick={handleRentalOffer}>
-                {t('offer rental')}
-            </button>
-            <button className="toggle-view-btn" onClick={handleRentalRequest}>
-                {t('request rental')}
-            </button>
-            <button className="toggle-view-btn" onClick={handleServiceOffer}>
-                {t('offer service')}
-            </button>
-            <button className="toggle-view-btn" onClick={handleServiceRequest}>
-                {t('request service')}
-            </button>
-            <button className="toggle-view-btn">
-                {t('edit profile')}
-            </button>
-            <button className="toggle-view-btn logout" onClick={handleLogout}>
-                {t('auth.logout')}
-            </button>
+            <h2>Welcome, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
+            <p>Email: {user.email}</p>
+            
+            <div className="dashboard-actions">
+                <button className="toggle-view-btn" onClick={() => handleOfferRental(true)}>
+                    Offer Rental
+                </button>
+                <button className="toggle-view-btn" onClick={handleRentalRequest}>
+                    Request Rental
+                </button>
+                <button className="toggle-view-btn" onClick={() => handleOfferService(true)}>
+                    Offer Service
+                </button>
+                <button className="toggle-view-btn" onClick={handleServiceRequest}>
+                    Request Service
+                </button>
+                <button className="toggle-view-btn" onClick={handleEditProfile}>
+                    Edit Profile
+                </button>
+                <button className="toggle-view-btn" onClick={handleMessages}>
+                    Messages
+                </button>
+                <button className="toggle-view-btn logout" onClick={handleLogout}>
+                    Logout
+                </button>
+            </div>
+
+            {showRentalForm && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <button 
+                            className="close-btn" 
+                            onClick={() => setShowRentalForm(false)}
+                        >
+                            ×
+                        </button>
+                        <ListingForm 
+                            type="rental" 
+                            onSuccess={handleListingSuccess}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {showServiceForm && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <button 
+                            className="close-btn" 
+                            onClick={() => setShowServiceForm(false)}
+                        >
+                            ×
+                        </button>
+                        <ListingForm 
+                            type="service" 
+                            onSuccess={handleListingSuccess}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

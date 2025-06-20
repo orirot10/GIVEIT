@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import '../styles/components/SignUp.css';
 import { useAuthContext } from '../context/AuthContext';
+import ImageUpload from '../components/ImageUpload';
 
 function EditProfile() {
     const navigate = useNavigate();
@@ -13,7 +14,11 @@ function EditProfile() {
         displayName: '',
         photoURL: '',
         phoneNumber: '',
-        city: ''
+        city: '',
+        firstName: '',
+        lastName: '',
+        street: '',
+        country: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,19 +26,43 @@ function EditProfile() {
 
     useEffect(() => {
         const loadUserProfile = async () => {
-            if (user) {
+            if (user?.uid) {
                 try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    const userData = userDoc.data() || {};
+                    // Get user data from Firestore instead of API
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
                     
-                    setFormData({
-                        displayName: user.displayName || '',
-                        photoURL: user.photoURL || '',
-                        phoneNumber: userData.phoneNumber || '',
-                        city: userData.city || ''
-                    });
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+                        
+                        setFormData({
+                            displayName: user.displayName || '',
+                            photoURL: user.photoURL || userData.photoURL || '',
+                            phoneNumber: userData.phoneNumber || userData.phone || '',
+                            city: userData.city || '',
+                            firstName: userData.firstName || names[0] || '',
+                            lastName: userData.lastName || (names.length > 1 ? names.slice(1).join(' ') : ''),
+                            street: userData.street || '',
+                            country: userData.country || ''
+                        });
+                    } else {
+                        // If no Firestore document exists, use Firebase Auth data
+                        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+                        setFormData({
+                            displayName: user.displayName || '',
+                            photoURL: user.photoURL || '',
+                            phoneNumber: '',
+                            city: '',
+                            firstName: names[0] || '',
+                            lastName: names.length > 1 ? names.slice(1).join(' ') : '',
+                            street: '',
+                            country: ''
+                        });
+                    }
                 } catch (err) {
                     setError('Failed to load profile data');
+                    console.error(err);
                 }
             }
         };
@@ -56,25 +85,37 @@ function EditProfile() {
         try {
             // Update Firebase Auth profile
             await updateProfile(auth.currentUser, {
-                displayName: formData.displayName,
+                displayName: `${formData.firstName} ${formData.lastName}`,
                 photoURL: formData.photoURL
             });
 
-            // Update Firestore document
+            // Update Firestore document with all user data
             await updateDoc(doc(db, 'users', user.uid), {
-                displayName: formData.displayName,
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                displayName: `${formData.firstName} ${formData.lastName}`,
                 photoURL: formData.photoURL,
                 phoneNumber: formData.phoneNumber,
+                phone: formData.phoneNumber,
                 city: formData.city,
+                street: formData.street,
+                country: formData.country,
                 updatedAt: new Date()
             });
-
+            
             setSuccess(true);
         } catch (err) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleImageUpload = (imageUrl) => {
+        setFormData(prev => ({
+            ...prev,
+            photoURL: imageUrl
+        }));
     };
 
     if (!user) {
@@ -88,19 +129,20 @@ function EditProfile() {
                     <h2>Edit Profile</h2>
                     <form onSubmit={handleSubmit} className="form">
                         <input 
-                            name="displayName" 
+                            name="firstName" 
                             type="text" 
-                            placeholder="Display Name" 
-                            value={formData.displayName} 
+                            placeholder="First Name" 
+                            value={formData.firstName} 
                             onChange={handleChange} 
                             required 
                         />
                         <input 
-                            name="photoURL" 
-                            type="url" 
-                            placeholder="Profile Picture URL" 
-                            value={formData.photoURL} 
+                            name="lastName" 
+                            type="text" 
+                            placeholder="Last Name" 
+                            value={formData.lastName} 
                             onChange={handleChange} 
+                            required 
                         />
                         <input 
                             name="phoneNumber" 
@@ -116,6 +158,32 @@ function EditProfile() {
                             value={formData.city} 
                             onChange={handleChange} 
                         />
+                        <input 
+                            name="street" 
+                            type="text" 
+                            placeholder="Street Address" 
+                            value={formData.street} 
+                            onChange={handleChange} 
+                        />
+                        <input 
+                            name="country" 
+                            type="text" 
+                            placeholder="Country" 
+                            value={formData.country} 
+                            onChange={handleChange} 
+                        />
+                        
+                        <div className="image-upload-section">
+                            <label>Profile Picture:</label>
+                            <ImageUpload onImageUpload={handleImageUpload} />
+                            {formData.photoURL && (
+                                <img 
+                                    src={formData.photoURL} 
+                                    alt="Profile" 
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '50%' }}
+                                />
+                            )}
+                        </div>
 
                         {error && <p className="error">{error}</p>}
                         <button className="toggle-view-btn" type="submit" disabled={loading}>

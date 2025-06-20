@@ -1,4 +1,5 @@
 const { auth, firebaseInitialized } = require('../config/firebase');
+const User = require('../models/User');
 
 const protect = async (req, res, next) => {
   try {
@@ -32,10 +33,26 @@ const protect = async (req, res, next) => {
       // Verify token
       const decodedToken = await auth.verifyIdToken(token);
       
+      // Find or create user in MongoDB
+      let mongoUser = await User.findOne({ firebaseUid: decodedToken.uid });
+      
+      if (!mongoUser) {
+        // Create user in MongoDB if doesn't exist
+        mongoUser = new User({
+          firebaseUid: decodedToken.uid,
+          email: decodedToken.email,
+          firstName: decodedToken.name?.split(' ')[0] || '',
+          lastName: decodedToken.name?.split(' ').slice(1).join(' ') || '',
+          photoURL: decodedToken.picture || ''
+        });
+        await mongoUser.save();
+      }
+      
       // Add user info to request
       req.user = {
         uid: decodedToken.uid,
-        email: decodedToken.email
+        email: decodedToken.email,
+        mongoUser
       };
 
       next();

@@ -6,6 +6,7 @@ const upload = require('../middleware/upload.js');
 
 
 router.post('/', protect, upload.array('images'), uploadNewService); // POST /api/services
+router.post('/with-urls', protect, uploadNewService); // POST /api/services/with-urls for Firebase Storage URLs
 router.get('/', getServices); // GET /api/services
 router.get('/user', protect, getUserServices); // GET /api/services/user
 router.put('/:id', protect, editService); // PUT /api/services/:id

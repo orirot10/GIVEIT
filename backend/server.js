@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const rentalRequestRoutes = require('./routes/rentalRequestRoutes');
 const serviceRequestRoutes = require('./routes/serviceRequestRoutes');
+const userRoutes = require('./routes/userRoutes');
 const { loadMessages, sendMessage, getConversations, getMessages } = require('./controllers/messageController');
 
 require('dotenv').config();
@@ -62,6 +63,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/rental_requests', rentalRequestRoutes);
 app.use('/api/service_requests', serviceRequestRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/test', require('./routes/testRoutes'));
 
 // Socket.IO
 io.on('connection', (socket) => {

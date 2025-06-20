@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
@@ -18,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 // Initialize analytics only if supported
 let analytics = null;
@@ -49,6 +51,10 @@ if (isLocalhost) {
       // Connect to Firestore emulator
       connectFirestoreEmulator(db, 'localhost', 8080);
       console.log('✅ Connected to Firestore Emulator');
+      
+      // Connect to Storage emulator
+      connectStorageEmulator(storage, 'localhost', 9199);
+      console.log('✅ Connected to Storage Emulator');
     } catch (error) {
       console.error('❌ Failed to connect to Firebase Emulators:', error);
       console.warn('Make sure to run: firebase emulators:start');
@@ -58,4 +64,4 @@ if (isLocalhost) {
   }
 }
 
-export { db, auth, analytics, googleProvider };
+export { db, auth, storage, analytics, googleProvider };

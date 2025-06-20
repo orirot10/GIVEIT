@@ -64,7 +64,7 @@ const Popup = ({ item, onClose }) => {
     console.log('handleContact called with item:', item);
     console.log('Current user:', user);
     console.log('Owner ID from item:', ownerId);
-    console.log('User ID from context:', user?.user?.id);
+    console.log('User ID from context:', user?.uid);
 
     if (!user) {
       alert('Please log in to start a conversation');
@@ -77,7 +77,15 @@ const Popup = ({ item, onClose }) => {
       return;
     }
 
-    if (ownerId === user.user.id) {
+    // Check if user.uid exists (Firebase auth) or fall back to user.user?.id (legacy)
+    const currentUserId = user.uid || user.user?.id;
+    
+    if (!currentUserId) {
+      alert('Your user information is incomplete. Please log out and log in again.');
+      return;
+    }
+
+    if (ownerId === currentUserId) {
       alert('You cannot start a conversation with yourself');
       onClose();
       return;
@@ -87,6 +95,7 @@ const Popup = ({ item, onClose }) => {
     navigate('/messages', {
       state: {
         contactId: ownerId,
+        contactName: ownerName,
         itemTitle: title,
         initialMessage: true
       }
@@ -128,7 +137,7 @@ const Popup = ({ item, onClose }) => {
         {images && images[0] && (
           <div className="overflow-hidden">
             <img 
-              src={`https://giveit-backend.onrender.com${images[0]}`} 
+              src={images[0].startsWith('http') ? images[0] : `https://giveit-backend.onrender.com${images[0]}`} 
               alt={title} 
               className="w-full h-28 object-cover"
               loading="lazy" 

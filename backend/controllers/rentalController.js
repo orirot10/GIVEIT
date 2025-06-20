@@ -10,7 +10,9 @@ const uploadNewRental = async (req, res) => {
     phone,
     status,
     city,
-    street
+    street,
+    location,
+    images
     } = req.body;
 
     if (!req.user) {
@@ -18,24 +20,36 @@ const uploadNewRental = async (req, res) => {
     }
 
     try {
-    // Get uploaded file paths
-    const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+    // Handle both file uploads and Firebase Storage URLs
+    let imagePaths = [];
+    
+    if (req.files && req.files.length > 0) {
+        // Traditional file upload
+        imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+    } else if (images && Array.isArray(images)) {
+        // Firebase Storage URLs from frontend
+        imagePaths = images;
+    } else if (images && typeof images === 'string') {
+        imagePaths = [images];
+    }
 
     const newRental = await Rental.create({
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
+        firstName: req.user.mongoUser?.firstName || req.user.firstName,
+        lastName: req.user.mongoUser?.lastName || req.user.lastName,
         email: req.user.email,
-        ownerId: req.user.uid || req.user.id, // Support both Firebase uid and MongoDB id
+        ownerId: req.user.uid,
+        firebaseUid: req.user.uid,
         title,
         description,
         category,
-        price,
+        price: parseFloat(price),
         pricePeriod,
-        images: imagePaths, // ✅ save paths instead of raw strings
+        images: imagePaths,
         phone,
-        status,
+        status: status || 'available',
         city,
-        street
+        street,
+        location: location || city
     });
 
     res.status(201).json(newRental);
