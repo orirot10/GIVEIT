@@ -9,12 +9,14 @@ const rentalSchema = new mongoose.Schema({
     category: { type: String, required: true },
     price: { type: Number, required: true },
     pricePeriod: { type: String, default: 'use' },
-    images: [{ type: String }], // URLs or paths
-    phone: { type: String, required: true },
+    images: [{ type: String }], // Firebase Storage URLs or local paths
+    phone: { type: String },
     status: { type: String, default: 'available' },
     city: { type: String },
     street: { type: String },
+    location: { type: String },
     ownerId: { type: String, required: true },
+    firebaseUid: { type: String, required: true },
 }, { timestamps: true });
 
 const Rental = mongoose.model('Rental', rentalSchema);

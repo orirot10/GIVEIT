@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Account from './pages/account.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import EditProfile from './pages/EditProfile.jsx';
 import SignUp from './components/Auth/SignUp.jsx';
 import LoginForm from './components/Auth/LoginForm.jsx';
 import './styles/global.css';
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/services" element={<ServicesMapPage />} />
                 <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginForm />} />
                 <Route path="/offer-rental" element={<RentalForm />} />

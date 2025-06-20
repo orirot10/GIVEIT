@@ -3,18 +3,19 @@ import ModalUploadForm from './ModalUploadForm';
 import { serviceCategories } from '../../constants/categories';
 
 const ServiceForm = () => {
-const { user } = useAuthContext();
+    const { user } = useAuthContext();
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
-return (
-    <ModalUploadForm
-    user={user}
-    titleText="Offer a New Service"
-    categories={serviceCategories}
-    submitUrl={`${import.meta.env.VITE_API_URL}/api/services`}
-    successMessage="You successfully offered a new service!"
-    submitButtonText="Create Service"
-    />
-);
+    return (
+        <ModalUploadForm
+            user={user}
+            titleText="Offer a Service"
+            categories={serviceCategories}
+            submitUrl={`${baseUrl}/api/services/with-urls`}
+            successMessage="You successfully offered a service!"
+            submitButtonText="Submit Offer"
+        />
+    );
 };
 
 export default ServiceForm;

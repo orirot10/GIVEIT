@@ -4,9 +4,9 @@
     margin-left: auto;
     margin-right: auto;
     background-color: white;
-    padding: 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.5);
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .upload-form textarea,
@@ -31,16 +31,19 @@
 .upload-form .button-group {
     display: flex;
     gap: 20px; /* gap between buttons */
-    justify-content: flex-start;
+    justify-content: center;
+    margin-top: 24px;
 }
 
 /* Button styles */
 .upload-form .btn {
-    padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 20px;
-    width: 100px; /* Fixed width for buttons */
+    padding: 10px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    min-width: 140px; /* Wider buttons */
     text-align: center; /* Center text inside buttons */
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
 .upload-form .btn-primary {
@@ -86,4 +89,21 @@
     margin-top: 8px;
     padding-left: 20px;
     font-size: 0.9rem;
+}
+.form-group {
+    margin-bottom: 16px;
+}
+
+.upload-form h2 {
+    color: #333;
+    margin-bottom: 24px;
+    font-weight: 600;
+}
+
+/* Improve input focus states */
+.upload-form input:focus,
+.upload-form textarea:focus,
+.upload-form select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }

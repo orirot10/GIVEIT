@@ -5,8 +5,11 @@ const upload = require('../middleware/upload');
 
 const router = express.Router();
 
-// Protected route
+// Protected routes
+// Support both traditional file uploads and Firebase Storage URLs
 router.post('/', protect, upload.array('images', 5), uploadNewRental);
+// Direct JSON endpoint for Firebase Storage URLs
+router.post('/with-urls', protect, uploadNewRental);
 router.get('/', getRentals);
 router.get('/user', protect, getUserRentals);
 router.put('/:id', protect, editRental);

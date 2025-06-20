@@ -1,24 +1,36 @@
 const Service = require('../models/Service.js');
 
 const uploadNewService = async (req, res) => {
-    const { title, description, category, price, pricePeriod, phone, city, street } = req.body;
+    const { title, description, category, price, pricePeriod, phone, city, street, images } = req.body;
 
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
     }
 
     try {
-        const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+        // Handle both file uploads and Firebase Storage URLs
+        let imagePaths = [];
+        
+        if (req.files && req.files.length > 0) {
+            // Traditional file upload
+            imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+        } else if (images && Array.isArray(images)) {
+            // Firebase Storage URLs from frontend
+            imagePaths = images;
+        } else if (images && typeof images === 'string') {
+            imagePaths = [images];
+        }
 
         const newService = await Service.create({
-            firstName: req.user.firstName,
-            lastName: req.user.lastName,
+            firstName: req.user.mongoUser?.firstName || req.user.firstName,
+            lastName: req.user.mongoUser?.lastName || req.user.lastName,
             email: req.user.email,
-            ownerId: req.user.id,
+            ownerId: req.user.uid || req.user.id,
+            firebaseUid: req.user.uid,
             title,
             description,
             category,
-            price,
+            price: parseFloat(price),
             pricePeriod,
             phone,
             city,
