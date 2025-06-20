@@ -62,8 +62,8 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          // Get the user's token
-          const token = await firebaseUser.getIdToken();
+          // Get the user's token (force refresh)
+          const token = await firebaseUser.getIdToken(true);
           
           // Sync user to MongoDB
           await syncUserToMongo(firebaseUser);
