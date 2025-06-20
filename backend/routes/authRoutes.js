@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getCurrentUser, verifyGoogleToken, syncUser } = require('../controllers/authController');
+const { register, login, getCurrentUser, verifyGoogleToken, syncUser, testMongo } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Register a new user
@@ -17,5 +17,8 @@ router.get('/me', protect, getCurrentUser);
 
 // Sync user data to MongoDB
 router.post('/sync', syncUser);
+
+// Test MongoDB connection
+router.get('/test-mongo', testMongo);
 
 module.exports = router;

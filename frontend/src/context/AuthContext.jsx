@@ -39,12 +39,34 @@ export const AuthProvider = ({ children }) => {
     error: null
   });
 
+  // Sync user to MongoDB
+  const syncUserToMongo = async (user) => {
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
+      await fetch(`${baseUrl}/api/auth/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          provider: 'firebase'
+        })
+      });
+    } catch (error) {
+      console.error('Failed to sync user to MongoDB:', error);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
           // Get the user's token
           const token = await firebaseUser.getIdToken();
+          
+          // Sync user to MongoDB
+          await syncUserToMongo(firebaseUser);
           
           // Get additional user data from Firestore
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
@@ -81,6 +103,8 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'CLEAR_ERROR' });
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Sync user to MongoDB after successful login
+      await syncUserToMongo(userCredential.user);
       // Auth state listener will handle the state update
       return userCredential.user;
     } catch (error) {
@@ -130,6 +154,8 @@ export const AuthProvider = ({ children }) => {
         authProvider: 'email'
       });
       
+      // Sync user to MongoDB after successful signup
+      await syncUserToMongo(user);
       // Auth state listener will handle the state update
       return user;
     } catch (error) {
@@ -197,6 +223,8 @@ export const AuthProvider = ({ children }) => {
         });
       }
       
+      // Sync user to MongoDB after successful Google sign-in
+      await syncUserToMongo(user);
       return user;
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });

@@ -5,13 +5,18 @@ const User = require('../models/User');
 exports.verifyGoogleToken = async (req, res) => {
   const { token } = req.body;
   try {
+    console.log('Verifying Google token...');
     // Verify the token with Firebase Admin SDK
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await auth.verifyIdToken(token);
     const { email, name, uid } = decodedToken;
+    console.log('Google user verified:', uid, email);
 
     // Check if user exists in MongoDB
     let user = await User.findOne({ firebaseUid: uid });
+    console.log('MongoDB user found:', !!user);
+    
     if (!user) {
+      console.log('Creating new MongoDB user for Google sign-in...');
       // Create a new user in MongoDB
       user = await User.create({
         firebaseUid: uid,
@@ -20,10 +25,12 @@ exports.verifyGoogleToken = async (req, res) => {
         lastName: name?.split(' ').slice(1).join(' ') || '',
         photoURL: decodedToken.picture || ''
       });
+      console.log('MongoDB user created:', user._id);
     }
 
     res.status(200).json({ user });
   } catch (error) {
+    console.error('Google token verification error:', error);
     res.status(401).json({ message: 'Invalid Google token', error: error.message });
   }
 };
@@ -148,10 +155,14 @@ exports.getCurrentUser = async (req, res) => {
 exports.syncUser = async (req, res) => {
   try {
     const { uid, email, displayName, provider } = req.body;
+    console.log('Sync user request:', { uid, email, displayName, provider });
     
     // Find or create user in MongoDB
     let mongoUser = await User.findOne({ firebaseUid: uid });
+    console.log('Existing MongoDB user:', !!mongoUser);
+    
     if (!mongoUser) {
+      console.log('Creating new MongoDB user via sync...');
       mongoUser = await User.create({
         firebaseUid: uid,
         email,
@@ -159,11 +170,35 @@ exports.syncUser = async (req, res) => {
         lastName: displayName?.split(' ').slice(1).join(' ') || '',
         authProvider: provider || 'unknown'
       });
+      console.log('MongoDB user created via sync:', mongoUser._id);
     }
     
     res.status(200).json({ mongoUser });
   } catch (error) {
     console.error('Sync user error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Test endpoint to check MongoDB connection
+exports.testMongo = async (req, res) => {
+  try {
+    const userCount = await User.countDocuments();
+    const testUser = await User.create({
+      firebaseUid: 'test-' + Date.now(),
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User'
+    });
+    await User.findByIdAndDelete(testUser._id);
+    
+    res.status(200).json({ 
+      message: 'MongoDB connection working',
+      userCount,
+      testCreated: true
+    });
+  } catch (error) {
+    console.error('MongoDB test error:', error);
     res.status(500).json({ error: error.message });
   }
 };

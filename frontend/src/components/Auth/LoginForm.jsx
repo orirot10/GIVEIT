@@ -5,6 +5,26 @@ import '../../styles/components/GoogleAuth.css';
 import '../../styles/components/LoginForm.css';
 import { auth } from '../../firebase';
 
+const baseUrl = 'https://giveit-backend.onrender.com'; // Replace with your backend URL
+
+// After successful Firebase authentication
+const syncUserToMongo = async (user) => {
+    try {
+        await fetch(`${baseUrl}/api/auth/sync`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                provider: 'firebase'
+            })
+        });
+    } catch (error) {
+        console.error('Failed to sync user to MongoDB:', error);
+    }
+};
+
 const LoginForm = () => {
     const { login, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
     const [email, setEmail] = useState('');
@@ -25,58 +45,29 @@ const LoginForm = () => {
         setError('');
         clearError();
 
-try {
-    await login(email, password);
-    
-    const user = auth.currentUser;
-    if (user) {
-        await fetch('https://your-backend-url.com/api/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${await user.getIdToken()}`
-            },
-            body: JSON.stringify({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName || '',
-                provider: 'password'
-            })
-        });
-    }
-
-    navigate('/dashboard');
-} catch (err) {
-    console.error('Login error:', err);
-}
-
+        try {
+            await login(email, password);
+            const user = auth.currentUser;
+            if (user) {
+                await syncUserToMongo(user);
+            }
+            navigate('/dashboard');
+        } catch (err) {
+            console.error('Login error:', err);
+        }
     };
 
     const handleGoogleSignIn = async () => {
         setError('');
         clearError();
-        
-try {
-    await signInWithGoogle();
-    
-    const user = auth.currentUser;
-    if (user) {
-        await fetch('https://your-backend-url.com/api/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${await user.getIdToken()}`
-            },
-            body: JSON.stringify({
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName || '',
-                provider: 'google'
-            })
-        });
-    }
 
-    navigate('/dashboard');
+        try {
+            await signInWithGoogle();
+            const user = auth.currentUser;
+            if (user) {
+                await syncUserToMongo(user);
+            }
+            navigate('/dashboard');
         } catch (err) {
             console.error('Google login error:', err);
             
