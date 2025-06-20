@@ -7,6 +7,8 @@ const uploadNewRental = async (req, res) => {
     category,
     price,
     pricePeriod,
+    firstName,
+    lastName,
     phone,
     status,
     city,
@@ -34,8 +36,8 @@ const uploadNewRental = async (req, res) => {
     }
 
     const newRental = await Rental.create({
-        firstName: req.user.mongoUser?.firstName || req.user.firstName,
-        lastName: req.user.mongoUser?.lastName || req.user.lastName,
+        firstName: firstName || req.user.mongoUser?.firstName || req.user.firstName,
+        lastName: lastName || req.user.mongoUser?.lastName || req.user.lastName,
         email: req.user.email,
         ownerId: req.user.uid,
         firebaseUid: req.user.uid,

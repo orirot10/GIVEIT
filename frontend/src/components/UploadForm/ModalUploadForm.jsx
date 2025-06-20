@@ -19,6 +19,8 @@ const [form, setForm] = useState({
     category: '',
     price: '',
     pricePeriod: 'use',
+    firstName: user?.user?.firstName || user?.user?.displayName?.split(' ')[0] || '',
+    lastName: user?.user?.lastName || user?.user?.displayName?.split(' ')[1] || '',
     phone: user?.user?.phone || '',
     city: user?.user?.city || '',
     street: user?.user?.street || ''
@@ -28,7 +30,7 @@ const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
-const [isUploading, setIsUploading] = useState(false);
+
 
 const handleChange = e => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -42,53 +44,31 @@ const handleSubmit = async e => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    setIsUploading(false);
 
     try {
-        // Check if user is authenticated
         if (!user) {
             throw new Error('You must be logged in to create a listing');
         }
 
-        // Get fresh token from Firebase Auth
-        let token;
-        try {
-            const { getAuth } = await import('firebase/auth');
-            const auth = getAuth();
-            const currentUser = auth.currentUser;
-            
-            if (currentUser) {
-                token = await currentUser.getIdToken(true);
-                console.log('Retrieved fresh token from Firebase');
-            } else {
-                console.error('No current user in Firebase Auth');
-                throw new Error('Authentication error: No current user');
-            }
-        } catch (tokenError) {
-            console.error('Failed to get token:', tokenError);
-            throw new Error('Authentication error: Failed to get token');
+        // Get Firebase Auth token
+        const { getAuth } = await import('firebase/auth');
+        const auth = getAuth();
+        const currentUser = auth.currentUser;
+        
+        if (!currentUser) {
+            throw new Error('Authentication error: No current user');
         }
+
+        const token = await currentUser.getIdToken(true);
         
-        if (!token) {
-            throw new Error('Authentication token is missing. Please log out and log in again.');
-        }
-        
-        // Images are already uploaded via ImageUpload component
-        
-        // 2. Prepare data for API
+        // Prepare listing data with Firebase image URLs
         const listingData = {
             ...form,
             images: imageUrls
         };
         
-        // 3. Send data to backend
-        // Extract the base URL from submitUrl (remove '/with-urls' if present)
-        const baseApiUrl = submitUrl.replace('/with-urls', '');
-        
-        console.log('Submitting to endpoint:', baseApiUrl);
-        console.log('With token:', token.substring(0, 10) + '...');
-        
-        const res = await fetch(baseApiUrl, {
+        // Send to MongoDB via backend API
+        const res = await fetch(submitUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -97,16 +77,7 @@ const handleSubmit = async e => {
             body: JSON.stringify(listingData)
         });
 
-        // Parse response
-        let data;
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            data = await res.json();
-        } else {
-            const text = await res.text();
-            console.error('Server returned non-JSON response:', text);
-            throw new Error(`Server returned an invalid response (${res.status}): ${text.substring(0, 100)}`);
-        }
+        const data = await res.json();
 
         if (!res.ok) {
             throw new Error(data.error || `HTTP error! status: ${res.status}`);
@@ -118,7 +89,6 @@ const handleSubmit = async e => {
         setError(err.message || 'Failed to submit form');
     } finally {
         setIsSubmitting(false);
-        setIsUploading(false);
     }
 };
 
@@ -178,6 +148,12 @@ return (
                         )}
                     </div>
 
+                    <div className="form-group">
+                        <input name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} className="input input-bordered w-full" required />
+                    </div>
+                    <div className="form-group">
+                        <input name="lastName" placeholder="Last Name" value={form.lastName} onChange={handleChange} className="input input-bordered w-full" required />
+                    </div>
                     <div className="form-group">
                         <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
