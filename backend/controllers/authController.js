@@ -1,54 +1,33 @@
 const { auth, db } = require('../config/firebase');
+const User = require('../models/User');
+const admin = require('firebase-admin'); // or use firebase/auth if using client SDK
 
 // Verify Google token
 exports.verifyGoogleToken = async (req, res) => {
+  const { token } = req.body;
   try {
-    const { idToken } = req.body;
-    
-    // Verify the ID token
-    const decodedToken = await auth.verifyIdToken(idToken);
-    const uid = decodedToken.uid;
-    
-    // Get user record
-    const userRecord = await auth.getUser(uid);
-    
-    // Check if user exists in Firestore
-    const userDoc = await db.collection('users').doc(uid).get();
-    
-    if (!userDoc.exists) {
-      // Create user document if it doesn't exist
-      const names = userRecord.displayName ? userRecord.displayName.split(' ') : ['', ''];
-      const firstName = names[0] || '';
-      const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
-      
-      await db.collection('users').doc(uid).set({
-        firstName,
-        lastName,
-        email: userRecord.email,
-        phone: userRecord.phoneNumber || '',
-        country: '',
-        city: '',
-        street: '',
-        createdAt: new Date().toISOString(),
-        authProvider: 'google'
+    // Verify the token with Firebase Admin SDK
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    const { email, name, uid } = decodedToken;
+
+    // Check if user exists in MongoDB
+    let user = await User.findOne({ email });
+    if (!user) {
+      // If not, create a new user
+      user = await User.create({
+        email,
+        name,
+        firebaseUid: uid,
+        // add other fields as needed
       });
     }
-    
-    // Get updated user data
-    const updatedUserDoc = userDoc.exists ? userDoc : await db.collection('users').doc(uid).get();
-    
-    res.status(200).json({
-      message: 'Google authentication successful',
-      user: {
-        uid: userRecord.uid,
-        email: userRecord.email,
-        displayName: userRecord.displayName,
-        ...updatedUserDoc.data()
-      }
-    });
+
+    // Generate your own JWT or session here if needed
+    //
+
+    res.status(200).json({ user });
   } catch (error) {
-    console.error('Google auth error:', error);
-    res.status(401).json({ error: 'Invalid Google token' });
+    res.status(401).json({ message: 'Invalid Google token', error: error.message });
   }
 };
 
