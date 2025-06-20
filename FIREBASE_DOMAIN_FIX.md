@@ -5,7 +5,7 @@ When you see the error `Firebase: Error (auth/unauthorized-domain)` during Googl
 ## Steps to Fix:
 
 1. Go to the [Firebase Console](https://console.firebase.google.com/)
-2. Select your project (giveit-3003)
+2. Select your project (givitori)
 3. In the left sidebar, click on **Authentication**
 4. Click on the **Settings** tab
 5. Scroll down to the **Authorized domains** section

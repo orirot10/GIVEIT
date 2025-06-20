@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../../firebase';
+import ImageUpload from '../ImageUpload';
 import '../../styles/components/UploadForm.css';
 
 const ModalUploadForm = ({
@@ -25,7 +24,7 @@ const [form, setForm] = useState({
     street: user?.user?.street || ''
 });
 
-const [images, setImages] = useState([]);
+const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,9 +34,8 @@ const handleChange = e => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
 };
 
-const handleFileChange = e => {
-    const files = Array.from(e.target.files).slice(0, 5); // Limit to 5 files
-    setImages(files);
+const handleImageUpload = (urls) => {
+    setImageUrls(urls.slice(0, 5)); // Limit to 5 images
 };
 
 const handleSubmit = async e => {
@@ -75,24 +73,7 @@ const handleSubmit = async e => {
             throw new Error('Authentication token is missing. Please log out and log in again.');
         }
         
-        // 1. Upload images to Firebase Storage
-        const imageUrls = [];
-        
-        if (images.length > 0) {
-            setIsUploading(true);
-            for (const file of images) {
-                const fileName = `listings/${Date.now()}_${file.name}`;
-                const storageRef = ref(storage, fileName);
-                
-                // Upload file
-                await uploadBytes(storageRef, file);
-                
-                // Get download URL
-                const downloadUrl = await getDownloadURL(storageRef);
-                imageUrls.push(downloadUrl);
-            }
-            setIsUploading(false);
-        }
+        // Images are already uploaded via ImageUpload component
         
         // 2. Prepare data for API
         const listingData = {
@@ -182,26 +163,18 @@ return (
                         </select>
                     </div>
 
-                    {/* File input for images */}
+                    {/* Image upload */}
                     <div className="form-group">
-                        <div className="custom-file-input-wrapper">
-                            <label htmlFor="images" className="custom-file-label">
-                                {images.length > 0 ? `${images.length} file(s) selected` : 'Choose up to 5 images'}
-                            </label>
-                            <input
-                                type="file"
-                                id="images"
-                                name="images"
-                                multiple
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="custom-file-input"
-                            />
-                        </div>
-                        {images.length > 0 && (
-                            <ul className="file-name-list">
-                                {images.map((file, idx) => <li key={idx}>{file.name}</li>)}
-                            </ul>
+                        <label className="block text-sm font-medium mb-2">Images (up to 5)</label>
+                        <ImageUpload 
+                            onImageUpload={handleImageUpload}
+                            multiple={true}
+                            accept="image/*"
+                        />
+                        {imageUrls.length > 0 && (
+                            <div className="mt-2">
+                                <p className="text-sm text-gray-600">{imageUrls.length} image(s) uploaded</p>
+                            </div>
                         )}
                     </div>
 
@@ -216,8 +189,8 @@ return (
                     </div>
 
                     <div className="button-group flex justify-center gap-4 mt-6">
-                        <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting || isUploading}>
-                            {isUploading ? 'Uploading Images...' : isSubmitting ? 'Submitting...' : submitButtonText}
+                        <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting}>
+                            {isSubmitting ? 'Submitting...' : submitButtonText}
                         </button>
                         <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/dashboard')}>Cancel</button>
                     </div>
