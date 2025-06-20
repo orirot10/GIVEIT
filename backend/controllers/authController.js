@@ -1,6 +1,5 @@
 const { auth, db } = require('../config/firebase');
 const User = require('../models/User');
-const admin = require('firebase-admin'); // or use firebase/auth if using client SDK
 
 // Verify Google token
 exports.verifyGoogleToken = async (req, res) => {
@@ -141,6 +140,30 @@ exports.getCurrentUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Sync user data (called from frontend after authentication)
+exports.syncUser = async (req, res) => {
+  try {
+    const { uid, email, displayName, provider } = req.body;
+    
+    // Find or create user in MongoDB
+    let mongoUser = await User.findOne({ firebaseUid: uid });
+    if (!mongoUser) {
+      mongoUser = await User.create({
+        firebaseUid: uid,
+        email,
+        firstName: displayName?.split(' ')[0] || '',
+        lastName: displayName?.split(' ').slice(1).join(' ') || '',
+        authProvider: provider || 'unknown'
+      });
+    }
+    
+    res.status(200).json({ mongoUser });
+  } catch (error) {
+    console.error('Sync user error:', error);
     res.status(500).json({ error: error.message });
   }
 };
