@@ -46,13 +46,16 @@ const protect = async (req, res, next) => {
           photoURL: decodedToken.picture || ''
         });
         await mongoUser.save();
+        console.log('Created new user in MongoDB:', mongoUser._id);
       }
       
       // Add user info to request
       req.user = {
         uid: decodedToken.uid,
         email: decodedToken.email,
-        mongoUser
+        mongoUser,
+        firstName: mongoUser.firstName,
+        lastName: mongoUser.lastName
       };
 
       next();

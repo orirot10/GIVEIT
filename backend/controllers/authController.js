@@ -11,19 +11,17 @@ exports.verifyGoogleToken = async (req, res) => {
     const { email, name, uid } = decodedToken;
 
     // Check if user exists in MongoDB
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ firebaseUid: uid });
     if (!user) {
-      // If not, create a new user
+      // Create a new user in MongoDB
       user = await User.create({
-        email,
-        name,
         firebaseUid: uid,
-        // add other fields as needed
+        email,
+        firstName: name?.split(' ')[0] || '',
+        lastName: name?.split(' ').slice(1).join(' ') || '',
+        photoURL: decodedToken.picture || ''
       });
     }
-
-    // Generate your own JWT or session here if needed
-    //
 
     res.status(200).json({ user });
   } catch (error) {
@@ -41,6 +39,18 @@ exports.register = async (req, res) => {
       email,
       password,
       displayName: `${firstName} ${lastName}`,
+    });
+
+    // Store user data in MongoDB
+    const mongoUser = await User.create({
+      firebaseUid: userRecord.uid,
+      email,
+      firstName,
+      lastName,
+      phone: phone || '',
+      country: country || '',
+      city: city || '',
+      street: street || ''
     });
 
     // Store additional user data in Firestore
@@ -65,6 +75,7 @@ exports.register = async (req, res) => {
         email: userRecord.email,
         displayName: userRecord.displayName,
       },
+      mongoUser,
       token
     });
   } catch (error) {
@@ -81,6 +92,17 @@ exports.login = async (req, res) => {
     // This is just for verification - actual authentication happens on the client side
     const userRecord = await auth.getUserByEmail(email);
     
+    // Find or create user in MongoDB
+    let mongoUser = await User.findOne({ firebaseUid: userRecord.uid });
+    if (!mongoUser) {
+      mongoUser = await User.create({
+        firebaseUid: userRecord.uid,
+        email: userRecord.email,
+        firstName: userRecord.displayName?.split(' ')[0] || '',
+        lastName: userRecord.displayName?.split(' ').slice(1).join(' ') || ''
+      });
+    }
+    
     // Get user data from Firestore
     const userData = await db.collection('users').doc(userRecord.uid).get();
     
@@ -91,7 +113,8 @@ exports.login = async (req, res) => {
         email: userRecord.email,
         displayName: userRecord.displayName,
         ...userData.data()
-      }
+      },
+      mongoUser
     });
   } catch (error) {
     console.error('Login error:', error);

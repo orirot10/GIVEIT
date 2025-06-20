@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/GoogleAuth.css';
 import '../../styles/components/LoginForm.css';
+import { auth } from '../../firebase';
 
 const LoginForm = () => {
     const { login, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
@@ -24,22 +25,58 @@ const LoginForm = () => {
         setError('');
         clearError();
 
-        try {
-            await login(email, password);
-            navigate('/dashboard');
-        } catch (err) {
-            console.error('Login error:', err);
-            // Error is handled by the AuthContext
-        }
+try {
+    await login(email, password);
+    
+    const user = auth.currentUser;
+    if (user) {
+        await fetch('https://your-backend-url.com/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await user.getIdToken()}`
+            },
+            body: JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName || '',
+                provider: 'password'
+            })
+        });
+    }
+
+    navigate('/dashboard');
+} catch (err) {
+    console.error('Login error:', err);
+}
+
     };
 
     const handleGoogleSignIn = async () => {
         setError('');
         clearError();
         
-        try {
-            await signInWithGoogle();
-            navigate('/dashboard');
+try {
+    await signInWithGoogle();
+    
+    const user = auth.currentUser;
+    if (user) {
+        await fetch('https://your-backend-url.com/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await user.getIdToken()}`
+            },
+            body: JSON.stringify({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName || '',
+                provider: 'google'
+            })
+        });
+    }
+
+    navigate('/dashboard');
         } catch (err) {
             console.error('Google login error:', err);
             
@@ -52,7 +89,7 @@ const LoginForm = () => {
             }
             
             // For development, show more detailed error info
-            if (process.env.NODE_ENV === 'development') {
+            if (import.meta.env.MODE === 'development') {
                 console.log('Error code:', err.code);
                 console.log('Error message:', err.message);
             }
