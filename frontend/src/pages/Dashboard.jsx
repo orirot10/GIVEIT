@@ -41,32 +41,52 @@ function Dashboard() {
     }
 
     return (
-        <div className="dashboard-container" dir={isRTL ? 'rtl' : 'ltr'}>
-            <h2>Welcome, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
-            <p>Email: {user.email}</p>
-            
-            <div className="dashboard-actions">
-                <button className="toggle-view-btn" onClick={() => handleOfferRental(true)}>
-                    Offer Rental
-                </button>
-                <button className="toggle-view-btn" onClick={handleRentalRequest}>
-                    Request Rental
-                </button>
-                <button className="toggle-view-btn" onClick={() => handleOfferService(true)}>
-                    Offer Service
-                </button>
-                <button className="toggle-view-btn" onClick={handleServiceRequest}>
-                    Request Service
-                </button>
-                <button className="toggle-view-btn" onClick={handleEditProfile}>
-                    Edit Profile
-                </button>
-                <button className="toggle-view-btn" onClick={handleMessages}>
-                    Messages
-                </button>
-                <button className="toggle-view-btn logout" onClick={handleLogout}>
-                    Logout
-                </button>
+        <div className="dashboard-container custom-dashboard-bg" dir={isRTL ? 'rtl' : 'ltr'}>
+            <div className="dashboard-header">
+                <h2 className="dashboard-username">Welcome, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
+                {(user.city || user.address) && (
+                    <div className="dashboard-address">
+                        {user.city || user.address}
+                    </div>
+                )}
+            </div>
+            <div className="dashboard-sections">
+                <div className="dashboard-section">
+                    <h3 className="dashboard-section-title">Rentals</h3>
+                    <div className="dashboard-section-buttons">
+                        <button className="primary-btn dashboard-btn" onClick={() => handleOfferRental(true)}>
+                            Offer Rental
+                        </button>
+                        <button className="primary-btn dashboard-btn" onClick={handleRentalRequest}>
+                            Request Rental
+                        </button>
+                    </div>
+                </div>
+                <div className="dashboard-section">
+                    <h3 className="dashboard-section-title">Services</h3>
+                    <div className="dashboard-section-buttons">
+                        <button className="primary-btn dashboard-btn" onClick={() => handleOfferService(true)}>
+                            Offer Service
+                        </button>
+                        <button className="primary-btn dashboard-btn" onClick={handleServiceRequest}>
+                            Request Service
+                        </button>
+                    </div>
+                </div>
+                <div className="dashboard-section">
+                    <h3 className="dashboard-section-title">Account</h3>
+                    <div className="dashboard-section-buttons">
+                        <button className="outlined-btn dashboard-btn" onClick={handleEditProfile}>
+                            Edit Profile
+                        </button>
+                        <button className="outlined-btn dashboard-btn" onClick={handleMessages}>
+                            Messages
+                        </button>
+                        <button className="logout-btn dashboard-btn" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {showRentalForm && (

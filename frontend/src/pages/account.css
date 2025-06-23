@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
 .account-container {
   display: flex;
   justify-content: center;
@@ -18,5 +20,120 @@
 @media (max-width: 480px) {
   .login-form-container {
     padding: 15px;
+  }
+}
+
+.custom-dashboard-bg {
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.dashboard-username {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif;
+  margin-bottom: 4px;
+}
+
+.dashboard-address {
+  font-size: 1rem;
+  color: #888;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.dashboard-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.dashboard-section {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px 20px;
+}
+
+.dashboard-section-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  color: #222;
+  letter-spacing: 0.01em;
+}
+
+.dashboard-section-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-btn {
+  width: 100%;
+  min-width: 220px;
+  max-width: 100%;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 12px 0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: box-shadow 0.2s, background 0.2s, color 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-bottom: 0;
+}
+
+.primary-btn {
+  background: #35a7e0;
+  color: #fff;
+  border: none;
+}
+.primary-btn:hover {
+  background: #2563eb;
+}
+
+.outlined-btn {
+  background: #f5f5f5;
+  color: #222;
+  border: 1.5px solid #e0e0e0;
+}
+.outlined-btn:hover {
+  background: #e0e7ef;
+}
+
+.logout-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1.5px solid #fecaca;
+}
+.logout-btn:hover {
+  background: #fecaca;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .dashboard-sections {
+    max-width: 100%;
+    padding: 0 8px;
+  }
+  .dashboard-section {
+    padding: 16px 6px;
+  }
+  .dashboard-header {
+    margin-bottom: 20px;
+  }
+  .dashboard-btn {
+    min-width: 0;
+    width: 100%;
   }
 }
