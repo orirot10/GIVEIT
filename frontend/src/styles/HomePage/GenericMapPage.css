@@ -1,3 +1,44 @@
+body, .main-bg-gradient {
+    min-height: 100vh;
+    font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
+    background: linear-gradient(135deg, #f8e1f4 0%, #d6e5fb 100%);
+    background-attachment: fixed;
+}
+
+:root {
+    --pastel-pink: #f8e1f4;
+    --pastel-blue: #d6e5fb;
+    --pastel-green: #d4f8e8;
+    --pastel-purple: #e6e6fa;
+    --pastel-yellow: #fff9db;
+    --card-bg: #ffffffcc;
+    --card-shadow: 0 4px 24px rgba(180, 200, 255, 0.18);
+}
+
+.map-wrapper, .list-container-wrapper, .list-container {
+    background: var(--card-bg);
+    border-radius: 1.5rem;
+    box-shadow: var(--card-shadow);
+    padding: 2rem 1.5rem;
+    margin: 2rem auto;
+    max-width: 1200px;
+}
+
+.rental-card {
+    background: var(--card-bg);
+    border-radius: 1.25rem;
+    box-shadow: 0 2px 12px rgba(180, 200, 255, 0.12);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: none;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.rental-card:hover {
+    box-shadow: 0 8px 32px rgba(180, 200, 255, 0.22);
+    transform: translateY(-4px) scale(1.02);
+}
+
 .map-wrapper {
     min-height: 400px;
     height: auto;
