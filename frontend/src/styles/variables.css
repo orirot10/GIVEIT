@@ -11,4 +11,27 @@
     
     --border-radius: 8px;
     --spacing: 1rem;
-    }
+
+    /* Colors */
+    --primary-blue: #4A90E2;
+    --secondary-blue: #87CEEB;
+    --accent-red: #FF6B6B;
+    --success-green: #4ECDC4;
+    --background: #F8F9FA;
+    --card-bg: #FFFFFF;
+    --text-primary: #2C3E50;
+    --text-secondary: #7F8C8D;
+    --border: #E9ECEF;
+
+    /* Typography */
+    --font-h1: 24px;
+    --font-h2: 20px;
+    --font-h3: 18px;
+    --font-body-lg: 16px;
+    --font-body-md: 14px;
+    --font-body-sm: 12px;
+    --font-weight-bold: 700;
+    --font-weight-semibold: 600;
+    --font-weight-medium: 500;
+    --font-weight-regular: 400;
+}

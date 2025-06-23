@@ -66,7 +66,7 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
       <button className="search-filter-style filter-button-large"
         onClick={() => setShowModal(true)}
       >
-        <BiFilterAlt style={{ fontSize: "24px", color: "black" }} />
+        <BiFilterAlt style={{ fontSize: "24px" }} />
         <span>{t('common.filter')}</span>
       </button>
 

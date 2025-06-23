@@ -62,7 +62,7 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
-          className={`w-full ${isRTL ? 'pr-8 pl-4' : 'pl-8 pr-4'} py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm`}
+          className={`search-bar-input ${isRTL ? 'pr-8 pl-4' : 'pl-8 pr-4'}`}
         />
       </div>
       {isSearched ? (

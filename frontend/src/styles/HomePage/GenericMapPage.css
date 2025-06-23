@@ -70,24 +70,69 @@
     contain: layout style paint; /* Optimize rendering performance */
 }
 
+.search-bar-input {
+    background: #fff;
+    border: 1px solid var(--border, #E9ECEF);
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-bar-input:focus {
+    border-color: var(--primary-blue, #4A90E2);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
+}
+
 .search-filter-style {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    border: 2px solid #ccc;
-    background-color: #ffffff;
-    border-radius: 0.5rem;
-    font-size: 1rem;
-    color: black;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border, #E9ECEF);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fff;
+    color: var(--primary-blue, #4A90E2);
     cursor: pointer;
-    transition: all 0.2s ease;
-    contain: layout style paint; /* Optimize rendering performance */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .search-filter-style:hover {
-    background-color: #e6e6e6;
-    transform: translateY(-1px);
+    background: #f5faff;
+    border-color: var(--primary-blue, #4A90E2);
+    color: var(--primary-blue, #4A90E2);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.10);
+}
+
+.filter-button-large {
+    background: #fff;
+    border: 1px solid var(--primary-blue, #4A90E2);
+    color: var(--primary-blue, #4A90E2);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.filter-button-large:hover {
+    background: #f5faff;
+    border-color: var(--primary-blue, #4A90E2);
+    color: var(--primary-blue, #4A90E2);
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.10);
+}
+
+.filter-button-large svg {
+    color: var(--primary-blue, #4A90E2) !important;
 }
 
 /* Add smooth transitions for view changes */
