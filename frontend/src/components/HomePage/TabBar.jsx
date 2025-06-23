@@ -1,7 +1,14 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/HomePage/TabBar.css';
 
 const TabBar = ({ activeTab, onTabChange, tabs }) => {
+    const { i18n } = useTranslation();
+    const isRTL = i18n.language === 'he';
+    const activeIndex = tabs.findIndex(tab => tab.id === activeTab);
+    const indicatorTransform = isRTL
+        ? `translateX(${(tabs.length - 1 - activeIndex) * 100}%)`
+        : `translateX(${activeIndex * 100}%)`;
     return (
         <div className="tab-bar-container">
             <div className="tab-bar">
@@ -18,7 +25,7 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
             <div 
                 className="tab-indicator"
                 style={{
-                    transform: `translateX(${tabs.findIndex(tab => tab.id === activeTab) * 100}%)`
+                    transform: indicatorTransform
                 }}
             />
         </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
+import FilterButton from "./FilterButton";
+import ToggleViewButton from "./ToggleViewButton";
 
 const containerStyle = {
     width: "100%",
@@ -17,7 +19,7 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const mapRef = useRef(null); // ref to control the map
@@ -109,23 +111,30 @@ const MapView = ({ locations }) => {
       
     return (
         <div className="w-full h-[500px] relative">
-<GoogleMap
-    mapContainerStyle={containerStyle}
-    center={userLocation || defaultCenter}
-    zoom={15}
-    onLoad={(map) => {
-        mapRef.current = map;
-    }}
-    options={{
-        styles: customMapStyle,
-
-        gestureHandling: "greedy", // Enables full gesture control
-        zoomControl: true,
-        scrollwheel: false,// Optional: disable zoom by scroll to force 2-finger
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false
-    }}
+            {/* FilterButton in top-left corner */}
+            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
+                <FilterButton onApplyFilters={onApplyFilters} categoryType={categoryType} />
+            </div>
+            {/* ToggleViewButton in top-right corner */}
+            <div style={{ position: 'absolute', top: 4, right: 4, zIndex: 10 }}>
+                <ToggleViewButton view={view} setView={setView} />
+            </div>
+            <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={userLocation || defaultCenter}
+                zoom={15}
+                onLoad={(map) => {
+                    mapRef.current = map;
+                }}
+                options={{
+                    styles: customMapStyle,
+                    gestureHandling: "greedy", // Enables full gesture control
+                    zoomControl: true,
+                    scrollwheel: false,// Optional: disable zoom by scroll to force 2-finger
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false
+                }}
             >
                 {locations.map((item, index) => (
                     <OverlayView
@@ -139,19 +148,18 @@ const MapView = ({ locations }) => {
                             onClick={() => handleMarkerClick(item)}
                         >
              <div
-    className="bg-[#1b7bd9] text-white rounded-md max-w-[120px] px-3 py-2 flex items-center justify-center text-[15px] font-semibold shadow-md transition-colors text-center overflow-hidden"
+    className="bg-[#1b7bd9] text-white rounded-md max-w-[120px] px-3 py-2 flex flex-col items-center justify-center text-[15px] font-semibold shadow-md transition-colors text-center overflow-hidden"
     title={item.title || "N/A"}
 >
-<span className="block truncate w-full">
-&nbsp;&nbsp;{item.title || "N/A"}&nbsp;
-</span>
+  <span className="block truncate w-full">
+    &nbsp;&nbsp;{item.title || "N/A"}&nbsp;
+    {item.price !== null && item.price !== undefined && (
+      <span className="block text-[13px] font-semibold mt-1 text-[#f55363]">
+        {item.price}₪
+      </span>
+    )}
+  </span>
 </div>
-
-                            {(item.price !== null && item.price !== undefined) && (
-                                 <div className="mt-2 bg-[#f55363] text-white text-[13px] font-semibold rounded-md px-5 py-3 shadow-sm">
-                                 &nbsp;{item.price}₪&nbsp;
-                             </div>
-                            )}
                         </div>
                     </OverlayView>
                 ))}

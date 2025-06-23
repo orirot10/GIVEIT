@@ -148,5 +148,9 @@
         "delete_confirmation": "האם אתה בטוח שברצונך למחוק?"
     },
     "mark_available": "סמן כזמין",
-    "mark_unavailable": "סמן כלא זמין"
+    "mark_unavailable": "סמן כלא זמין",
+    "Available Products": "מוצרים זמינים",
+    "Wanted Products": "מוצרים דרושים",
+    "Available Services": "שירותים זמינים",
+    "Wanted Services": "שירותים דרושים"
 }

@@ -8,6 +8,7 @@ import { geocodeAddress } from "./geocode";
 import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
+import { useTranslation } from 'react-i18next';
 
 const GenericMapPage = ({ title, apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
@@ -16,18 +17,19 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [contentType, setContentType] = useState(apiUrl.includes('/services') ? 'services' : 'rentals');
     const [searchQuery, setSearchQuery] = useState("");
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
+    const { t, i18n } = useTranslation();
 
     // Define tabs based on the page type (rentals or services)
     const getTabs = () => {
         if (apiUrl.includes('/rentals')) {
             return [
-                { id: 'rentals', label: 'Available Products' },
-                { id: 'rental_requests', label: 'Wanted Products' }
+                { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' },
+                { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' }
             ];
         } else {
             return [
-                { id: 'services', label: 'Available Services' },
-                { id: 'service_requests', label: 'Wanted Services' }
+                { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' },
+                { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' }
             ];
         }
     };
@@ -67,15 +69,15 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const getDisplayTitle = () => {
         switch (contentType) {
             case 'rentals':
-                return 'Available Products';
+                return i18n.language === 'he' ? t('Available Products') : 'Available Products';
             case 'services':
-                return 'Available Services';
+                return i18n.language === 'he' ? t('Available Services') : 'Available Services';
             case 'rental_requests':
-                return 'Wanted Products';
+                return i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products';
             case 'service_requests':
-                return 'Wanted Services';
+                return i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services';
             default:
-                return title || 'Explore';
+                return title || (i18n.language === 'he' ? t('Explore') : 'Explore');
         }
     };
 
@@ -205,26 +207,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 />
 
                 <div className="w-full flex justify-center">
-                    <div className="flex items-center gap-0">
-                        <FilterButton
-                            onApplyFilters={handleFilter}
-                            categoryType={getCategoryType()}
-                        />
-                        {filterCount > 0 && (
-                            <>
-                                <button
-                                    onClick={handleClearFilters}
-                                    className="search-filter-style red"
-                                    title="Clear all filters"
-                                >
-                                    Clear Filters
-                                </button>
-                                <span className="search-filter-style gray">
-                                    {filterCount} {filterCount === 1 ? "filter" : "filters"} applied
-                                </span>
-                            </>
-                        )}
-                    </div>
+                    {/* FilterButton moved to MapView */}
                 </div>
             </div>
 
@@ -260,11 +243,21 @@ const GenericMapPage = ({ title, apiUrl }) => {
             )}
 
             <div className="map-wrapper w-full mb-0 pb-0">
-                <ToggleViewButton view={view} setView={setView} />
                 {view === "map" ? (
-                    <MapView locations={locations} />
+                    <MapView 
+                        locations={locations} 
+                        onApplyFilters={handleFilter}
+                        categoryType={getCategoryType()}
+                        view={view}
+                        setView={setView}
+                    />
                 ) : (
-                    <ListView rentals={allItems} />
+                    <>
+                        <div style={{ position: 'absolute', top: 2, right: 2, zIndex:8 }}>
+                            <ToggleViewButton view={view} setView={setView} />
+                        </div>
+                        <ListView rentals={allItems} />
+                    </>
                 )}
             </div>
         </div>

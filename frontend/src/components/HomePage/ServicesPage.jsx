@@ -3,11 +3,11 @@ import GenericMapPage from "./GenericMapPage";
 import { useTranslation } from 'react-i18next';
 
 const ServicesPage = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     return (
         <GenericMapPage
             apiUrl={`${import.meta.env.VITE_API_URL}/api/services`}
-            title={t("Services")}
+            title={i18n.language === 'he' ? t('Services') : 'Services'}
         />
     );
 };
