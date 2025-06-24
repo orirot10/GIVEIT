@@ -187,7 +187,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const filterCount = appliedFilters.categories.length + (appliedFilters.minPrice !== null ? 1 : 0) + (appliedFilters.maxPrice !== null ? 1 : 0);
 
     return (
-        <div className="p-2 flex flex-col gap-1 items-center">
+        <div className="p-2 flex flex-col gap-1 items-center pb-20">
             <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
 
             <div className="w-full flex flex-col gap-1 items-center">

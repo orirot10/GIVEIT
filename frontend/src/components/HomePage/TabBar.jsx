@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import '../../styles/HomePage/TabBar.css';
@@ -9,6 +11,7 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
     const indicatorTransform = isRTL
         ? `translateX(${(tabs.length - 1 - activeIndex) * 100}%)`
         : `translateX(${activeIndex * 100}%)`;
+
     return (
         <div className="tab-bar-container">
             <div className="tab-bar">
@@ -16,7 +19,13 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
                     <button
                         key={tab.id}
                         className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-                        onClick={() => onTabChange(tab.id)}
+                        onClick={() => {
+                            if (isRTL) {
+
+                                    onTabChange(tab.id); // Hebrew mode: click active tab to switch
+
+                            }
+                        }}
                     >
                         {tab.label}
                     </button>
@@ -32,4 +41,4 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
     );
 };
 
-export default TabBar; 
+export default TabBar;
