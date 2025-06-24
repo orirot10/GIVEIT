@@ -25,7 +25,7 @@
 
 .custom-dashboard-bg {
   background: #f9f9f9;
-  min-height: 100vh;
+  min-height: 50vh;
   font-family: 'Inter', 'Poppins', 'Roboto', sans-serif;
 }
 
@@ -51,7 +51,7 @@
 .dashboard-sections {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 10px;
   max-width: 420px;
   margin: 0 auto;
 }
@@ -60,7 +60,7 @@
   background: #fff;
   border-radius: 1.25rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  padding: 24px 20px;
+  padding: 12px 10px;
 }
 
 .dashboard-section-title {
@@ -79,12 +79,12 @@
 
 .dashboard-btn {
   width: 100%;
-  min-width: 220px;
+  min-width: 260px;
   max-width: 100%;
   display: block;
   margin-left: auto;
   margin-right: auto;
-  padding: 12px 0;
+  padding: 8px 0;
   border-radius: 0.75rem;
   font-size: 1rem;
   font-weight: 500;
@@ -122,18 +122,15 @@
 }
 
 @media (max-width: 600px) {
-  .dashboard-sections {
-    max-width: 100%;
-    padding: 0 8px;
-  }
-  .dashboard-section {
-    padding: 16px 6px;
-  }
-  .dashboard-header {
-    margin-bottom: 20px;
-  }
   .dashboard-btn {
     min-width: 0;
     width: 100%;
+    padding: 8px 0;
+  }
+  .dashboard-sections {
+    gap: 10px;
+  }
+  .dashboard-header {
+    margin-bottom: 20px;
   }
 }
