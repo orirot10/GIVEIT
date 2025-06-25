@@ -288,20 +288,27 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
             <div className="map-wrapper w-full mb-0 pb-0">
                 {view === "map" ? (
-                    <MapView 
-                        locations={locations} 
-                        onApplyFilters={handleFilter}
-                        categoryType={getCategoryType()}
-                        view={view}
-                        setView={setView}
-                        onSearchInArea={handleSearchInArea}
-                    />
+                    <>
+                        <MapView 
+                            locations={locations} 
+                            onApplyFilters={handleFilter}
+                            categoryType={getCategoryType()}
+                            view={view}
+                            setView={setView}
+                            onSearchInArea={handleSearchInArea}
+                            mapHeight={340}
+                        />
+                        <div style={{ height: '48px' }} />
+                    </>
                 ) : (
                     <>
                         <div style={{ position: 'absolute', top: 2, right: 2, zIndex:8 }}>
                             <ToggleViewButton view={view} setView={setView} />
                         </div>
-                        <ListView rentals={allItems} />
+                        <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+                            <ListView rentals={allItems} />
+                        </div>
+                        <div style={{ height: '48px' }} />
                     </>
                 )}
             </div>

@@ -19,7 +19,7 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
@@ -142,7 +142,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
                 <ToggleViewButton view={view} setView={setView} />
             </div>
             <GoogleMap
-                mapContainerStyle={{ ...containerStyle, height: '420px' }}
+                mapContainerStyle={{ ...containerStyle, height: mapHeight ? `${mapHeight}px` : '420px' }}
                 center={userLocation || defaultCenter}
                 zoom={15}
                 onLoad={(map) => {
