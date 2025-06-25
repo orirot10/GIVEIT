@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ImageUpload from '../ImageUpload';
 import '../../styles/components/UploadForm.css';
+import { geocodeAddress } from '../HomePage/geocode';
 
 const ModalUploadForm = ({
 titleText,
@@ -60,11 +61,15 @@ const handleSubmit = async e => {
         }
 
         const token = await currentUser.getIdToken(true);
-        
-        // Prepare listing data with Firebase image URLs
+
+        // Geocode address
+        const coords = await geocodeAddress(form.street, form.city);
+        // Prepare listing data with Firebase image URLs and lat/lng
         const listingData = {
             ...form,
-            images: imageUrls
+            images: imageUrls,
+            lat: coords ? coords.lat : undefined,
+            lng: coords ? coords.lng : undefined
         };
         
         // Send to MongoDB via backend API
