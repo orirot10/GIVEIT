@@ -19,9 +19,11 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
+    const [mapCenter, setMapCenter] = useState(null);
+    const [showSearchArea, setShowSearchArea] = useState(false);
     const mapRef = useRef(null); // ref to control the map
     const hasSetInitialLocation = useRef(false); // Track if initial location was set
 
@@ -37,11 +39,13 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => 
                     lng: position.coords.longitude,
                 };
                 setUserLocation(newLocation);
+                setMapCenter(newLocation);
                 hasSetInitialLocation.current = true; // Prevent future updates
             },
             (error) => {
                 console.error("Error getting user location:", error);
                 setUserLocation(defaultCenter); // Fallback to default center
+                setMapCenter(defaultCenter);
                 hasSetInitialLocation.current = true;
             },
             {
@@ -70,6 +74,24 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => 
             mapRef.current.panTo(userLocation);
         }
     };
+
+    const handleMapIdle = () => {
+        if (mapRef.current) {
+            const center = mapRef.current.getCenter();
+            if (center) {
+                setMapCenter({ lat: center.lat(), lng: center.lng() });
+                setShowSearchArea(true);
+            }
+        }
+    };
+
+    const handleSearchInArea = () => {
+        if (onSearchInArea && mapCenter) {
+            onSearchInArea(mapCenter);
+            setShowSearchArea(false);
+        }
+    };
+
     const customMapStyle = [
         {
           featureType: "poi", // Hide points of interest (restaurants, etc.)
@@ -110,7 +132,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => 
       
       
     return (
-        <div className="w-full h-[500px] relative">
+        <div className="w-full relative" style={{ marginBottom: '64px' }}>
             {/* FilterButton in top-left corner */}
             <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
                 <FilterButton onApplyFilters={onApplyFilters} categoryType={categoryType} />
@@ -120,17 +142,18 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => 
                 <ToggleViewButton view={view} setView={setView} />
             </div>
             <GoogleMap
-                mapContainerStyle={containerStyle}
+                mapContainerStyle={{ ...containerStyle, height: '420px' }}
                 center={userLocation || defaultCenter}
                 zoom={15}
                 onLoad={(map) => {
                     mapRef.current = map;
                 }}
+                onIdle={handleMapIdle}
                 options={{
                     styles: customMapStyle,
-                    gestureHandling: "greedy", // Enables full gesture control
+                    gestureHandling: "greedy",
                     zoomControl: true,
-                    scrollwheel: false,// Optional: disable zoom by scroll to force 2-finger
+                    scrollwheel: false,
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false
@@ -207,6 +230,18 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView }) => 
             )}
 
             <Popup item={selectedItem} onClose={handlePopupClose} />
+
+            {/* Search in this area button below the map */}
+            {showSearchArea && (
+                <div className="w-full flex justify-center mt-2" style={{ position: 'absolute', left: 0, right: 0, bottom: -56, zIndex: 20 }}>
+                    <button
+                        onClick={handleSearchInArea}
+                        className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+                    >
+                        Search in this area
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

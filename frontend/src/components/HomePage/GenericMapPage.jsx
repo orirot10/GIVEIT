@@ -216,6 +216,20 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     const filterCount = appliedFilters.categories.length + (appliedFilters.minPrice !== null ? 1 : 0) + (appliedFilters.maxPrice !== null ? 1 : 0);
 
+    // Add handler for 'search in this area'
+    const handleSearchInArea = (center) => {
+        const currentApiUrl = getApiUrl();
+        let url = `${currentApiUrl}?lat=${center.lat}&lng=${center.lng}&radius=1000`;
+        fetch(url)
+            .then((res) => res.json())
+            .then(async (data) => {
+                setAllItems(data);
+                const withCoords = await mapItemsToCoords(data);
+                setLocations(withCoords);
+                setUserLocation(center); // update userLocation to new center for future filters
+            });
+    };
+
     return (
         <div className="p-2 flex flex-col gap-1 items-center pb-20">
             <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
@@ -280,6 +294,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         categoryType={getCategoryType()}
                         view={view}
                         setView={setView}
+                        onSearchInArea={handleSearchInArea}
                     />
                 ) : (
                     <>
