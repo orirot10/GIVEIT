@@ -15,6 +15,8 @@ const rentalSchema = new mongoose.Schema({
     city: { type: String },
     street: { type: String },
     location: { type: String },
+    lat: { type: Number },
+    lng: { type: Number },
     ownerId: { type: String, required: true },
     firebaseUid: { type: String, required: true },
 }, { timestamps: true });

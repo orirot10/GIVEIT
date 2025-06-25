@@ -14,7 +14,9 @@ const uploadNewRentalRequest = async (req, res) => {
         phone,
         status,
         city,
-        street
+        street,
+        lat,
+        lng
     } = req.body;
 
     if (!req.user) {
@@ -41,7 +43,9 @@ const uploadNewRentalRequest = async (req, res) => {
             phone,
             status,
             city,
-            street
+            street,
+            lat: lat ? parseFloat(lat) : undefined,
+            lng: lng ? parseFloat(lng) : undefined
         });
 
         console.log('Created rental request:', newRentalRequest);
@@ -55,8 +59,35 @@ const uploadNewRentalRequest = async (req, res) => {
 // Get all rental requests
 const getRentalRequests = async (req, res) => {
     try {
-        const requests = await RentalRequest.find()
-            .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId')
+        const { lat, lng, radius } = req.query;
+        let query = {};
+        if (lat && lng && radius) {
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+            const maxDistance = parseFloat(radius) || 1000;
+            query = {
+                lat: { $exists: true, $ne: null },
+                lng: { $exists: true, $ne: null },
+                $expr: {
+                    $lte: [
+                        {
+                            $multiply: [
+                                6371000,
+                                { $acos: {
+                                    $add: [
+                                        { $multiply: [ { $sin: { $degreesToRadians: userLat } }, { $sin: { $degreesToRadians: "$lat" } } ] },
+                                        { $multiply: [ { $cos: { $degreesToRadians: userLat } }, { $cos: { $degreesToRadians: "$lat" } }, { $cos: { $subtract: [ { $degreesToRadians: "$lng" }, { $degreesToRadians: userLng } ] } } ] }
+                                    ]
+                                }}
+                            ]
+                        },
+                        maxDistance
+                    ]
+                }
+            };
+        }
+        const requests = await RentalRequest.find(query)
+            .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng')
             .sort({ createdAt: -1 });
         res.status(200).json(requests);
     } catch (err) {

@@ -12,7 +12,9 @@ const uploadNewServiceRequest = async (req, res) => {
         price,
         phone,
         city,
-        street
+        street,
+        lat,
+        lng
     } = req.body;
 
     if (!req.user) {
@@ -38,6 +40,8 @@ const uploadNewServiceRequest = async (req, res) => {
             phone,
             city,
             street,
+            lat: lat ? parseFloat(lat) : undefined,
+            lng: lng ? parseFloat(lng) : undefined,
             type: 'requests' // Explicitly set type as requests
         });
 
@@ -51,7 +55,34 @@ const uploadNewServiceRequest = async (req, res) => {
 
 const getServiceRequests = async (req, res) => {
     try {
-        const services = await Service.find().sort({ createdAt: -1 });
+        const { lat, lng, radius } = req.query;
+        let query = {};
+        if (lat && lng && radius) {
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+            const maxDistance = parseFloat(radius) || 1000;
+            query = {
+                lat: { $exists: true, $ne: null },
+                lng: { $exists: true, $ne: null },
+                $expr: {
+                    $lte: [
+                        {
+                            $multiply: [
+                                6371000,
+                                { $acos: {
+                                    $add: [
+                                        { $multiply: [ { $sin: { $degreesToRadians: userLat } }, { $sin: { $degreesToRadians: "$lat" } } ] },
+                                        { $multiply: [ { $cos: { $degreesToRadians: userLat } }, { $cos: { $degreesToRadians: "$lat" } }, { $cos: { $subtract: [ { $degreesToRadians: "$lng" }, { $degreesToRadians: userLng } ] } } ] }
+                                    ]
+                                }}
+                            ]
+                        },
+                        maxDistance
+                    ]
+                }
+            };
+        }
+        const services = await Service.find(query).sort({ createdAt: -1 });
         res.status(200).json(services);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch service requests' });

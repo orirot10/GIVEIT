@@ -17,6 +17,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [contentType, setContentType] = useState(apiUrl.includes('/services') ? 'services' : 'rentals');
     const [searchQuery, setSearchQuery] = useState("");
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
+    const [userLocation, setUserLocation] = useState(null);
     const { t, i18n } = useTranslation();
 
     // Define tabs based on the page type (rentals or services)
@@ -81,12 +82,34 @@ const GenericMapPage = ({ title, apiUrl }) => {
         }
     };
 
+    // Get user location on mount
+    useEffect(() => {
+        if (!userLocation && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setUserLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    console.error('Error getting user location:', error);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+    }, [userLocation]);
+
     useEffect(() => {
         const fetchAndMap = async () => {
             try {
                 const currentApiUrl = getApiUrl();
-                console.log('Fetching from URL:', currentApiUrl);
-                const res = await fetch(currentApiUrl);
+                let url = currentApiUrl;
+                if (userLocation) {
+                    url += `?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
+                }
+                console.log('Fetching from URL:', url);
+                const res = await fetch(url);
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
                 }
@@ -104,7 +127,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
         };
 
         fetchAndMap();
-    }, [contentType]); // Re-fetch when content type changes
+    }, [contentType, userLocation]); // Re-fetch when content type or user location changes
 
     const mapItemsToCoords = async (items) => {
         const mapped = await Promise.all(
@@ -150,7 +173,11 @@ const GenericMapPage = ({ title, apiUrl }) => {
         }
 
         if (maxPrice !== null) {
-            url += `maxPrice=${maxPrice}`;
+            url += `maxPrice=${maxPrice}&`;
+        }
+
+        if (userLocation) {
+            url += `lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
         }
 
         fetch(url)
@@ -165,8 +192,11 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const handleClearFilters = () => {
         setAppliedFilters({ categories: [], minPrice: null, maxPrice: null });
         const currentApiUrl = getApiUrl();
-
-        fetch(currentApiUrl)
+        let url = currentApiUrl;
+        if (userLocation) {
+            url += `?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
+        }
+        fetch(url)
             .then((res) => res.json())
             .then(async (data) => {
                 setAllItems(data);

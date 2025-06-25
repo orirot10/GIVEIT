@@ -17,6 +17,8 @@ const serviceSchema = new mongoose.Schema({
     status: { type: String, default: 'available' },
     city: { type: String },
     street: { type: String },
+    lat: { type: Number },
+    lng: { type: Number },
     createdAt: { type: Date, default: Date.now },
 });
 

@@ -1,7 +1,7 @@
 const Service = require('../models/Service.js');
 
 const uploadNewService = async (req, res) => {
-    const { title, description, category, price, pricePeriod, phone, city, street, images } = req.body;
+    const { title, description, category, price, pricePeriod, phone, city, street, images, lat, lng } = req.body;
 
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
@@ -35,7 +35,9 @@ const uploadNewService = async (req, res) => {
             phone,
             city,
             street,
-            images: imagePaths
+            images: imagePaths,
+            lat: lat ? parseFloat(lat) : undefined,
+            lng: lng ? parseFloat(lng) : undefined
         });
 
         res.status(201).json(newService);
@@ -46,7 +48,34 @@ const uploadNewService = async (req, res) => {
 
 const getServices = async (req, res) => {
     try {
-        const services = await Service.find().sort({ createdAt: -1 });
+        const { lat, lng, radius } = req.query;
+        let query = {};
+        if (lat && lng && radius) {
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+            const maxDistance = parseFloat(radius) || 1000;
+            query = {
+                lat: { $exists: true, $ne: null },
+                lng: { $exists: true, $ne: null },
+                $expr: {
+                    $lte: [
+                        {
+                            $multiply: [
+                                6371000,
+                                { $acos: {
+                                    $add: [
+                                        { $multiply: [ { $sin: { $degreesToRadians: userLat } }, { $sin: { $degreesToRadians: "$lat" } } ] },
+                                        { $multiply: [ { $cos: { $degreesToRadians: userLat } }, { $cos: { $degreesToRadians: "$lat" } }, { $cos: { $subtract: [ { $degreesToRadians: "$lng" }, { $degreesToRadians: userLng } ] } } ] }
+                                    ]
+                                }}
+                            ]
+                        },
+                        maxDistance
+                    ]
+                }
+            };
+        }
+        const services = await Service.find(query).sort({ createdAt: -1 });
         res.status(200).json(services);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch services' });

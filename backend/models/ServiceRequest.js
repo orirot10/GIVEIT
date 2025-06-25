@@ -19,6 +19,8 @@ const serviceRequestSchema = new mongoose.Schema({
     },
     city: { type: String },
     street: { type: String },
+    lat: { type: Number },
+    lng: { type: Number },
 }, { timestamps: true });
 
 const ServiceRequest = mongoose.model('ServiceRequest', serviceRequestSchema);

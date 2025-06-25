@@ -14,7 +14,9 @@ const uploadNewRental = async (req, res) => {
     city,
     street,
     location,
-    images
+    images,
+    lat,
+    lng
     } = req.body;
 
     if (!req.user) {
@@ -51,7 +53,9 @@ const uploadNewRental = async (req, res) => {
         status: status || 'available',
         city,
         street,
-        location: location || city
+        location: location || city,
+        lat: lat ? parseFloat(lat) : undefined,
+        lng: lng ? parseFloat(lng) : undefined
     });
 
     res.status(201).json(newRental);
@@ -63,8 +67,37 @@ const uploadNewRental = async (req, res) => {
 // Get all rentals
 const getRentals = async (req, res) => {
     try {
-    const rentals = await Rental.find()
-        .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId')
+    const { lat, lng, radius } = req.query;
+    let query = {};
+    if (lat && lng && radius) {
+        // Find rentals within radius (in meters)
+        const userLat = parseFloat(lat);
+        const userLng = parseFloat(lng);
+        const maxDistance = parseFloat(radius) || 1000;
+        // Use MongoDB $geoWithin with $centerSphere (approximate Earth radius in radians)
+        query = {
+            lat: { $exists: true, $ne: null },
+            lng: { $exists: true, $ne: null },
+            $expr: {
+                $lte: [
+                    {
+                        $multiply: [
+                            6371000, // Earth radius in meters
+                            { $acos: {
+                                $add: [
+                                    { $multiply: [ { $sin: { $degreesToRadians: userLat } }, { $sin: { $degreesToRadians: "$lat" } } ] },
+                                    { $multiply: [ { $cos: { $degreesToRadians: userLat } }, { $cos: { $degreesToRadians: "$lat" } }, { $cos: { $subtract: [ { $degreesToRadians: "$lng" }, { $degreesToRadians: userLng } ] } } ] }
+                                ]
+                            }}
+                        ]
+                    },
+                    maxDistance
+                ]
+            }
+        };
+    }
+    const rentals = await Rental.find(query)
+        .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng')
         .sort({ createdAt: -1 });
     res.status(200).json(rentals);
     } catch (err) {

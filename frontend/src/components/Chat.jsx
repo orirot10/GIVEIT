@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, updateDoc, limit } from 'firebase/firestore';
 
 const Chat = ({ userId, contactId, userMap }) => {
   const [messages, setMessages] = useState([]);
@@ -43,7 +43,7 @@ const Chat = ({ userId, contactId, userMap }) => {
         }
 
         const messagesRef = collection(db, 'conversations', conversationId, 'messages');
-        const q = query(messagesRef, orderBy('timestamp', 'asc'));
+        const q = query(messagesRef, orderBy('timestamp', 'asc'), limit(50));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
           const messagesData = snapshot.docs.map((doc) => ({
