@@ -1,85 +1,142 @@
-.messages-container {
-  width: 100%;
-  max-width: 430px;
-  margin: 0 auto;
-  padding: var(--spacing);
+@import './variables.css';
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset and base layout */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.message {
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: var(--border-radius);
+body {
+  font-family: var(--font-base);
   font-size: var(--font-size);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.message:last-child {
-  margin-bottom: 0;
-}
-
-/* Info message styles */
-.message.info {
-  background-color: var(--primary-color);
-  color: #fff;
-  border: none;
-}
-
-/* Success message styles */
-.message.success {
-  background-color: #4caf50;
-  color: #fff;
-  border: none;
-}
-
-/* Warning message styles */
-.message.warning {
-  background-color: #ff9800;
-  color: #fff;
-  border: none;
-}
-
-/* Error message styles */
-.message.error {
-  background-color: #f44336;
-  color: #fff;
-  border: none;
-}
-
-/* Message icon */
-.message-icon {
-  font-size: 1.25rem;
-}
-
-/* Message content */
-.message-content {
-  flex: 1;
-}
-
-/* Message timestamp */
-.message-timestamp {
-  font-size: 0.75rem;
-  opacity: 0.8;
-  margin-top: 0.25rem;
-}
-
-.messages-page {
-  padding: var(--spacing);
-  max-width: 430px;
-  margin: 0 auto;
-}
-
-.page-title {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
   color: var(--text-color);
-  font-weight: 600;
+  background-color: var(--background-color);
+  min-height: 100vh;
 }
 
-.messages-list {
+#root {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-} 
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+.app-container {
+  padding-top: 40px;
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  background-color: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+}
+
+main {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+/* Global form styles */
+form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Input fields */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"] {
+  padding: 10px 14px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.2s ease;
+  width: 100%;
+  background-color: #fff;
+}
+
+input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+input::placeholder {
+  color: #999;
+  font-size: 14px;
+}
+
+/* Labels */
+label {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+/* Error messages */
+.error,
+.error-message {
+  color: #e53935;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* Links */
+form a {
+  color: #007bff;
+  font-size: 14px;
+  margin-top: 10px;
+  text-align: center;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+form a:hover {
+  text-decoration: underline;
+  color: #0056b3;
+}
+
+/* Form layout wrapper */
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 75vh;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.form {
+  width: 100%;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Tailwind override for buttons if needed */
+button {
+  transition: all 0.2s ease;
+}

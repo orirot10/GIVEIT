@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import ChatList from '../components/ChatList';
 import RealtimeChat from '../components/RealtimeChat';
 import '../styles/Chat.css';
-import './Messages.css';
+//import './Messages.css';
 
 function Messages() {
     const { user } = useAuthContext();
