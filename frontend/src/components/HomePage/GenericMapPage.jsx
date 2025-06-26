@@ -18,6 +18,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [searchQuery, setSearchQuery] = useState("");
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
     const [userLocation, setUserLocation] = useState(null);
+    const [resetSearchArea, setResetSearchArea] = useState(0);
     const { t, i18n } = useTranslation();
 
     // Define tabs based on the page type (rentals or services)
@@ -155,6 +156,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const handleSearch = () => {
         const currentApiUrl = getApiUrl();
         searchItems({ apiUrl: currentApiUrl, searchQuery, setAllItems, setLocations });
+        setResetSearchArea(prev => prev + 1);
     };
 
     const handleFilter = ({ categories, minPrice, maxPrice }) => {
@@ -186,6 +188,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 setAllItems(data);
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
+                setResetSearchArea(prev => prev + 1);
             });
     };
 
@@ -202,6 +205,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 setAllItems(data);
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
+                setResetSearchArea(prev => prev + 1);
             });
     };
 
@@ -227,6 +231,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
                 setUserLocation(center); // update userLocation to new center for future filters
+                setResetSearchArea(prev => prev + 1);
             });
     };
 
@@ -297,6 +302,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             setView={setView}
                             onSearchInArea={handleSearchInArea}
                             mapHeight={340}
+                            resetSearchArea={resetSearchArea}
                         />
                         <div style={{ height: '48px' }} />
                     </>

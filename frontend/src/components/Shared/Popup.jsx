@@ -49,7 +49,6 @@ const Popup = ({ item, onClose }) => {
     zipCode = '',
     phone = 'Contact Info Unavailable',
     images,
-    category = 'General',
     price = null,
     pricePeriod = 'use',
     firstName = 'N/A',
@@ -135,12 +134,13 @@ const Popup = ({ item, onClose }) => {
       </div>
 
         {images && images[0] && (
-          <div className="overflow-hidden">
-            <img 
-              src={images[0].startsWith('http') ? images[0] : `https://giveit-backend.onrender.com${images[0]}`} 
-              alt={title} 
-              className="w-full h-28 object-cover"
-              loading="lazy" 
+          <div className="overflow-hidden w-full flex justify-center items-center" style={{ height: '80px', minHeight: '80px', maxHeight: '80px' }}>
+            <img
+              src={images[0].startsWith('http') ? images[0] : `https://giveit-backend.onrender.com${images[0]}`}
+              alt={title}
+              className="w-full h-full object-cover rounded-md"
+              style={{ maxWidth: '120px', maxHeight: '80px', minWidth: '80px', minHeight: '80px', objectFit: 'cover', objectPosition: 'center' }}
+              loading="lazy"
             />
           </div>
         )}

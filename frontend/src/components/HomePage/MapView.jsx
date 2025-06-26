@@ -19,7 +19,7 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight, resetSearchArea }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
@@ -55,6 +55,10 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
             }
         );
     }, []);
+
+    useEffect(() => {
+        setShowSearchArea(false);
+    }, [resetSearchArea]);
 
     const handleMarkerClick = (item) => {
         console.log('[MapView] Item passed to handleMarkerClick:', item);
