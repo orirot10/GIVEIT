@@ -249,39 +249,36 @@ const MyModals = () => {
                 <p>{t('common.loading')}</p>
             ) : (
                 <div className="items-list">
-                    {getItems().length > 0 ? (
-                        getItems().map(item => (
-                            <ModalCard
-                                key={item._id}
-                                item={item}
-                                type={getItemType()}
-                                onDeleteSuccess={handleDeleteSuccess}
-                                onEditSuccess={handleEditSuccess}
-                            />
-                        ))
-                    ) : (
-                        <div className="empty-state">
-                            <p>{getEmptyMessage()}</p>
-                            {getActionButton() && (
-                                <button
-                                    className="btn-offer"
-                                    onClick={() => navigate(getActionButton().path)}
-                                >
-                                    {getActionButton().text}
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
+  {getItems().length > 0 ? (
+    <>
+      {getItems().map(item => (
+        <ModalCard
+          key={item._id}
+          item={item}
+          type={getItemType()}
+          onDeleteSuccess={handleDeleteSuccess}
+          onEditSuccess={handleEditSuccess}
+        />
+      ))}
+    </>
+  ) : (
+    <div className="empty-state">
+      <p>{getEmptyMessage()}</p>
+    </div>
+  )}
+
+  {/* Always show action button if available */}
+  {getActionButton() && (
+    <button
+      className="btn-offer"
+      onClick={() => navigate(getActionButton().path)}
+    >
+      {getActionButton().text}
+    </button>
+  )}
+</div>
             )}
 
-            {/* Persistent Add Listing Button */}
-            <button
-                className="add-listing-fab"
-                onClick={() => navigate(getActionButton()?.path || '/offer-rental')}
-            >
-                {t('my_items.add_listing')}
-            </button>
         </div>
     );
 };

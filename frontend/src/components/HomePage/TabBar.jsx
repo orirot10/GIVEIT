@@ -6,7 +6,7 @@ import '../../styles/HomePage/TabBar.css';
 
 const TabBar = ({ activeTab, onTabChange, tabs }) => {
     const { i18n } = useTranslation();
-    const isRTL = i18n.language === 'he';
+    const isRTL = i18n.language === 'en';
     const activeIndex = tabs.findIndex(tab => tab.id === activeTab);
     const indicatorTransform = isRTL
         ? `translateX(${(tabs.length - 1 - activeIndex) * 100}%)`
@@ -20,11 +20,10 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
                         key={tab.id}
                         className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
                         onClick={() => {
-                            if (isRTL) {
+
 
                                     onTabChange(tab.id); // Hebrew mode: click active tab to switch
 
-                            }
                         }}
                     >
                         {tab.label}
