@@ -145,7 +145,8 @@
         "offer_service": "הצע שירות",
         "request_rental": "בקש השכרה",
         "request_service": "בקש שירות",
-        "delete_confirmation": "האם אתה בטוח שברצונך למחוק?"
+        "delete_confirmation": "האם אתה בטוח שברצונך למחוק?",
+        "add_listing": "הוסף פריט"
     },
     "mark_available": "סמן כזמין",
     "mark_unavailable": "סמן כלא זמין",

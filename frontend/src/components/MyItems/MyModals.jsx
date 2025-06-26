@@ -274,6 +274,14 @@ const MyModals = () => {
                     )}
                 </div>
             )}
+
+            {/* Persistent Add Listing Button */}
+            <button
+                className="add-listing-fab"
+                onClick={() => navigate(getActionButton()?.path || '/offer-rental')}
+            >
+                {t('my_items.add_listing')}
+            </button>
         </div>
     );
 };

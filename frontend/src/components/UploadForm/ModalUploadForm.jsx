@@ -102,7 +102,7 @@ return (
         {success ? (
             <div className="alert alert-success shadow-lg flex flex-col items-center">
                 <span className="text-lg font-semibold">{successMessage}</span>
-                <button className="btn btn-primary mt-4" onClick={() => navigate('/dashboard')}>Close</button>
+                <button className="btn btn-primary mt-4" onClick={() => navigate('/')}>Close</button>
             </div>
         ) : (
             <>

@@ -145,6 +145,7 @@
     "offer_service": "Offer a Service",
     "request_rental": "Request a Rental",
     "request_service": "Request a Service",
-    "delete_confirmation": "Are you sure you want to delete?"
+    "delete_confirmation": "Are you sure you want to delete?",
+    "add_listing": "Add Listing"
   }
 }
