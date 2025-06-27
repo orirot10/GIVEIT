@@ -304,7 +304,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             mapHeight={340}
                             resetSearchArea={resetSearchArea}
                         />
-                        <div style={{ height: '70px' }} />
+                        <div style={{ height: '48px' }} />
                     </>
                 ) : (
                     <>
