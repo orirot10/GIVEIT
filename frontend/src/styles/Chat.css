@@ -184,10 +184,12 @@
 
 /* Enhanced Chat List Container */
 .chat-list-container {
-  max-width: 800px;
+  width: 100%; /* Full width of the parent container */
+  max-width: 90vw; /* Maximum width is 90% of the viewport width */
   margin: 0 auto;
   padding: 1.25rem;
   min-height: 100vh;
+  box-sizing: border-box; /* Ensure padding doesn't increase width */
 }
 
 /* Section Dividers */

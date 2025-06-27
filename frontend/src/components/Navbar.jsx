@@ -25,7 +25,7 @@ function Navbar() {
   ];
 
   return (
-    <nav className="bottom-nav" >
+    <nav className="bottom-nav">
       {tabs.map((tab) => (
         <button
           key={tab.path}

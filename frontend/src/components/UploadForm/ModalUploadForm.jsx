@@ -69,8 +69,7 @@ const handleSubmit = async e => {
             ...form,
             images: imageUrls,
             lat: coords ? coords.lat : undefined,
-            lng: coords ? coords.lng : undefined,
-            ownerId: currentUser.uid
+            lng: coords ? coords.lng : undefined
         };
         
         // Send to MongoDB via backend API

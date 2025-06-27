@@ -33,7 +33,7 @@ const uploadNewRentalRequest = async (req, res) => {
             firstName: req.user.firstName,
             lastName: req.user.lastName,
             email: req.user.email,
-            ownerId: req.user.id,
+            ownerId: req.user.mongoUser._id,
             title,
             description,
             category,

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
-import { getStorage } from 'firebase/storage';
+import { storage } from '../firebase'; // make sure this is properly configured
 
 const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) => {
   const [uploading, setUploading] = useState(false);
@@ -20,15 +19,12 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
           const timestamp = Date.now();
           const fileName = `${timestamp}_${file.name}`;
           const storageRef = ref(storage, `images/${fileName}`);
-
           await uploadBytes(storageRef, file);
-          const url = await getDownloadURL(storageRef);
-          return url;
+          return await getDownloadURL(storageRef);
         })
       );
 
-      // שלח את ה-URL חזרה להורה
-      onImageUpload(multiple ? urls : urls[0]);
+      onImageUpload(urls); // Always send as array (simplifies parent logic)
     } catch (err) {
       console.error('Upload error:', err);
       setError('Failed to upload image(s). Please try again.');
