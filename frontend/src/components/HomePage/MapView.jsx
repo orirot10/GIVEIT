@@ -237,7 +237,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
 
             {/* Search in this area button below the map */}
             {showSearchArea && (
-                <div className="w-full flex justify-center mt-2" style={{ position: 'absolute', left: 0, right: 0, bottom: -56, zIndex: 20 }}>
+                <div className="w-full flex justify-center mt-2" style={{ position: 'absolute', left: 0, right: 0, bottom: -35, zIndex: 15 }}>
                     <button
                         onClick={handleSearchInArea}
                         className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"

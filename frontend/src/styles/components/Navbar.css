@@ -1,15 +1,15 @@
 .bottom-nav {
     position: fixed;
-    bottom: 20px;
+    bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     max-width: 430px;
     background-color: #ffffff;
-    border-radius: 20px;
+    border-radius: 10px;
     display: flex;
     justify-content: space-around;
-    padding: 12px 0;
+    padding: 4px 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     z-index: 999;
 }
