@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   XMarkIcon, 
   UserIcon, 
@@ -10,15 +10,18 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/PopupAnimation.css';
+import { getDownloadURL, ref as storageRef } from 'firebase/storage';
+import { storage } from '../../firebase';
 
 const Popup = ({ item, onClose }) => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const popupRef = useRef(null);
+  const [resolvedImageUrl, setResolvedImageUrl] = useState(null);
   
   useEffect(() => {
-    const handleEscKey = (e) => {
-      if (e.key === 'Escape') onClose();
+    const handleEscKey = (event) => {
+      if (event.key === 'Escape') onClose();
     };
     
     document.body.style.overflow = 'hidden';
@@ -30,8 +33,34 @@ const Popup = ({ item, onClose }) => {
     };
   }, [onClose]);
   
-  const handleBackdropClick = (e) => {
-    if (popupRef.current && !popupRef.current.contains(e.target)) {
+  useEffect(() => {
+    let isMounted = true;
+    async function resolveImage() {
+      if (!item || !item.images || !item.images[0]) {
+        setResolvedImageUrl(null);
+        return;
+      }
+      const img = item.images[0];
+      if (img.startsWith('http')) {
+        setResolvedImageUrl(img);
+        return;
+      }
+      // Try Firebase Storage
+      try {
+        const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
+        const url = await getDownloadURL(firebaseRef);
+        if (isMounted) setResolvedImageUrl(url);
+      } catch (e) {
+        // Fallback to backend URL
+        if (isMounted) setResolvedImageUrl(`https://giveit-backend.onrender.com${img}`);
+      }
+    }
+    resolveImage();
+    return () => { isMounted = false; };
+  }, [item]);
+  
+  const handleBackdropClick = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
       onClose();
     }
   };
@@ -48,7 +77,6 @@ const Popup = ({ item, onClose }) => {
     state = '',
     zipCode = '',
     phone = 'Contact Info Unavailable',
-    images,
     price = null,
     pricePeriod = 'use',
     firstName = 'N/A',
@@ -133,10 +161,10 @@ const Popup = ({ item, onClose }) => {
         </div>
       </div>
 
-        {images && images[0] && (
+        {resolvedImageUrl && (
           <div className="overflow-hidden w-full flex justify-center items-center" style={{ height: '80px', minHeight: '80px', maxHeight: '80px' }}>
             <img
-              src={images[0].startsWith('http') ? images[0] : `https://giveit-backend.onrender.com${images[0]}`}
+              src={resolvedImageUrl}
               alt={title}
               className="w-full h-full object-cover rounded-md"
               style={{ maxWidth: '120px', maxHeight: '80px', minWidth: '80px', minHeight: '80px', objectFit: 'cover', objectPosition: 'center' }}
