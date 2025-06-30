@@ -50,7 +50,8 @@ const Popup = ({ item, onClose }) => {
         const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
         const url = await getDownloadURL(firebaseRef);
         if (isMounted) setResolvedImageUrl(url);
-      } catch (e) {
+      } catch (error) {
+        console.warn(`Failed to resolve image from Firebase Storage, falling back to legacy URL for image: ${img}`, error);
         // Fallback to backend URL
         if (isMounted) setResolvedImageUrl(`https://giveit-backend.onrender.com${img}`);
       }
@@ -105,7 +106,7 @@ const Popup = ({ item, onClose }) => {
     }
 
     // Check if user.uid exists (Firebase auth) or fall back to user.user?.id (legacy)
-    const currentUserId = user.uid || user.user?.id;
+    const currentUserId = user.uid;
     
     if (!currentUserId) {
       alert('Your user information is incomplete. Please log out and log in again.');

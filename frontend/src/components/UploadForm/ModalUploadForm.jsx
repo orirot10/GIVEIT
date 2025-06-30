@@ -20,11 +20,11 @@ const [form, setForm] = useState({
     category: '',
     price: '',
     pricePeriod: 'use',
-    firstName: user?.user?.firstName || user?.user?.displayName?.split(' ')[0] || '',
-    lastName: user?.user?.lastName || user?.user?.displayName?.split(' ')[1] || '',
-    phone: user?.user?.phone || '',
-    city: user?.user?.city || '',
-    street: user?.user?.street || ''
+    firstName: user?.firstName || user?.displayName?.split(' ')[0] || '',
+    lastName: user?.lastName || (user?.displayName?.split(' ').length > 1 ? user?.displayName?.split(' ')[1] : '') || '',
+    phone: user?.phone || '',
+    city: user?.city || '',
+    street: user?.street || ''
 });
 
 const [imageUrls, setImageUrls] = useState([]);
@@ -147,8 +147,10 @@ return (
                             accept="image/*"
                         />
                         {imageUrls.length > 0 && (
-                            <div className="mt-2">
-                                <p className="text-sm text-gray-600">{imageUrls.length} image(s) uploaded</p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {imageUrls.map((url, index) => (
+                                    <img key={index} src={url} alt={`preview ${index}`} className="w-16 h-16 object-cover rounded" />
+                                ))}
                             </div>
                         )}
                     </div>
