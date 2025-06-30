@@ -45,16 +45,13 @@ const ListView = ({ rentals }) => {
                 <div className="rental-image skeleton" />
               )}
             </div>
-            <h3 className="rental-title"> {rental.title}</h3>
-            <p className="rental-description">📝 {rental.description}</p>
-            <p className="rental-info">
-                🏷️  {rental.category}
-            </p>
-            <p className="rental-info">
-                💸  {rental.price}₪
-            </p>
-            {/* Removed status as it might not be in Popup */}
-            {/* Removed contact details as Popup handles its own */}
+            <div className="rental-card-content">
+              <h3 className="rental-title">{rental.title}</h3>
+              <p className="rental-description">{rental.description}</p>
+              <p className="rental-info">Category: {rental.category}</p>
+              <p className="rental-info">Price: {rental.price} per day</p>
+              <p className="rental-info">Location: {rental.city}</p>
+            </div>
           </div>
         ))}
       </div>

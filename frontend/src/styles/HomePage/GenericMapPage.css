@@ -39,13 +39,18 @@ body, .main-bg-gradient {
     transform: translateY(-4px) scale(1.02);
 }
 
+/* Enhanced map container for modern look */
 .map-wrapper {
     min-height: 400px;
     height: auto;
     max-height: 80vh;
     position: relative;
-    contain: layout style paint; /* Optimize rendering performance */
-    transition: height 0.3s ease; /* Smooth height transitions */
+    contain: layout style paint;
+    transition: height 0.3s ease, box-shadow 0.3s, border-radius 0.3s;
+    border-radius: 2rem; /* More rounded corners */
+    box-shadow: 0 8px 32px rgba(27, 123, 217, 0.18), 0 2px 8px rgba(0,0,0,0.08); /* Subtle floating effect */
+    background: var(--card-bg);
+    z-index: 2;
 }
 
 .search-filter-container {
@@ -210,4 +215,46 @@ body, .main-bg-gradient {
     100% {
         background-position: 200% 0;
     }
+}
+
+/* Floating Action Button for map search */
+.map-search-fab {
+    position: absolute;
+    left: 50%;
+    bottom: -35px;
+    transform: translateX(-50%);
+    z-index: 15;
+    background: var(--primary-color, #14b8a6);
+    color: #fff;
+    padding: 0.85rem 2.2rem;
+    border: none;
+    border-radius: 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(20, 184, 166, 0.18), 0 2px 8px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+    outline: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.map-search-fab:hover, .map-search-fab:focus {
+    background: #0d9488;
+    box-shadow: 0 8px 32px rgba(20, 184, 166, 0.22);
+    transform: translateX(-50%) scale(1.04);
+}
+
+.map-search-fab .loader {
+    border: 3px solid #fff;
+    border-top: 3px solid #0d9488;
+    border-radius: 50%;
+    width: 1.2em;
+    height: 1.2em;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

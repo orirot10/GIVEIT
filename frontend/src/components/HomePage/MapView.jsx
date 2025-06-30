@@ -3,6 +3,7 @@ import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
 import FilterButton from "./FilterButton";
 import ToggleViewButton from "./ToggleViewButton";
+import { useTranslation } from 'react-i18next';
 
 const containerStyle = {
     width: "100%",
@@ -26,6 +27,8 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
     const [showSearchArea, setShowSearchArea] = useState(false);
     const mapRef = useRef(null); // ref to control the map
     const hasSetInitialLocation = useRef(false); // Track if initial location was set
+    const { i18n } = useTranslation();
+    const [loadingArea, setLoadingArea] = useState(false);
 
     useEffect(() => {
         if (hasSetInitialLocation.current || !navigator.geolocation) {
@@ -89,9 +92,11 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
         }
     };
 
-    const handleSearchInArea = () => {
+    const handleSearchInArea = async () => {
         if (onSearchInArea && mapCenter) {
-            onSearchInArea(mapCenter);
+            setLoadingArea(true);
+            await onSearchInArea(mapCenter);
+            setLoadingArea(false);
             setShowSearchArea(false);
         }
     };
@@ -174,19 +179,24 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
                             className="flex flex-col items-center cursor-pointer"
                             onClick={() => handleMarkerClick(item)}
                         >
-             <div
-    className="bg-[#1b7bd9] text-white rounded-md max-w-[120px] px-3 py-2 flex flex-col items-center justify-center text-[15px] font-semibold shadow-md transition-colors text-center overflow-hidden"
-    title={item.title || "N/A"}
->
-  <span className="block truncate w-full">
-    &nbsp;&nbsp;{item.title || "N/A"}&nbsp;
-    {item.price !== null && item.price !== undefined && (
-      <span className="block text-[13px] font-semibold mt-1 text-[#f55363]">
-        {item.price}₪
-      </span>
-    )}
-  </span>
-</div>
+                            {/* Custom brand pin */}
+                            <div
+                                className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-4 border-white"
+                                style={{ width: 44, height: 44, background: '#1b7bd9', position: 'relative' }}
+                                title={item.title || "N/A"}
+                            >
+                                <span className="text-white font-bold text-[12px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                    {item.title ? item.title.split(' ')[0] : "?"}
+
+                                </span>
+                                {/* Optionally, add a brand SVG icon here */}
+                            </div>
+                            {/* Price below pin */}
+                            {item.price !== null && item.price !== undefined && (
+                                <span className="block text-[13px] font-semibold mt-1 text-[#f55363] bg-white rounded px-2 py-0.5 shadow" style={{ marginTop: 2 }}>
+                                    {item.price}₪
+                                </span>
+                            )}
                         </div>
                     </OverlayView>
                 ))}
@@ -240,9 +250,11 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
                 <div className="w-full flex justify-center mt-2" style={{ position: 'absolute', left: 0, right: 0, bottom: -35, zIndex: 15 }}>
                     <button
                         onClick={handleSearchInArea}
-                        className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+                        className="map-search-fab"
+                        disabled={loadingArea}
                     >
-                        Search in this area
+                        {loadingArea && <span className="loader" />}
+                        {i18n.language === 'he' ? 'חפש באזור זה' : 'Search in this area'}
                     </button>
                 </div>
             )}

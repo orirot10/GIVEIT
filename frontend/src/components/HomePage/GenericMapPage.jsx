@@ -19,6 +19,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
     const [userLocation, setUserLocation] = useState(null);
     const [resetSearchArea, setResetSearchArea] = useState(0);
+    const [loading, setLoading] = useState(false);
     const { t, i18n } = useTranslation();
 
     // Define tabs based on the page type (rentals or services)
@@ -104,6 +105,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     useEffect(() => {
         const fetchAndMap = async () => {
             try {
+                setLoading(true);
                 const currentApiUrl = getApiUrl();
                 let url = currentApiUrl;
                 if (userLocation) {
@@ -120,10 +122,12 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 const withCoords = await mapItemsToCoords(items);
                 console.log(`[GenericMapPage] ${contentType} after adding coords:`, withCoords);
                 setLocations(withCoords);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching items:', error);
                 setAllItems([]);
                 setLocations([]);
+                setLoading(false);
             }
         };
 
@@ -303,6 +307,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             onSearchInArea={handleSearchInArea}
                             mapHeight={340}
                             resetSearchArea={resetSearchArea}
+                            loading={loading}
                         />
                         <div style={{ height: '48px' }} />
                     </>
