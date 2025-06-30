@@ -39,6 +39,7 @@ router.post('/test', async (req, res) => {
 
 // Protected routes
 router.post('/', requireAuth, upload.array('images', 5), uploadNewRentalRequest);
+router.post('/with-urls', requireAuth, uploadNewRentalRequest);
 router.get('/', getRentalRequests);
 router.get('/user', requireAuth, getUserRentalRequests);
 router.get('/search', searchRentalRequests);

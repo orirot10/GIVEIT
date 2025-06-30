@@ -13,6 +13,7 @@ const router = express.Router();
 
 // POST /api/service_requests - Create a new service request
 router.post('/', protect, upload.array('images', 5), uploadNewServiceRequest);
+router.post('/with-urls', protect, uploadNewServiceRequest);
 
 // GET /api/service_requests - Fetch all service requests
 router.get('/', getServiceRequests);

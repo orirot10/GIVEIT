@@ -25,8 +25,19 @@ const uploadNewRentalRequest = async (req, res) => {
     }
 
     try {
-        // Get uploaded file paths
-        const imagePaths = req.files?.map(file => `/uploads/${file.filename}`) || [];
+        const { images } = req.body;
+        let imagePaths = [];
+        
+        if (req.files && req.files.length > 0) {
+            // Traditional file upload
+            imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+        } else if (images && Array.isArray(images)) {
+            // Firebase Storage URLs from frontend
+            imagePaths = images;
+        } else if (images && typeof images === 'string') {
+            imagePaths = [images];
+        }
+        
         console.log('Image paths:', imagePaths);
 
         const newRentalRequest = await RentalRequest.create({
