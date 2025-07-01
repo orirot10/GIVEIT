@@ -43,12 +43,12 @@ const ChatList = () => {
   if (loading) return <div>Loading chats...</div>;
 
   return (
-    <div className="chat-list-container">
+    <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#1C2526' }}>
       {!selectedChat ? (
         <div className="chat-list">
-          <h2>Your Conversations</h2>
+          <h2 style={{ color: '#26A69A' }}>Your Conversations</h2>
           {chats.length === 0 ? (
-            <p>No conversations yet</p>
+            <p style={{ color: '#607D8B' }}>No conversations yet</p>
           ) : (
             chats.map(chat => {
               const otherUser = getOtherParticipant(chat);
@@ -56,11 +56,12 @@ const ChatList = () => {
                 <div 
                   key={chat.id} 
                   className="chat-item"
+                  style={{ background: '#fff', border: '1px solid #607D8B', color: '#1C2526' }}
                   onClick={() => setSelectedChat({ chat, otherUser })}
                 >
-                  <h3>{otherUser.name}</h3>
-                  <p>{chat.lastMessage}</p>
-                  <small>
+                  <h3 style={{ color: '#26A69A' }}>{otherUser.name}</h3>
+                  <p style={{ color: '#607D8B' }}>{chat.lastMessage}</p>
+                  <small style={{ color: '#607D8B' }}>
                     {chat.lastMessageTime?.toDate?.()?.toLocaleString()}
                   </small>
                 </div>
@@ -73,6 +74,7 @@ const ChatList = () => {
           <button 
             onClick={() => setSelectedChat(null)}
             className="back-button"
+            style={{ background: 'linear-gradient(135deg, #607D8B, #26A69A)', color: '#fff' }}
           >
             ← Back to Chats
           </button>

@@ -18,24 +18,65 @@
 
 /* Styling for rental card (list items) - Table-like row */
 .rental-card {
-    background-color: white;
-    border-radius: 0.5rem; /* Sharper corners */
-    padding: 0.75rem; /* Reduced padding */
+    background-color: #fff;
+    border-radius: 12px; /* Match chat-item */
+    padding: 1.5rem;
     margin: 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    border: 1px solid #e5e7eb;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    contain: layout style paint;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Match chat-item shadow-subtle */
+    border: 1px solid #607D8B; /* Use neutral accent */
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     min-height: auto;
     display: flex;
-    flex-direction: row; /* Horizontal layout */
-    align-items: center; /* Vertically center content */
-    gap: 1rem; /* Space between image and text */
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+}
+
+/* Accent Border System for variety */
+.rental-card:nth-child(4n+1)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #FFCA28, #ff8e8e);
+}
+.rental-card:nth-child(4n+2)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #26A69A, #7ed3d1);
+}
+.rental-card:nth-child(4n+3)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #607D8B, #70c5e6);
+}
+.rental-card:nth-child(4n)::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #E57373, #b5d8c7);
 }
 
 .rental-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); /* Match chat-item shadow-hover */
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Image container with fixed aspect ratio */

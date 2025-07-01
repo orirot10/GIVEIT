@@ -183,28 +183,29 @@ const Messages = ({ userId }) => {
 <div style={{ display: 'flex', maxWidth: '1000px', margin: '0 auto', height: '90vh' }}>
   <div
     className="messages-list"
-    style={{ width: '220px', borderRight: '1px solid #ccc', overflowY: 'auto', backgroundColor: '#f1f1f1' }}
+    style={{ width: '220px', borderRight: '1.5px solid #26A69A', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
   >
-    <h6 style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#8cc9f1', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
+    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#FFCA28', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
     {conversations.length === 0 ? (
-      <p style={{ padding: '10px', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
+      <p style={{ padding: '10px', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
     ) : (
       conversations.map((conv) => (
         <div
           key={conv.receiverId}
           className={`messages-conv-card${activeConversation?.id === conv.receiverId ? ' active' : ''}`}
           onClick={() => selectConversation(conv.receiverId)}
+          style={{ border: '2px solid #26A69A', background: activeConversation?.id === conv.receiverId ? '#e0f7fa' : '#F4F6F8', color: '#1C2526' }}
         >
           <div className="messages-conv-contact">{conv.receiverName || conv.receiverId}</div>
           {conv.lastMessage && (
-            <div className="messages-conv-preview">
+            <div className="messages-conv-preview" style={{ color: '#607D8B' }}>
               {conv.lastMessage.content.length > 20
                 ? `${conv.lastMessage.content.substring(0, 20)}...`
                 : conv.lastMessage.content}
             </div>
           )}
           {conv.lastMessage && (
-            <div className="messages-conv-timestamp">
+            <div className="messages-conv-timestamp" style={{ color: '#607D8B' }}>
               {new Date(conv.lastMessage.timestamp).toLocaleTimeString('he-IL')}
             </div>
           )}
@@ -217,11 +218,13 @@ const Messages = ({ userId }) => {
       flex: activeConversation ? 3 : 1,
       display: 'flex',
       flexDirection: 'column',
+      background: '#fff',
+      color: '#1C2526',
     }}
   >
     {activeConversation ? (
       <>
-        <div style={{ padding: '10px', borderBottom: '1px solid #ccc', backgroundColor: '#8cc9f1' }}>
+        <div style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#FFCA28', color: '#1C2526' }}>
           <h3>Chat with {activeConversation.name}</h3>
         </div>
         <div style={{ flex: 1, overflowY: 'scroll', padding: '10px', backgroundColor: '#fff' }}>
@@ -235,15 +238,16 @@ const Messages = ({ userId }) => {
                   display: 'inline-block',
                   padding: '8px 12px',
                   borderRadius: '10px',
-                  backgroundColor: msg.senderId === userId ? '#007bff' : '#e0e0e0',
-                  color: msg.senderId === userId ? 'white' : 'black',
+                  backgroundColor: msg.senderId === userId ? '#26A69A' : '#fff',
+                  color: msg.senderId === userId ? '#fff' : '#1C2526',
+                  border: msg.senderId === userId ? 'none' : '1.5px solid #607D8B',
                   maxWidth: '70%',
                 }}
               >
                 <p style={{ margin: 0 }}>
                   <strong>{getSenderName(msg.senderId)}:</strong> {msg.content}
                 </p>
-                <small style={{ display: 'block', opacity: 0.7 }}>
+                <small style={{ display: 'block', opacity: 0.7, color: '#607D8B' }}>
                   {new Date(msg.timestamp).toLocaleString()}
                 </small>
               </div>
@@ -251,32 +255,33 @@ const Messages = ({ userId }) => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <div style={{ display: 'flex', gap: '10px', padding: '10px', borderTop: '1px solid #ccc' }}>
+        <div style={{ display: 'flex', gap: '10px', padding: '10px', borderTop: '1.5px solid #26A69A', background: '#F4F6F8' }}>
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message"
-            style={{ flex: 1, padding: '8px' }}
+            style={{ flex: 1, padding: '8px', border: '1.5px solid #607D8B', color: '#1C2526', background: '#fff' }}
           />
           <button
             onClick={sendMessage}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#007bff',
-              color: 'white',
+              backgroundColor: '#26A69A',
+              color: '#fff',
               border: 'none',
               borderRadius: '5px',
               cursor: 'pointer',
             }}
+            disabled={!newMessage.trim()}
           >
             Send
           </button>
         </div>
       </>
     ) : (
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#607D8B' }}>
         <p>Select a conversation to start chatting</p>
       </div>
     )}

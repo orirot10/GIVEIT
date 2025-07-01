@@ -25,47 +25,47 @@ const Chat = ({ userId, contactId, userMap }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Initialize conversation and fetch messages
+  // Move initializeConversation outside useEffect so it can be called by the Retry button
+  const initializeConversation = async () => {
+    try {
+      const conversationRef = doc(db, 'conversations', conversationId);
+      const conversationDoc = await getDoc(conversationRef);
+
+      if (!conversationDoc.exists()) {
+        await setDoc(conversationRef, {
+          participants: [userId, contactId],
+          lastMessage: null,
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      const messagesRef = collection(db, 'conversations', conversationId, 'messages');
+      const q = query(messagesRef, orderBy('timestamp', 'asc'), limit(50));
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const messagesData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate(),
+        }));
+        setMessages(messagesData);
+        setLoading(false);
+      }, (err) => {
+        setError('Failed to fetch messages: ' + err.message);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (err) {
+      setError('Failed to initialize conversation: ' + err.message);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!userId || !contactId) return;
-
-    const initializeConversation = async () => {
-      try {
-        const conversationRef = doc(db, 'conversations', conversationId);
-        const conversationDoc = await getDoc(conversationRef);
-
-        if (!conversationDoc.exists()) {
-          await setDoc(conversationRef, {
-            participants: [userId, contactId],
-            lastMessage: null,
-            createdAt: serverTimestamp(),
-          });
-        }
-
-        const messagesRef = collection(db, 'conversations', conversationId, 'messages');
-        const q = query(messagesRef, orderBy('timestamp', 'asc'), limit(50));
-
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const messagesData = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-            timestamp: doc.data().timestamp?.toDate(),
-          }));
-          setMessages(messagesData);
-          setLoading(false);
-        }, (err) => {
-          setError('Failed to fetch messages: ' + err.message);
-          setLoading(false);
-        });
-
-        return () => unsubscribe();
-      } catch (err) {
-        setError('Failed to initialize conversation: ' + err.message);
-        setLoading(false);
-      }
-    };
-
     initializeConversation();
+    // eslint-disable-next-line
   }, [conversationId, userId, contactId]);
 
   // Send a message
@@ -103,7 +103,7 @@ const Chat = ({ userId, contactId, userMap }) => {
 
   if (error) {
     return (
-      <div className="p-4 text-red-500">
+      <div className="p-4" style={{ color: '#E57373' }}>
         {error}
         <button
           onClick={() => {
@@ -111,7 +111,8 @@ const Chat = ({ userId, contactId, userMap }) => {
             setLoading(true);
             initializeConversation();
           }}
-          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+          className="ml-2 px-4 py-2 rounded-lg"
+          style={{ background: '#26A69A', color: '#fff' }}
         >
           Retry
         </button>
@@ -122,7 +123,7 @@ const Chat = ({ userId, contactId, userMap }) => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-gray-500">Loading messages...</div>
+        <div style={{ color: '#607D8B' }}>Loading messages...</div>
       </div>
     );
   }
@@ -132,14 +133,14 @@ const Chat = ({ userId, contactId, userMap }) => {
     : 'Unknown User';
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border-b border-gray-200 p-4">
+    <div className="flex flex-col h-full" style={{ background: '#F4F6F8', color: '#1C2526' }}>
+      <div className="border-b p-4" style={{ borderColor: '#26A69A', background: '#FFCA28', color: '#1C2526' }}>
         <h2 className="text-xl font-semibold">Chat with {contactName}</h2>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4" style={{ background: '#F4F6F8' }}>
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
+          <div className="flex items-center justify-center h-full" style={{ color: '#607D8B' }}>
             No messages yet. Start the conversation!
           </div>
         ) : (
@@ -151,12 +152,17 @@ const Chat = ({ userId, contactId, userMap }) => {
               <div
                 className={`max-w-[70%] p-3 rounded-lg ${
                   msg.senderId === userId
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white border border-gray-200'
+                    ? ''
+                    : ''
                 }`}
+                style={{
+                  background: msg.senderId === userId ? '#26A69A' : '#fff',
+                  color: msg.senderId === userId ? '#fff' : '#1C2526',
+                  border: msg.senderId === userId ? 'none' : '1px solid #607D8B',
+                }}
               >
                 <p className="text-sm">{msg.text}</p>
-                <span className="text-xs opacity-70 mt-1 block">
+                <span className="text-xs opacity-70 mt-1 block" style={{ color: '#607D8B' }}>
                   {msg.timestamp ? msg.timestamp.toLocaleTimeString() : 'Pending'}
                 </span>
               </div>
@@ -166,19 +172,21 @@ const Chat = ({ userId, contactId, userMap }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t p-4" style={{ borderColor: '#26A69A', background: '#fff' }}>
         <div className="flex gap-1">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
-            className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 p-2 rounded-lg focus:outline-none"
+            style={{ border: '1.5px solid #607D8B', color: '#1C2526', background: '#fff' }}
           />
           <button
             onClick={sendMessage}
             disabled={!newMessage.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ background: '#26A69A', color: '#fff' }}
           >
             Send
           </button>

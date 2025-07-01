@@ -3,19 +3,23 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    border: 1px solid #ccc;
+    border: 1.5px solid #26A69A;
     border-radius: 6px;
-    background-color: #f5f5f5;
+    background-color: #F4F6F8;
+    color: #26A69A;
     cursor: pointer;
+    transition: background 0.2s, color 0.2s, border 0.2s;
 }
 
 .filter-btn:hover {
-    background-color: #e5e5e5;
+    background-color: #e0f7fa;
+    color: #1C2526;
+    border-color: #1e8c7a;
 }
 
 .filter-icon {
     font-size: 20px;
-    color: gray;
+    color: #26A69A;
 }
 
 .modal-overlay {
@@ -29,12 +33,13 @@
 }
 
 .modal-content {
-    background-color: white;
+    background-color: #fff;
     padding: 24px;
     border-radius: 8px;
     width: 340px;
     max-width: 90%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    color: #1C2526;
 }
 
 .modal-title {
@@ -42,6 +47,7 @@
     font-weight: 600;
     margin-bottom: 16px;
     text-align: center;
+    color: #26A69A;
 }
 
 .section {
@@ -62,11 +68,11 @@
 .category-btn {
     padding: 6px 12px;
     border-radius: 9999px;
-    border: 1px solid #ccc;
-    background-color: white;
-    color: #444;
+    border: 1.5px solid #26A69A;
+    background-color: #fff;
+    color: #26A69A;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.2s, color 0.2s, border 0.2s;
 }
 
 .modal-content .category-btn {
@@ -80,13 +86,15 @@
 }
 
 .modal-content .category-btn:hover {
-    background-color: #f0f0f0;
+    background-color: #F4F6F8;
+    color: #1C2526;
+    border-color: #1e8c7a;
 }
 
 .modal-content .category-btn.selected {
-    background-color: #3b82f6;
-    color: white;
-    border-color: #3b82f6;
+    background-color: #26A69A;
+    color: #fff;
+    border-color: #26A69A;
 }
 
 .price-slider {
@@ -99,16 +107,17 @@
 }
 
 .filter-action-btn {
-    background-color: #3b82f6;
-    color: white;
+    background-color: #26A69A;
+    color: #fff;
     padding: 8px 16px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
 .filter-action-btn:hover {
-    background-color: #2563eb;
+    background-color: #1e8c7a;
 }
 
 .modal-content .close-btn {
@@ -123,8 +132,8 @@
     padding: 0;  /* Remove padding so the icon is not pushed away */
 }
 
-.modal-content close-btn:hover {
-    color: #ff0000;  /* Change color on hover (red) */
+.close-btn:hover {
+    color: #E57373;
 }
 
 .modal-content {
@@ -213,18 +222,18 @@
 }
 
 .price-error {
-    color: #dc3545;
+    color: #E57373;
     font-size: 0.9rem;
     margin-top: 0.5rem;
     padding: 0.5rem;
     background-color: #f8d7da;
     border-radius: 4px;
-    border: 1px solid #f5c6cb;
+    border: 1px solid #E57373;
 }
 
 .filter-action-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
+    background-color: #607D8B;
+    color: #fff;
     opacity: 0.65;
 }
   

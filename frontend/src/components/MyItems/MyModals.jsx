@@ -106,7 +106,7 @@ const MyModals = () => {
             <h2>{t('my_items.title')}</h2>
             <div className="myitems-tabs" role="tablist">
                 {TAB_CATEGORIES.map(tab => (
-                    <button
+                <button
                         key={tab.key}
                         className={`myitems-tab${view === tab.key ? ' active' : ''}`}
                         onClick={() => setView(tab.key)}
@@ -115,7 +115,7 @@ const MyModals = () => {
                         aria-selected={view === tab.key}
                     >
                         {tab.label}
-                    </button>
+                </button>
                 ))}
             </div>
             <div className="myitems-list-scroll">
@@ -153,10 +153,10 @@ const MyModals = () => {
                                     </div>
                                 </div>
                             ))}
-                        </div>
+    </div>
                     );
                 })()}
-            </div>
+</div>
         </div>
     );
 };

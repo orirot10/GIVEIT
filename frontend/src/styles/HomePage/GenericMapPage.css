@@ -1,18 +1,20 @@
 body, .main-bg-gradient {
     min-height: 100vh;
     font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
-    background: linear-gradient(135deg, #f8e1f4 0%, #d6e5fb 100%);
+    background: var(--background);
     background-attachment: fixed;
 }
 
 :root {
-    --pastel-pink: #f8e1f4;
-    --pastel-blue: #d6e5fb;
-    --pastel-green: #d4f8e8;
-    --pastel-purple: #e6e6fa;
-    --pastel-yellow: #fff9db;
-    --card-bg: #ffffffcc;
-    --card-shadow: 0 4px 24px rgba(180, 200, 255, 0.18);
+    --primary: #26A69A;
+    --primary-hover: #1e8c7a;
+    --background: #F4F6F8;
+    --text: #1C2526;
+    --secondary-accent: #FFCA28;
+    --neutral-accent: #607D8B;
+    --error: #E57373;
+    --card-bg: #fff;
+    --card-shadow: 0 4px 24px rgba(38, 166, 154, 0.18);
 }
 
 .map-wrapper, .list-container-wrapper, .list-container {
@@ -27,7 +29,7 @@ body, .main-bg-gradient {
 .rental-card {
     background: var(--card-bg);
     border-radius: 1.25rem;
-    box-shadow: 0 2px 12px rgba(180, 200, 255, 0.12);
+    box-shadow: 0 2px 12px rgba(38, 166, 154, 0.12);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     border: none;
@@ -35,7 +37,7 @@ body, .main-bg-gradient {
 }
 
 .rental-card:hover {
-    box-shadow: 0 8px 32px rgba(180, 200, 255, 0.22);
+    box-shadow: 0 8px 32px rgba(38, 166, 154, 0.22);
     transform: translateY(-4px) scale(1.02);
 }
 
@@ -83,8 +85,9 @@ body, .main-bg-gradient {
     border-radius: 9999px;
     padding: 1rem 3rem;
     font-size: 1rem;
-    border: 1px solid #e5e7eb;
-    background-color: white;
+    border: 2px solid #26A69A;
+    background-color: #fff;
+    color: #26A69A;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -92,6 +95,9 @@ body, .main-bg-gradient {
 }
 
 .toggle-view-btn:hover {
+    background-color: #F4F6F8;
+    color: #1C2526;
+    border-color: #1e8c7a;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
     transform: translateY(-1px);
 }
@@ -118,7 +124,7 @@ body, .main-bg-gradient {
 
 .search-bar-input {
     background: #fff;
-    border: 1px solid var(--border, #E9ECEF);
+    border: 1.5px solid #26A69A;
     border-radius: 12px;
     padding: 12px 16px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -126,11 +132,12 @@ body, .main-bg-gradient {
     width: 100%;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
+    color: #1C2526;
 }
 
 .search-bar-input:focus {
-    border-color: var(--primary-blue, #4A90E2);
-    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
+    border-color: #26A69A;
+    box-shadow: 0 2px 8px #26A69A22;
 }
 
 .search-filter-style {
@@ -138,27 +145,27 @@ body, .main-bg-gradient {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--border, #E9ECEF);
+    border: 1.5px solid #26A69A;
     border-radius: 8px;
     font-size: 0.95rem;
     background: #fff;
-    color: var(--primary-blue, #4A90E2);
+    color: #26A69A;
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(0,0,0,0.07);
     transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .search-filter-style:hover {
-    background: #f5faff;
-    border-color: var(--primary-blue, #4A90E2);
-    color: var(--primary-blue, #4A90E2);
+    background: #F4F6F8;
+    border-color: #1e8c7a;
+    color: #1C2526;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.10);
 }
 
 .filter-button-large {
     background: #fff;
-    border: 1px solid var(--primary-blue, #4A90E2);
-    color: var(--primary-blue, #4A90E2);
+    border: 2px solid #26A69A;
+    color: #26A69A;
     border-radius: 8px;
     padding: 12px 24px;
     font-size: 1.1rem;
@@ -171,14 +178,14 @@ body, .main-bg-gradient {
 }
 
 .filter-button-large:hover {
-    background: #f5faff;
-    border-color: var(--primary-blue, #4A90E2);
-    color: var(--primary-blue, #4A90E2);
+    background: #F4F6F8;
+    border-color: #1e8c7a;
+    color: #1C2526;
     box-shadow: 0 2px 8px rgba(74, 144, 226, 0.10);
 }
 
 .filter-button-large svg {
-    color: var(--primary-blue, #4A90E2) !important;
+    color: #26A69A !important;
 }
 
 /* Add smooth transitions for view changes */
@@ -257,4 +264,13 @@ body, .main-bg-gradient {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.map-pin-hover {
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+.map-pin-hover:hover {
+    box-shadow: 0 8px 32px rgba(38, 166, 154, 0.22), 0 0 0 4px #26A69A33;
+    border-color: #26A69A !important;
+    z-index: 2;
 }

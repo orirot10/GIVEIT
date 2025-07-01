@@ -8,9 +8,9 @@
 
 .toggle-btn {
     padding: 0.75rem 1.5rem;
-    border: 2px solid #3b82f6;
-    background-color: white;
-    color: #3b82f6;
+    border: 2px solid #26A69A;
+    background-color: #fff;
+    color: #26A69A;
     border-radius: 9999px;
     font-weight: 600;
     cursor: pointer;
@@ -20,13 +20,15 @@
 }
 
 .toggle-btn:hover {
-    background-color: #f0f9ff;
-    transform: translateY(-1px);
+    background-color: #F4F6F8;
+    color: #1C2526;
+    border-color: #1e8c7a;
 }
 
 .toggle-btn.active {
-    background-color: #3b82f6;
-    color: white;
+    background-color: #26A69A;
+    color: #fff;
+    border-color: #26A69A;
 }
 
 @media (max-width: 640px) {
@@ -43,10 +45,10 @@
 
 .content-type-indicator {
     font-size: 0.875rem;
-    color: #4b5563;
+    color: #607D8B;
     font-weight: 500;
     padding: 4px 12px;
-    background-color: #f3f4f6;
+    background-color: #F4F6F8;
     border-radius: 6px;
     transition: all 0.3s ease;
 } 

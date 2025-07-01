@@ -1,10 +1,17 @@
 /* Enhanced Chat CSS with Modern Improvements */
 
 :root {
-  --primary-color: #667eea;
-  --primary-hover: #5a6fd8;
-  --secondary-color: #764ba2;
-
+  --primary-color: #26A69A;
+  --primary-hover: #1e8c7a;
+  --secondary-color: #FFCA28;
+  --neutral-accent: #607D8B;
+  --error-color: #E57373;
+  --background-color: #F4F6F8;
+  --text-color: #1C2526;
+  --accent-1: #FFCA28;
+  --accent-2: #26A69A;
+  --accent-3: #607D8B;
+  --accent-4: #E57373;
   --border-radius: 12px;
   --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -21,14 +28,15 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-medium);
   overflow: hidden;
-  background-color: white;
+  background-color: var(--background-color);
   backdrop-filter: blur(10px);
+  color: var(--text-color);
 }
 
 /* Header */
 .chat-header {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
+  color: var(--text-color);
   padding: 1.25rem;
   font-weight: 700;
   font-size: 1.25rem;
@@ -63,7 +71,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: var(--background-color);
 }
 
 /* Message wrapper */
@@ -112,15 +120,15 @@
 
 .message.sent .message-content {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  color: white;
+  color: #fff;
   border-bottom-right-radius: 0.5rem;
 }
 
 .message.received .message-content {
-  background-color: white;
-  color: #2d3748;
+  background-color: #fff;
+  color: var(--text-color);
   border-bottom-left-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--neutral-accent);
 }
 
 .message-content small {
@@ -129,6 +137,7 @@
   opacity: 0.7;
   margin-top: 0.5rem;
   text-align: right;
+  color: var(--neutral-accent);
 }
 
 /* Input form */
@@ -138,31 +147,32 @@
   gap: 0.75rem;
   padding: 1.25rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  background: var(--background-color);
   backdrop-filter: blur(10px);
 }
 
 .message-form input {
   flex: 1;
   padding: 0.875rem 1.25rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--neutral-accent);
   border-radius: 2rem;
   font-size: 1rem;
   outline: none;
   transition: var(--transition-smooth);
-  background-color: white;
+  background-color: #fff;
+  color: var(--text-color);
 }
 
 .message-form input:focus {
   border-color: var(--primary-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 4px 20px rgba(38, 166, 154, 0.15);
 }
 
 .message-form button {
   padding: 0.875rem 1.5rem;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 2rem;
   cursor: pointer;
@@ -177,7 +187,7 @@
 }
 
 .message-form button:disabled {
-  background-color: #cbd5e0;
+  background-color: var(--neutral-accent);
   cursor: not-allowed;
   transform: none;
 }
@@ -211,8 +221,8 @@
 /* Enhanced Chat Items with Card Design */
 .chat-item {
   padding: 1.5rem;
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border: 1px solid var(--neutral-accent);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: var(--transition-smooth);
@@ -273,7 +283,7 @@
   margin: 0 0 0.75rem 0;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-color);
   transition: color 0.3s ease;
 }
 
@@ -283,7 +293,7 @@
 
 .chat-item p {
   margin: 0 0 0.5rem 0;
-  color: #4a5568;
+  color: var(--neutral-accent);
   font-size: 0.9rem;
   line-height: 1.5;
   font-weight: 500;
@@ -291,7 +301,7 @@
 
 /* Subtle Timestamps */
 .chat-item small {
-  color: #a0aec0;
+  color: var(--neutral-accent);
   font-size: 0.8rem;
   font-weight: 400;
   opacity: 0.8;
@@ -303,8 +313,8 @@
 .back-button {
   margin-bottom: 1.5rem;
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #6c757d, #5a6268);
-  color: white;
+  background: linear-gradient(135deg, var(--neutral-accent), var(--primary-color));
+  color: #fff;
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
