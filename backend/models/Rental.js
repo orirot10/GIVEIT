@@ -21,5 +21,8 @@ const rentalSchema = new mongoose.Schema({
     firebaseUid: { type: String, required: true },
 }, { timestamps: true });
 
+// Add compound index for spatial queries
+rentalSchema.index({ lat: 1, lng: 1 });
+
 const Rental = mongoose.model('Rental', rentalSchema);
 module.exports = Rental;

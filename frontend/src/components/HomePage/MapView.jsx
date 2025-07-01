@@ -3,7 +3,6 @@ import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
 import FilterButton from "./FilterButton";
 import ToggleViewButton from "./ToggleViewButton";
-import { useTranslation } from 'react-i18next';
 
 const containerStyle = {
     width: "100%",
@@ -20,15 +19,11 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight, resetSearchArea, onBoundsChanged }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHeight, onBoundsChanged }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
-    const [mapCenter, setMapCenter] = useState(null);
-    const [showSearchArea, setShowSearchArea] = useState(false);
     const mapRef = useRef(null); // ref to control the map
     const hasSetInitialLocation = useRef(false); // Track if initial location was set
-    const { i18n } = useTranslation();
-    const [loadingArea, setLoadingArea] = useState(false);
 
     useEffect(() => {
         if (hasSetInitialLocation.current || !navigator.geolocation) {
@@ -42,13 +37,11 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
                     lng: position.coords.longitude,
                 };
                 setUserLocation(newLocation);
-                setMapCenter(newLocation);
                 hasSetInitialLocation.current = true; // Prevent future updates
             },
             (error) => {
                 console.error("Error getting user location:", error);
                 setUserLocation(defaultCenter); // Fallback to default center
-                setMapCenter(defaultCenter);
                 hasSetInitialLocation.current = true;
             },
             {
@@ -58,10 +51,6 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
             }
         );
     }, []);
-
-    useEffect(() => {
-        setShowSearchArea(false);
-    }, [resetSearchArea]);
 
     const handleMarkerClick = (item) => {
         console.log('[MapView] Item passed to handleMarkerClick:', item);
@@ -84,11 +73,6 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
 
     const handleMapIdle = () => {
         if (mapRef.current) {
-            const center = mapRef.current.getCenter();
-            if (center) {
-                setMapCenter({ lat: center.lat(), lng: center.lng() });
-                setShowSearchArea(true);
-            }
             if (onBoundsChanged) {
                 const bounds = mapRef.current.getBounds();
                 if (bounds) {
@@ -100,15 +84,6 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
                     });
                 }
             }
-        }
-    };
-
-    const handleSearchInArea = async () => {
-        if (onSearchInArea && mapCenter) {
-            setLoadingArea(true);
-            await onSearchInArea(mapCenter);
-            setLoadingArea(false);
-            setShowSearchArea(false);
         }
     };
 
@@ -255,20 +230,6 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
             )}
 
             <Popup item={selectedItem} onClose={handlePopupClose} />
-
-            {/* Search in this area button below the map */}
-            {showSearchArea && (
-                <div className="w-full flex justify-center mt-2" style={{ position: 'absolute', left: 0, right: 0, bottom: -35, zIndex: 15 }}>
-                    <button
-                        onClick={handleSearchInArea}
-                        className="map-search-fab"
-                        disabled={loadingArea}
-                    >
-                        {loadingArea && <span className="loader" />}
-                        {i18n.language === 'he' ? 'חפש באזור זה' : 'Search in this area'}
-                    </button>
-                </div>
-            )}
         </div>
     );
 };
