@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ModalCard from './ModalCard';
 import '../../styles/components/MyItems.css';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const MyModals = () => {
     const { user } = useAuthContext();
@@ -15,6 +16,7 @@ const MyModals = () => {
     const [serviceRequests, setServiceRequests] = useState([]);
     const [view, setView] = useState('rentals'); // 'rentals', 'services', 'rental_requests', 'service_requests'
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
+    const navigate = useNavigate();
 
     const TAB_CATEGORIES = [
         { key: 'rentals', label: t('my_items.my_rentals') },
@@ -153,10 +155,87 @@ const MyModals = () => {
                                     </div>
                                 </div>
                             ))}
-    </div>
+                        </div>
                     );
                 })()}
-</div>
+            </div>
+            {/* Add Listing Button */}
+            {(view === 'rentals' || view === 'services') && (
+                <button
+                    className="myitems-add-btn"
+                    style={{
+                        marginTop: 24,
+                        padding: '12px 24px',
+                        background: '#26A69A',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontSize: 16,
+                        cursor: 'pointer',
+                        width: '100%',
+                        maxWidth: 320,
+                        alignSelf: 'center',
+                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
+                    }}
+                    onClick={() => navigate(view === 'rentals' ? '/offer-rental' : '/offer-service')}
+                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                >
+                    {view === 'rentals' ? t('my_items.add_rental') : t('my_items.add_service')}
+                </button>
+            )}
+            {/* Add Request Buttons */}
+            {view === 'rental_requests' && (
+                <button
+                    className="myitems-add-btn"
+                    style={{
+                        marginTop: 24,
+                        padding: '12px 24px',
+                        background: '#26A69A',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontSize: 16,
+                        cursor: 'pointer',
+                        width: '100%',
+                        maxWidth: 320,
+                        alignSelf: 'center',
+                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
+                    }}
+                    onClick={() => navigate('/request-rental')}
+                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                >
+                    {t('my_items.add_rental_request')}
+                </button>
+            )}
+            {view === 'service_requests' && (
+                <button
+                    className="myitems-add-btn"
+                    style={{
+                        marginTop: 24,
+                        padding: '12px 24px',
+                        background: '#26A69A',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontSize: 16,
+                        cursor: 'pointer',
+                        width: '100%',
+                        maxWidth: 320,
+                        alignSelf: 'center',
+                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
+                    }}
+                    onClick={() => navigate('/request-service')}
+                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                >
+                    {t('my_items.add_service_request')}
+                </button>
+            )}
         </div>
     );
 };
