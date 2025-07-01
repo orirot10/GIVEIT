@@ -7,24 +7,28 @@
     align-items: center;
     z-index: 9999;
     padding: 1rem;
+    direction: rtl;
 }
 
 .rental-card-modal-content {
-    background: white;
-    padding: 1rem 1.2rem;
-    border-radius: 12px;
+    background: #fff;
+    padding: 1.5rem 1.5rem;
+    border-radius: var(--border-radius);
     width: 90%;
-    max-width: 320px;
+    max-width: 340px;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow);
     animation: rentalFadeIn 0.25s ease-in-out;
-    text-align: center;
+    text-align: right;
+    font-family: var(--font-primary);
 }
 
 .rental-card-modal-content h2 {
     margin-bottom: 1rem;
     font-size: 1.2rem;
+    color: var(--color-text);
+    font-family: var(--font-primary);
 }
 
 .rental-card-modal-content img {
@@ -39,6 +43,8 @@
 .rental-card-modal-content p {
     font-size: 0.95rem;
     margin: 0.4rem 0;
+    color: var(--color-text);
+    font-family: var(--font-primary);
 }
 
 /* Button ONLY in RentalCard modal */
@@ -46,15 +52,19 @@
     all: unset;
     margin-top: 1rem;
     padding: 0.5rem 1.2rem;
-    background-color: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    background-color: var(--color-primary);
+    color: #fff;
+    border-radius: var(--border-radius);
     cursor: pointer;
+    font-family: var(--font-primary);
+    font-weight: bold;
+    box-shadow: var(--shadow);
+    text-align: center;
 }
 
 .rental-card-modal-content .rental-close-btn:hover {
-    background-color: #2563eb;
+    background-color: var(--color-accent);
+    color: var(--color-text);
 }
 
 @keyframes rentalFadeIn {
@@ -69,20 +79,23 @@
 }
 
 .rental-card {
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    padding: 1rem;
-    background: white;
+    border: 1px solid var(--color-neutral);
+    border-radius: var(--border-radius);
+    padding: var(--spacing);
+    background: #fff;
     transition: transform 0.2s;
     cursor: pointer;
-    text-align: center;
+    text-align: right;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
+    font-family: var(--font-primary);
+    box-shadow: var(--shadow);
 }
 
 .rental-card:hover {
     transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(38, 166, 154, 0.12);
 }
 
 /* .rental-card img {
@@ -95,4 +108,5 @@
 .rental-card img {
     max-width: 100%;
     height: auto;
+    border-radius: 8px;
 }

@@ -151,7 +151,14 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHe
                     scrollwheel: false,
                     mapTypeControl: false,
                     streetViewControl: false,
-                    fullscreenControl: false
+                    fullscreenControl: false,
+                    keyboardShortcuts: false,
+                    /*
+                    disableDefaultUI: false,
+                    panControl: false,
+                    rotateControl: false,
+                    scaleControl: false,
+                    clickableIcons: false,*/
                 }}
             >
                 {locations.map((item, index) => (

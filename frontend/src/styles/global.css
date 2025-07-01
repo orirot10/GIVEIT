@@ -12,11 +12,40 @@
 }
 
 body {
-    font-family: var(--font-base);
-    font-size: var(--font-size);
-    color: var(--text-color);
-    background-color: var(--background-color);
+    font-family: var(--font-primary);
+    font-size: 16px;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    direction: rtl; /* Enable RTL globally for Hebrew support */
     min-height: 100vh;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-text);
+}
+
+h2 {
+    font-size: 18px;
+    color: var(--color-text);
+}
+
+p, label, input, button, span, div {
+    font-family: var(--font-primary);
+}
+
+.metadata, .timestamp {
+    font-size: 12px;
+    color: var(--color-neutral);
+}
+
+.card {
+    background: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: var(--spacing);
+    margin-bottom: var(--spacing);
 }
 
 #root {

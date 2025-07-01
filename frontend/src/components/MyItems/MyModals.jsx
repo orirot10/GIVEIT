@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import ModalCard from './ModalCard';
 import '../../styles/components/MyItems.css';
+import { format } from 'date-fns';
 
 const MyModals = () => {
-    const navigate = useNavigate();
     const { user } = useAuthContext();
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'he';
@@ -14,13 +13,18 @@ const MyModals = () => {
     const [services, setServices] = useState([]);
     const [rentalRequests, setRentalRequests] = useState([]);
     const [serviceRequests, setServiceRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [view, setView] = useState('rentals'); // 'rentals', 'services', 'rental_requests', 'service_requests'
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
+    const TAB_CATEGORIES = [
+        { key: 'rentals', label: t('my_items.my_rentals') },
+        { key: 'rental_requests', label: t('my_items.my_rental_requests') },
+        { key: 'services', label: t('my_items.my_services') },
+        { key: 'service_requests', label: t('my_items.my_service_requests') },
+    ];
+
     useEffect(() => {
         if (!user) {
-            setLoading(false);
             return;
         }
         const fetchData = async () => {
@@ -66,55 +70,11 @@ const MyModals = () => {
                 setServiceRequests(serviceRequestsData);
             } catch (err) {
                 console.error('Failed to fetch data:', err.message);
-            } finally {
-                setLoading(false);
             }
         };
 
         fetchData();
     }, [user, baseUrl]);
-
-    const handleDeleteSuccess = (deletedId, type) => {
-        switch (type) {
-            case 'rental':
-                setRentals(prev => prev.filter(item => item._id !== deletedId));
-                break;
-            case 'service':
-                setServices(prev => prev.filter(service => service._id !== deletedId));
-                break;
-            case 'rental_request':
-                setRentalRequests(prev => prev.filter(request => request._id !== deletedId));
-                break;
-            case 'service_request':
-                setServiceRequests(prev => prev.filter(request => request._id !== deletedId));
-                break;
-        }
-    };
-
-    const handleEditSuccess = (updatedItem, type) => {
-        switch (type) {
-            case 'rental':
-                setRentals(prev =>
-                    prev.map(item => (item._id === updatedItem._id ? updatedItem : item))
-                );
-                break;
-            case 'service':
-                setServices(prev =>
-                    prev.map(service => (service._id === updatedItem._id ? updatedItem : service))
-                );
-                break;
-            case 'rental_request':
-                setRentalRequests(prev =>
-                    prev.map(request => (request._id === updatedItem._id ? updatedItem : request))
-                );
-                break;
-            case 'service_request':
-                setServiceRequests(prev =>
-                    prev.map(request => (request._id === updatedItem._id ? updatedItem : request))
-                );
-                break;
-        }
-    };
 
     // Show message if not logged in
     if (!user) {
@@ -125,51 +85,6 @@ const MyModals = () => {
             </div>
         );
     }
-
-    const getDisplayTitle = () => {
-        switch (view) {
-            case 'rentals':
-                return t('my_items.my_rentals');
-            case 'services':
-                return t('my_items.my_services');
-            case 'rental_requests':
-                return t('my_items.my_rental_requests');
-            case 'service_requests':
-                return t('my_items.my_service_requests');
-            default:
-                return t('my_items.title');
-        }
-    };
-
-    const getItems = () => {
-        switch (view) {
-            case 'rentals':
-                return rentals;
-            case 'services':
-                return services;
-            case 'rental_requests':
-                return rentalRequests;
-            case 'service_requests':
-                return serviceRequests;
-            default:
-                return [];
-        }
-    };
-
-    const getItemType = () => {
-        switch (view) {
-            case 'rentals':
-                return 'rental';
-            case 'services':
-                return 'service';
-            case 'rental_requests':
-                return 'rental_request';
-            case 'service_requests':
-                return 'service_request';
-            default:
-                return 'rental';
-        }
-    };
 
     const getEmptyMessage = () => {
         switch (view) {
@@ -186,99 +101,62 @@ const MyModals = () => {
         }
     };
 
-    const getActionButton = () => {
-        switch (view) {
-            case 'rentals':
-                return {
-                    text: t('my_items.offer_rental'),
-                    path: '/offer-rental'
-                };
-            case 'services':
-                return {
-                    text: t('my_items.offer_service'),
-                    path: '/offer-service'
-                };
-            case 'rental_requests':
-                return {
-                    text: t('my_items.request_rental'),
-                    path: '/request-rental'
-                };
-            case 'service_requests':
-                return {
-                    text: t('my_items.request_service'),
-                    path: '/request-service'
-                };
-            default:
-                return null;
-        }
-    };
-
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
-            <h2>{getDisplayTitle()}</h2>
-
-            {/* View Toggle Switch */}
-            <div className="view-switch-container">
-                <button
-                    className={`view-button ${view === 'rentals' ? 'active' : ''}`}
-                    onClick={() => setView('rentals')}
-                >
-                    {t('my_items.rentals')}
-                </button>
-                <button
-                    className={`view-button ${view === 'services' ? 'active' : ''}`}
-                    onClick={() => setView('services')}
-                >
-                    {t('my_items.services')}
-                </button>
-                <button
-                    className={`view-button ${view === 'rental_requests' ? 'active' : ''}`}
-                    onClick={() => setView('rental_requests')}
-                >
-                    {t('my_items.rental_requests')}
-                </button>
-                <button
-                    className={`view-button ${view === 'service_requests' ? 'active' : ''}`}
-                    onClick={() => setView('service_requests')}
-                >
-                    {t('my_items.service_requests')}
-                </button>
+            <h2>{t('my_items.title')}</h2>
+            <div className="myitems-tabs" role="tablist">
+                {TAB_CATEGORIES.map(tab => (
+                    <button
+                        key={tab.key}
+                        className={`myitems-tab${view === tab.key ? ' active' : ''}`}
+                        onClick={() => setView(tab.key)}
+                        style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', borderRadius: 12, direction: isRTL ? 'rtl' : 'ltr' }}
+                        role="tab"
+                        aria-selected={view === tab.key}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
-
-            {loading ? (
-                <p>{t('common.loading')}</p>
-            ) : (
-                <div className="items-list">
-  {getItems().length > 0 ? (
-    <>
-      {getItems().map(item => (
-        <ModalCard
-          key={item._id}
-          item={item}
-          type={getItemType()}
-          onDeleteSuccess={handleDeleteSuccess}
-          onEditSuccess={handleEditSuccess}
-        />
-      ))}
-    </>
-  ) : (
-    <div className="empty-state">
-      <p>{getEmptyMessage()}</p>
-    </div>
-  )}
-
-  {/* Always show action button if available */}
-  {getActionButton() && (
-    <button
-      className="btn-offer"
-      onClick={() => navigate(getActionButton().path)}
-    >
-      {getActionButton().text}
-    </button>
-  )}
-</div>
-            )}
-
+            <div className="myitems-list-scroll">
+                {(() => {
+                    const items =
+                        view === 'rentals' ? rentals :
+                        view === 'services' ? services :
+                        view === 'rental_requests' ? rentalRequests :
+                        view === 'service_requests' ? serviceRequests : [];
+                    return items.length === 0 ? (
+                        <div className="services-placeholder">{getEmptyMessage()}</div>
+                    ) : (
+                        <div className="myitems-card-list">
+                            {items.map(item => (
+                                <div className="myitems-card" key={item._id} dir={isRTL ? 'rtl' : 'ltr'}>
+                                    <div className="myitems-card-imgwrap">
+                                        <img
+                                            src={Array.isArray(item.images) && item.images.length > 0 ? `https://giveit-backend.onrender.com${item.images[0]}` : ''}
+                                            alt={item.title}
+                                            className="myitems-card-img"
+                                            style={{ border: '2px solid #607D8B', borderRadius: 8, width: 64, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
+                                            onError={e => { e.target.src = ''; e.target.style.background = '#F4F6F8'; }}
+                                        />
+                                    </div>
+                                    <div className="myitems-card-content">
+                                        <div className="myitems-card-title" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr' }}>{item.title}</div>
+                                        <div className="myitems-card-meta" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 12, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr' }}>
+                                            {item.status && <span>{t('common.status')}: {t(`common.${item.status}`)}</span>}
+                                            {item.createdAt && <span style={{ marginRight: 8 }}>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
+                                        </div>
+                                        <div className="myitems-card-actions">
+                                            <button className="myitems-edit-btn" onClick={() => setView('edit')}>{t('common.edit')}</button>
+                                            <button className="myitems-delete-btn" onClick={() => setView('delete')}>{t('common.delete')}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    );
+                })()}
+            </div>
         </div>
     );
 };

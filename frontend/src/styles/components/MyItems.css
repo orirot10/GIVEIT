@@ -1,24 +1,26 @@
 :root {
-    --primary-color: #0077ff;
-    --primary-light: #e6f0ff;
-    --hover-color: #005ccc;
-    --text-dark: #333;
-    --text-light: #777;
-    --bg-light: #f9fbfc;
-    --shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    --border-radius: 16px;
+    --primary-color: var(--color-primary);
+    --primary-light: #e0f7fa;
+    --hover-color: #26A69A;
+    --text-dark: var(--color-text);
+    --text-light: var(--color-neutral);
+    --bg-light: var(--color-bg);
+    --shadow: var(--shadow);
+    --border-radius: var(--border-radius);
     --transition: all 0.3s ease;
 }
 
 /* Container */
 .my-items-container {
-    padding: 1.5rem 1.5rem 3rem;
+    padding: 2rem 1.5rem 3rem;
     min-height: 100vh;
     background-color: var(--bg-light);
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    text-align: right;
+    font-family: var(--font-primary);
+    direction: rtl;
 }
 
 /* Grid Items */
@@ -34,9 +36,9 @@
 .view-switch-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem;
-    margin: 1.5rem 0;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem 0;
     width: 100%;
     max-width: 960px;
 }
@@ -53,17 +55,18 @@
     transition: var(--transition);
     min-width: 140px;
     text-align: center;
+    font-family: var(--font-primary);
 }
 
 .view-button:hover {
-    background-color: var(--hover-color);
+    background-color: var(--primary-color);
     color: #fff;
 }
 
 .view-button.active {
     background-color: var(--primary-color);
     color: #fff;
-    box-shadow: 0 6px 14px rgba(0, 119, 255, 0.3);
+    box-shadow: 0 6px 14px rgba(38, 166, 154, 0.18);
 }
 
 /* Labels */
@@ -71,6 +74,7 @@
     font-size: 1.1rem;
     color: var(--text-light);
     transition: var(--transition);
+    font-family: var(--font-primary);
 }
 
 .view-label.active {
@@ -131,46 +135,41 @@ input:checked + .slider:before {
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
     margin: 2rem 0;
+    font-family: var(--font-primary);
 }
 
-.add-service-button {
+.add-service-button, .btn-offer {
     margin-top: 1rem;
     padding: 0.8rem 1.6rem;
     background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     cursor: pointer;
     transition: var(--transition);
     font-size: 1rem;
+    font-family: var(--font-primary);
+    font-weight: bold;
+    box-shadow: var(--shadow);
 }
 
-.add-service-button:hover {
-    background-color: var(--hover-color);
+.add-service-button:hover, .btn-offer:hover {
+    background-color: var(--color-accent);
+    color: var(--color-text);
 }
 
 /* Offer Button Style */
 .btn-offer {
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary-color);
-    color: #fff;
     text-decoration: none;
-    border-radius: var(--border-radius);
-    font-weight: bold;
-    transition: var(--transition);
-}
-
-.btn-offer:hover {
-    background-color: var(--hover-color);
 }
 
 /* Not logged in message */
 .not-logged-in {
-    color: #d43f3f;
+    color: var(--color-error);
     font-weight: 600;
     margin-top: 1.5rem;
     font-size: 1rem;
+    font-family: var(--font-primary);
 }
 
 /* Add Listing Floating Action Button */
@@ -184,17 +183,19 @@ input:checked + .slider:before {
     color: #fff;
     border: none;
     border-radius: 32px;
-    box-shadow: 0 6px 24px rgba(0, 119, 255, 0.18);
+    box-shadow: 0 6px 24px rgba(38, 166, 154, 0.18);
     padding: 1rem 2.5rem;
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
     transition: var(--transition);
     outline: none;
+    font-family: var(--font-primary);
 }
 
 .add-listing-fab:hover {
-    background-color: var(--hover-color);
+    background-color: var(--color-accent);
+    color: var(--color-text);
 }
 
 @media (max-width: 600px) {
@@ -203,4 +204,140 @@ input:checked + .slider:before {
         font-size: 1rem;
         bottom: 1.2rem;
     }
+}
+
+/* Tabbed interface styles */
+.myitems-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  justify-content: flex-end;
+  direction: rtl;
+}
+.myitems-tab {
+  font-family: 'Alef', 'Inter', sans-serif;
+  font-size: 14px;
+  color: #1C2526;
+  background: #F4F6F8;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 24px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, background 0.2s, color 0.2s;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  border: 2px solid transparent;
+}
+.myitems-tab.active {
+  background: #26A69A;
+  color: #fff;
+  border: 2px solid #26A69A;
+}
+.myitems-tab:hover:not(.active) {
+  border: 2px solid #607D8B;
+}
+
+/* Scrollable list */
+.myitems-list-scroll {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.myitems-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.myitems-card {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  background: #F4F6F8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 16px;
+  min-height: 96px;
+  max-width: 480px;
+  width: 100%;
+  gap: 16px;
+  direction: rtl;
+}
+.myitems-card-imgwrap {
+  flex: 0 0 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.myitems-card-img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #607D8B;
+  background: #F4F6F8;
+}
+.myitems-card-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.myitems-card-title {
+  font-family: 'Alef', 'Inter', sans-serif;
+  font-size: 14px;
+  color: #1C2526;
+  text-align: right;
+  direction: rtl;
+  font-weight: bold;
+}
+.myitems-card-meta {
+  font-family: 'Alef', 'Inter', sans-serif;
+  font-size: 12px;
+  color: #607D8B;
+  text-align: right;
+  direction: rtl;
+  display: flex;
+  gap: 8px;
+}
+.myitems-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.myitems-edit-btn {
+  background: #26A69A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 16px;
+  font-family: 'Alef', 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: background 0.2s;
+}
+.myitems-edit-btn:hover {
+  background: #1C2526;
+  color: #fff;
+}
+.myitems-delete-btn {
+  background: #fff;
+  color: #E57373;
+  border: 2px solid #E57373;
+  border-radius: 8px;
+  padding: 4px 16px;
+  font-family: 'Alef', 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: background 0.2s, color 0.2s;
+}
+.myitems-delete-btn:hover {
+  background: #E57373;
+  color: #fff;
 }

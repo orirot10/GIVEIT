@@ -9,8 +9,8 @@
     --font-base: 'Assistant', Alef, sans-serif;
     --font-size: 16px;
     
-    --border-radius: 8px;
-    --spacing: 1rem;
+    --border-radius: 12px;
+    --spacing: 16px;
 
     /* Colors */
     --primary-blue: #4A90E2;
@@ -34,4 +34,13 @@
     --font-weight-semibold: 600;
     --font-weight-medium: 500;
     --font-weight-regular: 400;
+
+    --color-primary: #26A69A;
+    --color-bg: #F4F6F8;
+    --color-text: #1C2526;
+    --color-accent: #FFCA28;
+    --color-neutral: #607D8B;
+    --color-error: #E57373;
+    --shadow: 0 2px 8px rgba(0,0,0,0.05);
+    --font-primary: 'Alef', 'Inter', sans-serif;
 }
