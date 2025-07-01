@@ -3,9 +3,11 @@ import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestor
 import { db } from '../firebase';
 import { useAuthContext } from '../context/AuthContext';
 import RealtimeChat from './RealtimeChat';
+import { useTranslation } from 'react-i18next';
 
 const ChatList = () => {
   const { user } = useAuthContext();
+  const { t } = useTranslation();
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +48,7 @@ const ChatList = () => {
     <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#1C2526' }}>
       {!selectedChat ? (
         <div className="chat-list">
-          <h2 style={{ color: '#26A69A' }}>Your Conversations</h2>
+          <h2 style={{ color: '#26A69A' }}>{t('messages.conversations')}</h2>
           {chats.length === 0 ? (
             <p style={{ color: '#607D8B' }}>No conversations yet</p>
           ) : (
@@ -76,7 +78,7 @@ const ChatList = () => {
             className="back-button"
             style={{ background: 'linear-gradient(135deg, #607D8B, #26A69A)', color: '#fff' }}
           >
-            ← Back to Chats
+            {t('back')}
           </button>
           <RealtimeChat 
             otherUserId={selectedChat.otherUser.uid}
