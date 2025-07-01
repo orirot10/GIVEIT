@@ -153,7 +153,7 @@ const Popup = ({ item, onClose }) => {
         className="bg-white rounded-xl shadow-xl w-full max-w-xs max-h-[80vh] overflow-y-auto overflow-x-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         dir="auto"
       >
-      <div className="bg-[#8cc9f1] p-6 pb-5 rounded-t-xl relative text-white" dir="auto"> {/* Changed p-4 to p-6 */}
+      <div className="bg-[#26A69A] p-6 pb-5 rounded-t-xl relative text-white" dir="auto"> {/* Changed p-4 to p-6 */}
         <div className="mt-2 mb-1 text-right">
           <h2 className="text-lg font-bold break-words py-1">&nbsp;{title}&nbsp;</h2>
           {description && (
@@ -201,7 +201,7 @@ const Popup = ({ item, onClose }) => {
           
           {price !== null && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
-              <div className="bg-blue-100 rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
+              <div className="bg-[blue-100] rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
                 <CurrencyDollarIcon className="h-1.5 w-1.5 text-blue-600" />
               </div>
               <div className="px-3 min-w-0 text-right">
@@ -224,7 +224,7 @@ const Popup = ({ item, onClose }) => {
 
         <div className="p-4 pt-2">
           <button
-            className="w-full bg-[#f55363] hover:bg-[#a86c45] text-white font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#a86c45]"
+            className="w-full bg-[#FFCA28] hover:bg-[#a86c45] text-white font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#a86c45]"
             onClick={handleContact}
           >
             <span className="text-sm">צור קשר</span>
