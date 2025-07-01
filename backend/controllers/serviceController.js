@@ -75,7 +75,7 @@ const getServices = async (req, res) => {
                 }
             };
         }
-        const services = await Service.find(query).sort({ createdAt: -1 });
+        const services = await Service.find(query).select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng').sort({ createdAt: -1 });
         res.status(200).json(services);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch services' });
@@ -173,7 +173,7 @@ const filterServices = async (req, res) => {
         if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
-    const services = await Service.find(query);
+    const services = await Service.find(query).select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng');
     res.status(200).json(services);
     } catch (err) {
     res.status(500).json({ error: "Failed to filter services", details: err.message });

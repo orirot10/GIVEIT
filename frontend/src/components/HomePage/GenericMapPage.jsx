@@ -4,11 +4,11 @@ import ListView from "./ListView";
 import FilterButton from './FilterButton';
 import ToggleViewButton from "./ToggleViewButton";
 import TabBar from "./TabBar";
-import { geocodeAddress } from "./geocode";
 import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
+import { useAuthContext } from '../../context/AuthContext.jsx';
 
 const GenericMapPage = ({ title, apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
@@ -21,6 +21,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [resetSearchArea, setResetSearchArea] = useState(0);
     const [loading, setLoading] = useState(false);
     const { t, i18n } = useTranslation();
+    const { user } = useAuthContext();
 
     // Define tabs based on the page type (rentals or services)
     const getTabs = () => {
@@ -135,26 +136,14 @@ const GenericMapPage = ({ title, apiUrl }) => {
     }, [contentType, userLocation]); // Re-fetch when content type or user location changes
 
     const mapItemsToCoords = async (items) => {
-        const mapped = await Promise.all(
-            items.map(async (item) => {
-                const { street, city } = item;
-                if (!street || !city || street.length < 3 || city.length < 2) return null;
-
-                const coords = await geocodeAddress(street, city);
-                if (!coords) return null;
-
-                // Create a new object that includes all original item properties
-                return {
-                    ...item,  // Spread all original properties
-                    lat: coords.lat,
-                    lng: coords.lng,
-                    id: item._id || item.id,  // Use _id if available, fallback to id
-                    type: contentType // Add the type to help distinguish items
-                };
-            })
-        );
-
-        return mapped.filter(Boolean);
+        // Only include items that already have lat and lng
+        return items
+            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
+            .map(item => ({
+                ...item,
+                id: item._id || item.id,
+                type: contentType
+            }));
     };
 
     const handleSearch = () => {
@@ -241,6 +230,11 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     return (
         <div className="p-2 flex flex-col gap-1 items-center pb-20">
+            <div className="w-full flex justify-center mb-2">
+                <span className="text-lg font-semibold">
+                    {user ? `hello ${user.displayName || 'user'}` : 'hello guest'}
+                </span>
+            </div>
             <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
 
             <div className="w-full flex flex-col gap-1 items-center">
