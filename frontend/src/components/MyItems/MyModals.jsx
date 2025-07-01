@@ -5,6 +5,7 @@ import ModalCard from './ModalCard';
 import '../../styles/components/MyItems.css';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 const MyModals = () => {
     const { user } = useAuthContext();
@@ -15,6 +16,7 @@ const MyModals = () => {
     const [rentalRequests, setRentalRequests] = useState([]);
     const [serviceRequests, setServiceRequests] = useState([]);
     const [view, setView] = useState('rentals'); // 'rentals', 'services', 'rental_requests', 'service_requests'
+    const [deleteTarget, setDeleteTarget] = useState(null); // { item, type }
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
     const navigate = useNavigate();
 
@@ -77,6 +79,34 @@ const MyModals = () => {
 
         fetchData();
     }, [user, baseUrl]);
+
+    const handleDelete = async () => {
+        if (!deleteTarget) return;
+        const { item, type } = deleteTarget;
+        let endpoint = '';
+        if (type === 'rental') endpoint = 'rentals';
+        else if (type === 'service') endpoint = 'services';
+        else if (type === 'rental_request') endpoint = 'rental_requests';
+        else if (type === 'service_request') endpoint = 'service_requests';
+        try {
+            const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            });
+            if (res.ok) {
+                if (type === 'rental') setRentals(rentals.filter(r => r._id !== item._id));
+                else if (type === 'service') setServices(services.filter(s => s._id !== item._id));
+                else if (type === 'rental_request') setRentalRequests(rentalRequests.filter(r => r._id !== item._id));
+                else if (type === 'service_request') setServiceRequests(serviceRequests.filter(s => s._id !== item._id));
+            }
+        } catch (err) {
+            console.error('Delete failed:', err);
+        } finally {
+            setDeleteTarget(null);
+        }
+    };
 
     // Show message if not logged in
     if (!user) {
@@ -150,7 +180,7 @@ const MyModals = () => {
                                         </div>
                                         <div className="myitems-card-actions">
                                             <button className="myitems-edit-btn" onClick={() => setView('edit')}>{t('common.edit')}</button>
-                                            <button className="myitems-delete-btn" onClick={() => setView('delete')}>{t('common.delete')}</button>
+                                            <button className="myitems-delete-btn" onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>{t('common.delete')}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -235,6 +265,12 @@ const MyModals = () => {
                 >
                     {t('my_items.add_service_request')}
                 </button>
+            )}
+            {deleteTarget && (
+                <DeleteConfirmationModal
+                    onConfirm={handleDelete}
+                    onCancel={() => setDeleteTarget(null)}
+                />
             )}
         </div>
     );
