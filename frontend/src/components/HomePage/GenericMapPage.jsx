@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import MapView from "./MapView";
 import ListView from "./ListView";
 import FilterButton from './FilterButton';
@@ -20,6 +20,9 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [userLocation, setUserLocation] = useState(null);
     const [resetSearchArea, setResetSearchArea] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [mapBounds, setMapBounds] = useState(null);
+    const boundsTimeout = useRef(null);
+    const lastFetchedBounds = useRef(null);
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
 
@@ -103,37 +106,41 @@ const GenericMapPage = ({ title, apiUrl }) => {
         }
     }, [userLocation]);
 
+    // Debounced fetch for items within bounds
     useEffect(() => {
-        const fetchAndMap = async () => {
-            try {
-                setLoading(true);
-                const currentApiUrl = getApiUrl();
-                let url = currentApiUrl;
-                if (userLocation) {
-                    url += `?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
-                }
-                console.log('Fetching from URL:', url);
-                const res = await fetch(url);
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                const items = await res.json();
-                console.log(`[GenericMapPage] ${contentType} fetched from API:`, items);
-                setAllItems(items);
-                const withCoords = await mapItemsToCoords(items);
-                console.log(`[GenericMapPage] ${contentType} after adding coords:`, withCoords);
-                setLocations(withCoords);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching items:', error);
-                setAllItems([]);
-                setLocations([]);
-                setLoading(false);
-            }
-        };
+        if (!mapBounds) return;
+        // Avoid redundant fetches for same bounds
+        const boundsKey = JSON.stringify(mapBounds) + contentType;
+        if (lastFetchedBounds.current === boundsKey) return;
+        if (boundsTimeout.current) clearTimeout(boundsTimeout.current);
+        boundsTimeout.current = setTimeout(() => {
+            fetchItemsWithinBounds(mapBounds);
+            lastFetchedBounds.current = boundsKey;
+        }, 300);
+        // Cleanup
+        return () => clearTimeout(boundsTimeout.current);
+    }, [mapBounds, contentType]);
 
-        fetchAndMap();
-    }, [contentType, userLocation]); // Re-fetch when content type or user location changes
+    // Fetch items within bounds
+    const fetchItemsWithinBounds = async (bounds) => {
+        setLoading(true);
+        try {
+            const currentApiUrl = getApiUrl();
+            const { northEast, southWest } = bounds;
+            const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            const items = await res.json();
+            setAllItems(items);
+            const withCoords = await mapItemsToCoords(items);
+            setLocations(withCoords);
+            setLoading(false);
+        } catch {
+            setAllItems([]);
+            setLocations([]);
+            setLoading(false);
+        }
+    };
 
     const mapItemsToCoords = async (items) => {
         // Only include items that already have lat and lng
@@ -230,12 +237,14 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     return (
         <div className="p-2 flex flex-col gap-1 items-center pb-20">
-            <div className="w-full flex justify-center mb-2">
+            <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
+            <div
+                className={`w-full mb-2 ${i18n.language === 'he' ? 'text-right' : 'text-left'}`}
+            >
                 <span className="text-lg font-semibold">
                     {user ? `hello ${user.displayName || 'user'}` : 'hello guest'}
                 </span>
             </div>
-            <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
 
             <div className="w-full flex flex-col gap-1 items-center">
                 <div className="w-full">
@@ -302,6 +311,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             mapHeight={340}
                             resetSearchArea={resetSearchArea}
                             loading={loading}
+                            onBoundsChanged={setMapBounds}
                         />
                         <div style={{ height: '48px' }} />
                     </>

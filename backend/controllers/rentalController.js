@@ -67,9 +67,20 @@ const uploadNewRental = async (req, res) => {
 // Get all rentals
 const getRentals = async (req, res) => {
     try {
-    const { lat, lng, radius } = req.query;
+    const { lat, lng, radius, minLat, maxLat, minLng, maxLng } = req.query;
     let query = {};
-    if (lat && lng && radius) {
+    let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
+    // Bounding box filter
+    if (
+        minLat !== undefined && maxLat !== undefined &&
+        minLng !== undefined && maxLng !== undefined
+    ) {
+        query = {
+            lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
+            lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
+        };
+        selectFields = 'id title lat lng price'; // Lightweight fields for map
+    } else if (lat && lng && radius) {
         // Find rentals within radius (in meters)
         const userLat = parseFloat(lat);
         const userLng = parseFloat(lng);
@@ -97,7 +108,7 @@ const getRentals = async (req, res) => {
         };
     }
     const rentals = await Rental.find(query)
-        .select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng')
+        .select(selectFields)
         .sort({ createdAt: -1 });
     res.status(200).json(rentals);
     } catch (err) {

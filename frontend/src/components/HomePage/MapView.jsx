@@ -20,7 +20,7 @@ const getPixelPositionOffset = () => ({
     y: -(60 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight, resetSearchArea }) => {
+const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSearchInArea, mapHeight, resetSearchArea, onBoundsChanged }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapCenter, setMapCenter] = useState(null);
@@ -88,6 +88,17 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, onSea
             if (center) {
                 setMapCenter({ lat: center.lat(), lng: center.lng() });
                 setShowSearchArea(true);
+            }
+            if (onBoundsChanged) {
+                const bounds = mapRef.current.getBounds();
+                if (bounds) {
+                    const ne = bounds.getNorthEast();
+                    const sw = bounds.getSouthWest();
+                    onBoundsChanged({
+                        northEast: { lat: ne.lat(), lng: ne.lng() },
+                        southWest: { lat: sw.lat(), lng: sw.lng() }
+                    });
+                }
             }
         }
     };
