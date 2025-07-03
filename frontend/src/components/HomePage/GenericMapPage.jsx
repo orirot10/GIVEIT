@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import MapView from "./MapView";
 import ListView from "./ListView";
 import FilterButton from './FilterButton';
@@ -26,9 +26,9 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
 
-    // Define tabs based on the page type (rentals or services)
-    const getTabs = () => {
-        if (apiUrl.includes('/rentals')) {
+    // Define tabs based on contentType and language
+    const tabs = useMemo(() => {
+        if (contentType.includes('rental')) {
             return [
                 { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' },
                 { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' }
@@ -39,7 +39,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' }
             ];
         }
-    };
+    }, [contentType, i18n.language, t]);
 
     // Function to get the appropriate API URL based on content type
     const getApiUrl = () => {
@@ -259,7 +259,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 <TabBar
                     activeTab={contentType}
                     onTabChange={setContentType}
-                    tabs={getTabs()}
+                    tabs={tabs}
                 />
 
                 <div className="w-full flex justify-center">
