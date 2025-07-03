@@ -7,6 +7,8 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 
+const placeholderSVG = `<svg width='64' height='64' xmlns='http://www.w3.org/2000/svg'><rect width='64' height='64' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='40' height='24' rx='4' fill='#CFD8DC'/><rect x='20' y='32' width='24' height='8' rx='2' fill='#B0BEC5'/></svg>`;
+
 const MyModals = () => {
     const { user } = useAuthContext();
     const { t, i18n } = useTranslation();
@@ -136,21 +138,58 @@ const MyModals = () => {
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
             <h2>{t('my_items.title')}</h2>
-            <div className="myitems-tabs" role="tablist">
+            <div className="myitems-tabs" role="tablist" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20, overflowX: 'auto', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
                 {TAB_CATEGORIES.map(tab => (
-                <button
+                    <button
                         key={tab.key}
                         className={`myitems-tab${view === tab.key ? ' active' : ''}`}
                         onClick={() => setView(tab.key)}
-                        style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', borderRadius: 12, direction: isRTL ? 'rtl' : 'ltr' }}
+                        style={{
+                            fontFamily: 'Alef, Inter, sans-serif',
+                            fontSize: 13,
+                            color: view === tab.key ? '#26A69A' : '#1C2526',
+                            fontWeight: view === tab.key ? 'bold' : 'normal',
+                            borderRadius: 10,
+                            direction: isRTL ? 'rtl' : 'ltr',
+                            background: 'none',
+                            border: 'none',
+                            padding: '8px 14px',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            outline: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: 80,
+                            maxWidth: 120,
+                            whiteSpace: 'nowrap',
+                        }}
                         role="tab"
                         aria-selected={view === tab.key}
                     >
+                        {view === tab.key && (
+                            <span style={{ marginRight: isRTL ? 0 : 6, marginLeft: isRTL ? 6 : 0, color: '#26A69A', fontSize: 16 }}>●</span>
+                        )}
                         {tab.label}
-                </button>
+                        {view === tab.key && (
+                            <span style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                height: 2,
+                                background: '#26A69A',
+                                borderRadius: 2,
+                                width: '80%',
+                                margin: '0 auto',
+                                display: 'block',
+                                content: '""',
+                            }} />
+                        )}
+                    </button>
                 ))}
             </div>
-            <div className="myitems-list-scroll">
+            <div className="myitems-list-scroll" style={{ maxWidth: 420, margin: '0 auto' }}>
                 {(() => {
                     const items =
                         view === 'rentals' ? rentals :
@@ -164,23 +203,46 @@ const MyModals = () => {
                             {items.map(item => (
                                 <div className="myitems-card" key={item._id} dir={isRTL ? 'rtl' : 'ltr'}>
                                     <div className="myitems-card-imgwrap">
-                                        <img
-                                            src={Array.isArray(item.images) && item.images.length > 0 ? `https://giveit-backend.onrender.com${item.images[0]}` : ''}
-                                            alt={item.title}
-                                            className="myitems-card-img"
-                                            style={{ border: '2px solid #607D8B', borderRadius: 8, width: 64, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
-                                            onError={e => { e.target.src = ''; e.target.style.background = '#F4F6F8'; }}
-                                        />
+                                        {Array.isArray(item.images) && item.images.length > 0 && item.images[0] ? (
+                                            <img
+                                                src={`https://giveit-backend.onrender.com${item.images[0]}`}
+                                                alt={item.title}
+                                                className="myitems-card-img"
+                                                style={{ border: '2px solid #607D8B', borderRadius: 8, width: 64, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
+                                                onError={e => { e.target.onerror = null; e.target.src = ''; e.target.style.background = '#F4F6F8'; e.target.parentNode.innerHTML = placeholderSVG; }}
+                                            />
+                                        ) : (
+                                            <span dangerouslySetInnerHTML={{ __html: placeholderSVG }} />
+                                        )}
                                     </div>
                                     <div className="myitems-card-content">
-                                        <div className="myitems-card-title" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr' }}>{item.title}</div>
-                                        <div className="myitems-card-meta" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 12, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr' }}>
-                                            {item.status && <span>{t('common.status')}: {t(`common.${item.status}`)}</span>}
-                                            {item.createdAt && <span style={{ marginRight: 8 }}>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
+                                        <div className="myitems-card-title" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 15, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.title}</div>
+                                        <div className="myitems-card-meta" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 13, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            {item.status && (
+                                                <span style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    background: item.status === 'active' ? '#C8E6C9' : item.status === 'expired' ? '#ECEFF1' : '#FFE0B2',
+                                                    color: item.status === 'active' ? '#388E3C' : item.status === 'expired' ? '#607D8B' : '#FFA000',
+                                                    borderRadius: 8,
+                                                    padding: '2px 8px',
+                                                    fontSize: 12,
+                                                    fontWeight: 500,
+                                                    marginRight: isRTL ? 0 : 8,
+                                                    marginLeft: isRTL ? 8 : 0,
+                                                }}>
+                                                    ● {t(`common.${item.status}`)}
+                                                </span>
+                                            )}
+                                            {item.createdAt && <span>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}
                                         </div>
-                                        <div className="myitems-card-actions">
-                                            <button className="myitems-edit-btn" onClick={() => setView('edit')}>{t('common.edit')}</button>
-                                            <button className="myitems-delete-btn" onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>{t('common.delete')}</button>
+                                        <div className="myitems-card-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                                            <button className="myitems-edit-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setView('edit')}>
+                                                <span role="img" aria-label="edit">✏️</span> {t('common.edit')}
+                                            </button>
+                                            <button className="myitems-delete-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
+                                                <span role="img" aria-label="delete">🗑</span> {t('common.delete')}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +274,7 @@ const MyModals = () => {
                     onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
-                    {view === 'rentals' ? t('my_items.add_rental') : t('my_items.add_service')}
+                    {view === 'rentals' ? t('rentals.add_rental') : t('services.add_service')}
                 </button>
             )}
             {/* Add Request Buttons */}
@@ -238,7 +300,7 @@ const MyModals = () => {
                     onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
-                    {t('my_items.add_rental_request')}
+                    {t('rentals.request_rental')}
                 </button>
             )}
             {view === 'service_requests' && (
@@ -263,7 +325,7 @@ const MyModals = () => {
                     onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
-                    {t('my_items.add_service_request')}
+                    {t('services.request_service')}
                 </button>
             )}
             {deleteTarget && (

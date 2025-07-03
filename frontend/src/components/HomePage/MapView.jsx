@@ -175,7 +175,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHe
                             {/* Custom brand pin */}
                             <div
                                 className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-4 border-white map-pin-hover"
-                                style={{ width: 44, height: 44, background: '#1b7bd9', position: 'relative' }}
+                                style={{ width: 44, height: 44, background: '#26A69A', position: 'relative' }}
                                 title={item.title || "N/A"}
                             >
                                 <span className="text-white font-bold text-[12px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>

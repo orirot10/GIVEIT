@@ -209,32 +209,46 @@ input:checked + .slider:before {
 /* Tabbed interface styles */
 .myitems-tabs {
   display: flex;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
   margin-bottom: 24px;
-  justify-content: flex-end;
-  direction: rtl;
 }
 .myitems-tab {
   font-family: 'Alef', 'Inter', sans-serif;
   font-size: 14px;
   color: #1C2526;
-  background: #F4F6F8;
   border: none;
+  background: none;
   border-radius: 12px;
-  padding: 8px 24px;
+  padding: 12px 24px;
   cursor: pointer;
-  transition: box-shadow 0.2s, background 0.2s, color 0.2s;
   outline: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  border: 2px solid transparent;
+  font-weight: normal;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, font-weight 0.2s;
 }
 .myitems-tab.active {
-  background: #26A69A;
-  color: #fff;
-  border: 2px solid #26A69A;
+  color: #26A69A;
+  font-weight: bold;
 }
-.myitems-tab:hover:not(.active) {
-  border: 2px solid #607D8B;
+.myitems-tab.active::after {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 0;
+  height: 3px;
+  background: #26A69A;
+  border-radius: 2px;
+}
+.myitems-tab .tab-icon {
+  margin-right: 8px;
+  color: #26A69A;
+  font-size: 18px;
 }
 
 /* Scrollable list */
