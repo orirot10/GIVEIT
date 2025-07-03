@@ -5,7 +5,8 @@ const {
     searchServiceRequests,
     filterServiceRequests,
     uploadNewServiceRequest,
-    deleteServiceRequest
+    deleteServiceRequest,
+    editServiceRequest
 } = require('../controllers/serviceRequestController');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/upload.js');
@@ -30,5 +31,8 @@ router.get('/filter', filterServiceRequests);
 
 // DELETE /api/service_requests/:id - Delete a service request by ID
 router.delete('/:id', protect, deleteServiceRequest);
+
+// PUT /api/service_requests/:id - Edit a service request by ID
+router.put('/:id', protect, editServiceRequest);
 
 module.exports = router;

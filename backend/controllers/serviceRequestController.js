@@ -218,6 +218,9 @@ const deleteServiceRequest = async (req, res) => {
     }
 };
 
+// Edit a service request (uses the same logic as editService)
+const editServiceRequest = editService;
+
 module.exports = {
     uploadNewServiceRequest,
     getServiceRequests,
@@ -227,4 +230,5 @@ module.exports = {
     searchServiceRequests,
     filterServiceRequests,
     deleteServiceRequest,
+    editServiceRequest,
 };

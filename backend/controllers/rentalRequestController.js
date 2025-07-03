@@ -201,11 +201,29 @@ const deleteRentalRequest = async (req, res) => {
     }
 };
 
+// Edit a rental request
+const editRentalRequest = async (req, res) => {
+    const { id } = req.params;
+    const { title, description, category, price, pricePeriod, images, phone, status, city, street, lat, lng } = req.body;
+    try {
+        const updated = await RentalRequest.findByIdAndUpdate(
+            id,
+            { title, description, category, price, pricePeriod, images, phone, status, city, street, lat, lng },
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ error: 'Rental request not found' });
+        res.status(200).json(updated);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update rental request' });
+    }
+};
+
 module.exports = {
     uploadNewRentalRequest,
     getRentalRequests,
     getUserRentalRequests,
     searchRentalRequests,
     filterRentalRequests,
-    deleteRentalRequest
+    deleteRentalRequest,
+    editRentalRequest
 }; 

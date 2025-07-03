@@ -6,7 +6,8 @@ const {
     getUserRentalRequests,
     searchRentalRequests,
     filterRentalRequests,
-    deleteRentalRequest
+    deleteRentalRequest,
+    editRentalRequest
 } = require('../controllers/rentalRequestController'); // Corrected path
 const { protect: requireAuth } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/upload');
@@ -45,6 +46,7 @@ router.get('/user', requireAuth, getUserRentalRequests);
 router.get('/search', searchRentalRequests);
 router.get('/filter', filterRentalRequests);
 router.delete('/:id', requireAuth, deleteRentalRequest);
+router.put('/:id', requireAuth, editRentalRequest);
 
 // Remove or comment out unused routes like the old :type route
 // router.get('/:type', getRentalRequestsByType); // This was likely incorrect

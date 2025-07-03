@@ -29,20 +29,27 @@
 /* Tabs */
 .myitems-tabs {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start; /* או center אם אתה רוצה שהטאבים יתחילו מהאמצע */
   gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  max-width: 460px;
+  margin-bottom: 1rem;
+  max-width: 100%;
+  overflow-x: auto;
+  flex-wrap: nowrap; /* הכי חשוב */
+  scrollbar-width: none; /* הסתרת סקרול ברוב הדפדפנים */
 }
+
+.myitems-tabs::-webkit-scrollbar {
+  display: none; /* הסתרת סקרול כרום */
+}
+
 
 .myitems-tab {
   position: relative;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-primary);
   background: var(--bg-card);
   border-radius: var(--border-radius);
-  padding: 12px 28px;
+  padding: 12px 36px; /* Increased horizontal padding */
   cursor: pointer;
   border: 1.5px solid transparent;
   font-weight: 600;
@@ -56,9 +63,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 90px;
   white-space: nowrap;
+  flex: 0 0 auto;
+  max-width: 240px; /* Optional: control how wide it can go */
 }
+
 
 .myitems-tab:hover:not(.active) {
   background: var(--primary-light);
