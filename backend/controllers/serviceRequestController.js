@@ -198,6 +198,26 @@ const filterServiceRequests = async (req, res) => {
     }
 };
 
+// DELETE a service request by ID (only owner can delete)
+const deleteServiceRequest = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Find the service request
+        const serviceRequest = await Service.findById(id);
+        if (!serviceRequest) {
+            return res.status(404).json({ error: 'Service request not found' });
+        }
+        // Check if the logged-in user is the owner
+        if (serviceRequest.ownerId.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Not authorized to delete this service request' });
+        }
+        await Service.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Service request deleted' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete service request' });
+    }
+};
+
 module.exports = {
     uploadNewServiceRequest,
     getServiceRequests,
@@ -205,5 +225,6 @@ module.exports = {
     editService,
     deleteService,
     searchServiceRequests,
-    filterServiceRequests
+    filterServiceRequests,
+    deleteServiceRequest,
 };
