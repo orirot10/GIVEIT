@@ -216,7 +216,7 @@ const Popup = ({ item, onClose }) => {
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">מחיר</p>
-                <p className="text-base font-bold text-gray-800 break-words py-0.5">${price} <span className="text-sm text-gray-500 font-normal">ל{pricePeriod}</span></p>
+                <p className="text-base font-bold text-gray-800 break-words py-0.5">₪{price} <span className="text-sm text-gray-500 font-normal">ל{pricePeriod}</span></p>
               </div>
             </div>
           )}

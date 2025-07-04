@@ -17,10 +17,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const [view, setView] = useState("map");
     const [contentType, setContentType] = useState(apiUrl.includes('/services') ? 'services' : 'rentals');
     const [searchQuery, setSearchQuery] = useState("");
-    const [appliedFilters, setAppliedFilters] = useState({ categories: [], minPrice: null, maxPrice: null });
     const [userLocation, setUserLocation] = useState(null);
-    const [resetSearchArea, setResetSearchArea] = useState(0);
-    const [loading, setLoading] = useState(false);
     const [mapBounds, setMapBounds] = useState(null);
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
@@ -123,7 +120,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     // Fetch items within bounds
     const fetchItemsWithinBounds = async (bounds) => {
-        setLoading(true);
+        // setLoading(true); // Removed loading state
         try {
             const currentApiUrl = getApiUrl();
             const { northEast, southWest } = bounds;
@@ -134,11 +131,11 @@ const GenericMapPage = ({ title, apiUrl }) => {
             setAllItems(items);
             const withCoords = await mapItemsToCoords(items);
             setLocations(withCoords);
-            setLoading(false);
+            // setLoading(false); // Removed loading state
         } catch {
             setAllItems([]);
             setLocations([]);
-            setLoading(false);
+            // setLoading(false); // Removed loading state
         }
     };
 
@@ -155,11 +152,9 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const handleSearch = () => {
         const currentApiUrl = getApiUrl();
         searchItems({ apiUrl: currentApiUrl, searchQuery, setAllItems, setLocations });
-        setResetSearchArea(prev => prev + 1);
     };
 
     const handleFilter = ({ categories, minPrice, maxPrice }) => {
-        setAppliedFilters({ categories, minPrice, maxPrice });
         const currentApiUrl = getApiUrl();
         let url = `${currentApiUrl}/filter?`;
         if (categories.length > 0) {
@@ -181,12 +176,10 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 setAllItems(data);
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
-                setResetSearchArea(prev => prev + 1);
             });
     };
 
     const handleClearFilters = () => {
-        setAppliedFilters({ categories: [], minPrice: null, maxPrice: null });
         const currentApiUrl = getApiUrl();
         let url = currentApiUrl;
         if (userLocation) {
@@ -198,171 +191,142 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 setAllItems(data);
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
-                setResetSearchArea(prev => prev + 1);
-            });
-    };
-
-    const handleRemoveCategory = (catToRemove) => {
-        const updatedCategories = appliedFilters.categories.filter(cat => cat !== catToRemove);
-        handleFilter({ categories: updatedCategories, minPrice: appliedFilters.minPrice, maxPrice: appliedFilters.maxPrice });
-    };
-
-    const handleRemovePrice = () => {
-        handleFilter({ categories: appliedFilters.categories, minPrice: null, maxPrice: null });
-    };
-
-    const filterCount = appliedFilters.categories.length + (appliedFilters.minPrice !== null ? 1 : 0) + (appliedFilters.maxPrice !== null ? 1 : 0);
-
-    const handleSearchInArea = (center) => {
-        const currentApiUrl = getApiUrl();
-        let url = `${currentApiUrl}?lat=${center.lat}&lng=${center.lng}&radius=1000`;
-        fetch(url)
-            .then((res) => res.json())
-            .then(async (data) => {
-                setAllItems(data);
-                const withCoords = await mapItemsToCoords(data);
-                setLocations(withCoords);
-                setUserLocation(center);
-                setResetSearchArea(prev => prev + 1);
             });
     };
 
     return (
-        <div className="p-1 flex flex-col gap-0 items-center"> {/* Reduced padding and gap */}
-            <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1> {/* Reduced text size */}
-            <div className="w-full">
-    <span className="text-base font-semibold text-center block">
-        {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
-    </span>
-</div>
-            <div className="w-full flex flex-col gap-0 items-center"> {/* Reduced gap */}
-                <div className="w-full">
-                    <SearchBar
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        onSearch={handleSearch}
-                        onClearFilters={handleClearFilters}
+        <div className="map-wrapper" style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+            {view === "map" ? (
+                <>
+                    {/* Map fills the background */}
+                    <MapView
+                        locations={locations}
+                        mapHeight={"100%"}
+                        onBoundsChanged={setMapBounds}
                     />
-                </div>
-
-                <TabBar
-                    activeTab={contentType}
-                    onTabChange={setContentType}
-                    tabs={tabs}
-                />
-            </div>
-
-            {/* Active Filter Buttons */}
-            {filterCount > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                    {appliedFilters.categories.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => handleRemoveCategory(cat)}
-                            className="bg-blue-200 text-blue-800 font-medium px-3 py-2 rounded-full hover:bg-blue-200"
-                        >
-                            {cat} ✕
-                        </button>
-                    ))}
-                    {appliedFilters.minPrice !== null && (
-                        <button
-                            onClick={handleRemovePrice}
-                            className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
-                        >
-                            Min: {appliedFilters.minPrice}₪ ✕
-                        </button>
-                    )}
-                    {appliedFilters.maxPrice !== null && (
-                        <button
-                            onClick={handleRemovePrice}
-                            className="bg-green-200 text-green-800 font-medium px-3 py-2 rounded-full hover:bg-green-200"
-                        >
-                            Max: {appliedFilters.maxPrice}₪ ✕
-                        </button>
-                    )}
-                </div>
-            )}
-
-            <div className="map-wrapper w-full mb-0 pb-0">
-                {view === "map" ? (
-                    <>
-                        <MapView 
-                            locations={locations} 
-                            onApplyFilters={handleFilter}
-                            categoryType={getCategoryType()}
-                            view={view}
-                            setView={setView}
-                            onSearchInArea={handleSearchInArea}
-                            mapHeight={400}
-                            resetSearchArea={resetSearchArea}
-                            loading={loading}
-                            onBoundsChanged={setMapBounds}
-                        />
-                        <div style={{ height: '48px' }} />
-                    </>
-                ) : (
-                    <>
-                        <div style={{ position: 'absolute', top: 2, right: 2, zIndex: 8 }}>
+                    {/* Overlay controls */}
+                    <div className="map-overlay" style={{ position: 'absolute', top: 10, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
+                        <div style={{ pointerEvents: 'auto' }}>
+                            <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1>
+                            <div className="w-full">
+                                <span className="text-base font-semibold text-center block">
+                                    {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
+                                </span>
+                            </div>
+                            <div className="w-full flex flex-col gap-0 items-center">
+                                <div className="w-full">
+                                    <SearchBar
+                                        searchQuery={searchQuery}
+                                        setSearchQuery={setSearchQuery}
+                                        onSearch={handleSearch}
+                                        onClearFilters={handleClearFilters}
+                                    />
+                                </div>
+                                <TabBar
+                                    activeTab={contentType}
+                                    onTabChange={setContentType}
+                                    tabs={tabs}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                // List view: controls at top, list fills rest
+                <>
+                    <div>
+                        <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1>
+                        <div className="w-full">
+                            <span className="text-base font-semibold text-center block">
+                                {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
+                            </span>
+                        </div>
+                        <div className="w-full flex flex-col gap-0 items-center">
+                            <div className="w-full">
+                                <SearchBar
+                                    searchQuery={searchQuery}
+                                    setSearchQuery={setSearchQuery}
+                                    onSearch={handleSearch}
+                                    onClearFilters={handleClearFilters}
+                                />
+                            </div>
+                            <TabBar
+                                activeTab={contentType}
+                                onTabChange={setContentType}
+                                tabs={tabs}
+                            />
+                        </div>
+                        {/* Map/List controls below search and tabs, always visible */}
+                        <div className="button-group">
+                            <FilterButton onApplyFilters={handleFilter} categoryType={getCategoryType()} />
                             <ToggleViewButton view={view} setView={setView} />
                         </div>
-                        <div style={{ maxHeight: 650, overflowY: 'auto' }}>
+                    </div>
+                    <div style={{ flex: 1, position: 'relative', width: '100%' }}>
+                        <div style={{ width: '100%', height: '100%', overflowY: 'auto', position: 'relative' }}>
+                            <div style={{ position: 'absolute', top: 300, left: 20, zIndex: 8 }}>
+                                <ToggleViewButton view={view} setView={setView} />
+                            </div>
+                            
+
+
+
                             <ListView rentals={allItems} />
                         </div>
-                        <div style={{ height: '48px' }} />
-                    </>
-                )}
-                {/* Add Listing/Request Button (FAB) */}
-                {(contentType === 'rentals' || contentType === 'services' || contentType === 'rental_requests' || contentType === 'service_requests') && (
-                    <button
-                        className="myitems-add-btn"
-                        aria-label={
-                            contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
-                            contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
-                            contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
-                            (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
-                        }
-                        title={
-                            contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
-                            contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
-                            contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
-                            (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
-                        }
-                        style={{
-                            position: 'fixed',
-                            bottom: 150,
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            zIndex: 1000,
-                            width: 64,
-                            height: 64,
-                            padding: 0,
-                            background: '#26A69A',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '50%',
-                            fontFamily: 'Alef, Inter, sans-serif',
-                            fontSize: 40,
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 16px rgba(38, 166, 154, 0.18)',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'background 0.2s',
-                        }}
-                        onClick={() => {
-                            if (contentType === 'rentals') navigate('/offer-rental');
-                            else if (contentType === 'services') navigate('/offer-service');
-                            else if (contentType === 'rental_requests') navigate('/request-rental');
-                            else if (contentType === 'service_requests') navigate('/request-service');
-                        }}
-                        onMouseOver={e => e.currentTarget.style.background = '#009688'}
-                        onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
-                    >
-                        <span style={{fontSize: 40, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}} aria-hidden="true">+</span>
-                    </button>
-                )}
-            </div>
+                    </div>
+                </>
+            )}
+            {/* Add Listing/Request Button (FAB) */}
+            {(contentType === 'rentals' || contentType === 'services' || contentType === 'rental_requests' || contentType === 'service_requests') && (
+                <button
+                    className="myitems-add-btn"
+                    aria-label={
+                        contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
+                        contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
+                        contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
+                        (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
+                    }
+                    title={
+                        contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
+                        contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
+                        contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
+                        (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
+                    }
+                    style={{
+                        position: 'fixed',
+                        bottom: 150,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 1000,
+                        width: 48,
+                        height: 48,
+                        padding: 0,
+                        background: '#26A69A',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '50%',
+                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontSize: 28,
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 16px rgba(38, 166, 154, 0.18)',
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'background 0.2s',
+                    }}
+                    onClick={() => {
+                        if (contentType === 'rentals') navigate('/offer-rental');
+                        else if (contentType === 'services') navigate('/offer-service');
+                        else if (contentType === 'rental_requests') navigate('/request-rental');
+                        else if (contentType === 'service_requests') navigate('/request-service');
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
+                    onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                >
+                    <span style={{fontSize: 28, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}} aria-hidden="true">+</span>
+                </button>
+            )}
         </div>
     );
 };

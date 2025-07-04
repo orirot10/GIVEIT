@@ -175,7 +175,7 @@ return (
                         <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting}>
                             {isSubmitting ? 'Submitting...' : submitButtonText}
                         </button>
-                        <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/dashboard')}>Cancel</button>
+                        <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/')}>Cancel</button>
                     </div>
                 </form>
             </>

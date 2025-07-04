@@ -10,19 +10,21 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-    lat: 32.0408,
+    lat: 32.0308,
     lng: 34.7658,
 };
 
 const getPixelPositionOffset = () => ({
-    x: -(40 / 2),
-    y: -(60 / 2),
+    x: -(10 / 2),
+    y: -(20 / 2),
 });
 
-const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHeight, onBoundsChanged }) => {
+const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
-    const mapRef = useRef(null); // ref to control the map
+    const mapRef = useRef(null); // ref 
+    // 
+    //  control the map
     const hasSetInitialLocation = useRef(false); // Track if initial location was set
 
     useEffect(() => {
@@ -123,45 +125,62 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHe
           elementType: "labels",
           stylers: [{ visibility: "on" }] // Optional: city names, etc.
         }
-      ];
-      
+    ];
+
+    // Fix the height calculation
+    const getMapHeight = () => {
+        if (mapHeight === "100%") {
+            return "100%";
+        }
+        if (typeof mapHeight === "string" && mapHeight.includes("%")) {
+            return mapHeight;
+        }
+        if (typeof mapHeight === "number") {
+            return `${mapHeight}px`;
+        }
+        if (typeof mapHeight === "string" && mapHeight.includes("px")) {
+            return mapHeight;
+        }
+        return "420px"; // fallback
+    };
+
+    const mapContainerStyle = {
+        ...containerStyle,
+        height: getMapHeight(),
+        minHeight: "300px", // Ensure minimum height
+    };
+
+    console.log('MapView rendering with:', { 
+        mapHeight, 
+        calculatedHeight: getMapHeight(), 
+        locationsCount: locations?.length || 0 
+    });
       
     return (
-        <div className="w-full relative" style={{ marginBottom: '64px' }}>
-            {/* FilterButton in top-left corner */}
-            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
-                <FilterButton onApplyFilters={onApplyFilters} categoryType={categoryType} />
-            </div>
-            {/* ToggleViewButton in top-right corner */}
-            <div style={{ position: 'absolute', top: 4, right: 4, zIndex: 10 }}>
-                <ToggleViewButton view={view} setView={setView} />
-            </div>
+        <div className="w-full relative" style={{ marginBottom: '64px', height: '100%' }}>
+            {children}
+            
             <GoogleMap
-                mapContainerStyle={{ ...containerStyle, height: mapHeight ? `${mapHeight}px` : '420px' }}
+                mapContainerStyle={mapContainerStyle}
                 center={userLocation || defaultCenter}
                 zoom={15}
                 onLoad={(map) => {
                     mapRef.current = map;
+                    console.log('Google Map loaded successfully');
                 }}
                 onIdle={handleMapIdle}
                 options={{
                     styles: customMapStyle,
                     gestureHandling: "greedy",
                     zoomControl: true,
-                    scrollwheel: false,
+                    scrollwheel: true, // Changed from false to true
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false,
                     keyboardShortcuts: false,
-                    /*
-                    disableDefaultUI: false,
-                    panControl: false,
-                    rotateControl: false,
-                    scaleControl: false,
-                    clickableIcons: false,*/
                 }}
             >
-                {locations.map((item, index) => (
+                {locations && locations.map((item, index) => (
                     <OverlayView
                         key={item.id || index}
                         position={{ lat: item.lat, lng: item.lng }}
@@ -180,9 +199,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHe
                             >
                                 <span className="text-white font-bold text-[12px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                     {item.title ? item.title.split(' ')[0] : "?"}
-
                                 </span>
-                                {/* Optionally, add a brand SVG icon here */}
                             </div>
                             {/* Price below pin */}
                             {item.price !== null && item.price !== undefined && (

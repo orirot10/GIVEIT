@@ -22,6 +22,8 @@ body, .main-bg-gradient {
     box-shadow: var(--card-shadow);
     margin: 0 auto 2rem auto;
     max-width: 100%;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 .rental-card {
@@ -41,16 +43,30 @@ body, .main-bg-gradient {
 
 /* Enhanced map container for modern look */
 .map-wrapper {
-    min-height: 400px;
-    height: auto;
-    max-height: 80vh;
     position: relative;
-    contain: layout style paint;
-    transition: height 0.3s ease, box-shadow 0.3s, border-radius 0.3s;
-    border-radius: 2rem; /* More rounded corners */
-    box-shadow: 0 8px 32px rgba(27, 123, 217, 0.18), 0 2px 8px rgba(0,0,0,0.08); /* Subtle floating effect */
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
     background: var(--card-bg);
     z-index: 2;
+}
+
+.map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    pointer-events: none; /* allow map interaction below overlays */
+}
+
+.map-overlay > * {
+    pointer-events: auto; /* allow interaction with overlay controls */
 }
 
 .search-filter-container {
