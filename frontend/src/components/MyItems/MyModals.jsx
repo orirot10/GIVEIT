@@ -305,8 +305,7 @@ const MyModals = () => {
                 <button
                     className="myitems-add-btn"
                     style={{
-                        marginTop: 24,
-                        padding: '12px 24px',
+                        marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
                         background: '#26A69A',
                         color: '#fff',
                         border: 'none',
@@ -331,8 +330,7 @@ const MyModals = () => {
                 <button
                     className="myitems-add-btn"
                     style={{
-                        marginTop: 24,
-                        padding: '12px 24px',
+                        marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
                         background: '#26A69A',
                         color: '#fff',
                         border: 'none',
@@ -356,8 +354,7 @@ const MyModals = () => {
                 <button
                     className="myitems-add-btn"
                     style={{
-                        marginTop: 24,
-                        padding: '12px 24px',
+                        marginTop: 0, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
                         background: '#26A69A',
                         color: '#fff',
                         border: 'none',

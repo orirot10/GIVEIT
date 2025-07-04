@@ -1,4 +1,5 @@
 const Rental = require('../models/Rental.js');
+const User = require('../models/User');
 
 const uploadNewRental = async (req, res) => {
     const {
@@ -110,7 +111,19 @@ const getRentals = async (req, res) => {
     const rentals = await Rental.find(query)
         .select(selectFields)
         .sort({ createdAt: -1 });
-    res.status(200).json(rentals);
+    // Fetch user phones and merge into rentals
+    const ownerIds = rentals.map(r => r.ownerId);
+    const users = await User.find({ firebaseUid: { $in: ownerIds } }).select('firebaseUid phone');
+    const userPhoneMap = {};
+    users.forEach(u => { userPhoneMap[u.firebaseUid] = u.phone; });
+    const rentalsWithPhone = rentals.map(r => {
+        const rentalObj = r.toObject();
+        if (!rentalObj.phone) {
+            rentalObj.phone = userPhoneMap[rentalObj.ownerId] || '';
+        }
+        return rentalObj;
+    });
+    res.status(200).json(rentalsWithPhone);
     } catch (err) {
     console.error('Error fetching rentals:', err);
     res.status(500).json({ error: 'Failed to fetch rentals', details: err.message });
