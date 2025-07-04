@@ -109,7 +109,6 @@ const GenericMapPage = ({ title, apiUrl }) => {
     // Debounced fetch for items within bounds
     useEffect(() => {
         if (!mapBounds) return;
-        // Avoid redundant fetches for same bounds
         const boundsKey = JSON.stringify(mapBounds) + contentType;
         if (lastFetchedBounds.current === boundsKey) return;
         if (boundsTimeout.current) clearTimeout(boundsTimeout.current);
@@ -117,7 +116,6 @@ const GenericMapPage = ({ title, apiUrl }) => {
             fetchItemsWithinBounds(mapBounds);
             lastFetchedBounds.current = boundsKey;
         }, 300);
-        // Cleanup
         return () => clearTimeout(boundsTimeout.current);
     }, [mapBounds, contentType]);
 
@@ -143,7 +141,6 @@ const GenericMapPage = ({ title, apiUrl }) => {
     };
 
     const mapItemsToCoords = async (items) => {
-        // Only include items that already have lat and lng
         return items
             .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
             .map(item => ({
@@ -162,26 +159,20 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const handleFilter = ({ categories, minPrice, maxPrice }) => {
         setAppliedFilters({ categories, minPrice, maxPrice });
         const currentApiUrl = getApiUrl();
-
         let url = `${currentApiUrl}/filter?`;
-
         if (categories.length > 0) {
             const encodedCategories = categories.map(encodeURIComponent).join(",");
             url += `category=${encodedCategories}&`;
         }
-
         if (minPrice !== null) {
             url += `minPrice=${minPrice}&`;
         }
-
         if (maxPrice !== null) {
             url += `maxPrice=${maxPrice}&`;
         }
-
         if (userLocation) {
             url += `lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
         }
-
         fetch(url)
             .then((res) => res.json())
             .then(async (data) => {
@@ -220,7 +211,6 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     const filterCount = appliedFilters.categories.length + (appliedFilters.minPrice !== null ? 1 : 0) + (appliedFilters.maxPrice !== null ? 1 : 0);
 
-    // Add handler for 'search in this area'
     const handleSearchInArea = (center) => {
         const currentApiUrl = getApiUrl();
         let url = `${currentApiUrl}?lat=${center.lat}&lng=${center.lng}&radius=1000`;
@@ -230,23 +220,21 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 setAllItems(data);
                 const withCoords = await mapItemsToCoords(data);
                 setLocations(withCoords);
-                setUserLocation(center); // update userLocation to new center for future filters
+                setUserLocation(center);
                 setResetSearchArea(prev => prev + 1);
             });
     };
 
     return (
-        <div className="p-2 flex flex-col gap-1 items-center pb-20">
-            <h2 className="text-2xl font-bold text-center">{getDisplayTitle()}</h2>
-            <div
-                className={`w-full mb-2 ${i18n.language === 'he' ? 'text-right' : 'text-left'}`}
-            >
-                <span className="text-lg font-semibold">
+        <div className="p-1 flex flex-col gap-0 items-center"> {/* Reduced padding and gap */}
+            <h2 className="text-xl font-bold text-center">{getDisplayTitle()}</h2> {/* Reduced text size */}
+            <div className={`w-full ${i18n.language === 'he' ? 'text-right' : 'text-left'}`}>
+                <span className="text-base font-semibold">
                     {user ? `hello ${user.displayName || 'user'}` : 'hello guest'}
                 </span>
             </div>
 
-            <div className="w-full flex flex-col gap-1 items-center">
+            <div className="w-full flex flex-col gap-0 items-center"> {/* Reduced gap */}
                 <div className="w-full">
                     <SearchBar
                         searchQuery={searchQuery}
@@ -261,20 +249,16 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     onTabChange={setContentType}
                     tabs={tabs}
                 />
-
-                <div className="w-full flex justify-center">
-                    {/* FilterButton moved to MapView */}
-                </div>
             </div>
 
             {/* Active Filter Buttons */}
             {filterCount > 0 && (
-                <div className="flex-wrap gap-1 mt-1">
+                <div className="flex flex-wrap gap-1 mt-1">
                     {appliedFilters.categories.map((cat) => (
                         <button
                             key={cat}
                             onClick={() => handleRemoveCategory(cat)}
-                            className="bg-blue-200 text-blue-800 font-medium px-4 py-3 rounded-full hover:bg-blue-200"
+                            className="bg-blue-200 text-blue-800 font-medium px-3 py-2 rounded-full hover:bg-blue-200"
                         >
                             {cat} ✕
                         </button>
@@ -308,7 +292,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             view={view}
                             setView={setView}
                             onSearchInArea={handleSearchInArea}
-                            mapHeight={500}
+                            mapHeight={600}
                             resetSearchArea={resetSearchArea}
                             loading={loading}
                             onBoundsChanged={setMapBounds}
@@ -317,10 +301,10 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     </>
                 ) : (
                     <>
-                        <div style={{ position: 'absolute', top: 2, right: 2, zIndex:8 }}>
+                        <div style={{ position: 'absolute', top: 2, right: 2, zIndex: 8 }}>
                             <ToggleViewButton view={view} setView={setView} />
                         </div>
-                        <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+                        <div style={{ maxHeight: 600, overflowY: 'auto' }}>
                             <ListView rentals={allItems} />
                         </div>
                         <div style={{ height: '48px' }} />
