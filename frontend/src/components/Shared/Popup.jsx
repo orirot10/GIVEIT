@@ -172,71 +172,74 @@ const Popup = ({ item, onClose }) => {
       </div>
 
         {resolvedImageUrl && (
-          <div className="overflow-hidden w-full flex justify-center items-center" style={{ height: '80px', minHeight: '80px', maxHeight: '80px' }}>
-            <img
-              src={resolvedImageUrl}
-              alt={title}
-              className="w-full h-full object-cover rounded-md"
-              style={{ maxWidth: '120px', maxHeight: '80px', minWidth: '80px', minHeight: '80px', objectFit: 'cover', objectPosition: 'center' }}
-              loading="lazy"
-            />
+          <div className="p-4 pb-2 flex justify-center">
+            <div className="relative overflow-hidden rounded-xl shadow-lg" style={{ width: '160px', height: '120px' }}>
+              <img
+                src={resolvedImageUrl}
+                alt={title}
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                loading="lazy"
+              />
+            </div>
           </div>
         )}
 
         <div className="p-4 space-y-3" dir="rtl">
           {ownerName && ownerName !== 'N/A' && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
-              <div className="bg-blue-100 rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
+              <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
                 <UserIcon className="h-1.5 w-1.5 text-blue-600" />
               </div>
               <div className="px-3 min-w-0 text-right">
-                <p className="text-sm text-gray-500 py-0.5">בעלים</p>
-                <p className="text-sm font-medium break-words py-0.5">{ownerName}</p>
+                <p className="text-xs text-gray-500 py-0.5 font-medium">בעלים</p>
+                <p className="text-base font-bold text-gray-800 break-words py-0.5">{ownerName}</p>
               </div>
             </div>
           )}
           
           {address && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
-              <div className="bg-blue-100 rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
+              <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
                 <MapPinIcon className="h-1.5 w-1.5 text-blue-600" />
               </div>
               <div className="px-3 min-w-0 text-right">
-                <p className="text-sm text-gray-500 py-0.5">מיקום</p>
-                <p className="text-sm font-medium break-words py-0.5">{address}</p>
+                <p className="text-xs text-gray-500 py-0.5 font-medium">מיקום</p>
+                <p className="text-base font-bold text-gray-800 break-words py-0.5">{address}</p>
               </div>
             </div>
           )}
           
           {price !== null && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
-              <div className="bg-[blue-100] rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
+              <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
                 <CurrencyDollarIcon className="h-1.5 w-1.5 text-blue-600" />
               </div>
               <div className="px-3 min-w-0 text-right">
-                <p className="text-sm text-gray-500 py-0.5">מחיר</p>
-                <p className="text-sm font-medium break-words py-0.5">${price} <span className="text-sm text-gray-500">ל{pricePeriod}</span></p>
+                <p className="text-xs text-gray-500 py-0.5 font-medium">מחיר</p>
+                <p className="text-base font-bold text-gray-800 break-words py-0.5">${price} <span className="text-sm text-gray-500 font-normal">ל{pricePeriod}</span></p>
               </div>
             </div>
           )}
           
           <div className="bg-gray-100 rounded-lg p-3 flex items-center">
-            <div className="bg-blue-100 rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
+            <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
               <PhoneIcon className="h-1.5 w-1.5 text-blue-600" />
             </div>
             <div className="px-3 min-w-0 text-right">
-              <p className="text-sm text-gray-500 py-0.5"> יצירת קשר</p>
-              <p className="text-sm font-medium break-words py-0.5">{displayPhone} </p>
+              <p className="text-xs text-gray-500 py-0.5 font-medium">יצירת קשר</p>
+              <a href={`tel:${displayPhone}`} className="text-base font-bold text-blue-600 hover:text-blue-800 underline break-words py-0.5 cursor-pointer">
+                {displayPhone}
+              </a>
             </div>
           </div>
         </div>
 
         <div className="p-4 pt-2">
           <button
-            className="w-full bg-[#FEFBC7] hover:bg-[#26A69A] text-black font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#26A69A]"
+            className="w-full bg-[#26A69A] hover:bg-[#1E8A7A] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-in-out"
             onClick={handleContact}
           >
-            <span className="text-sm">צור קשר</span>
+            <span className="text-sm">התחל שיחה בצ'אט</span>
           </button>
         </div>
       </div>

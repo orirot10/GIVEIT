@@ -229,13 +229,12 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     return (
         <div className="p-1 flex flex-col gap-0 items-center"> {/* Reduced padding and gap */}
-            <h2 className="text-xl font-bold text-center">{getDisplayTitle()}</h2> {/* Reduced text size */}
-            <div className={`w-full ${i18n.language === 'he' ? 'text-right' : 'text-left'}`}>
-                <span className="text-base font-semibold">
-                    {user ? `hello ${user.displayName || 'user'}` : 'hello guest'}
-                </span>
-            </div>
-
+            <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1> {/* Reduced text size */}
+            <div className="w-full">
+    <span className="text-base font-semibold text-center block">
+        {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
+    </span>
+</div>
             <div className="w-full flex flex-col gap-0 items-center"> {/* Reduced gap */}
                 <div className="w-full">
                     <SearchBar
@@ -294,7 +293,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             view={view}
                             setView={setView}
                             onSearchInArea={handleSearchInArea}
-                            mapHeight={500}
+                            mapHeight={400}
                             resetSearchArea={resetSearchArea}
                             loading={loading}
                             onBoundsChanged={setMapBounds}
