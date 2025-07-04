@@ -320,7 +320,7 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate(view === 'rentals' ? '/offer-rental' : '/offer-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
                     {view === 'rentals' ? t('rentals.add_rental') : t('services.add_service')}
@@ -346,7 +346,7 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate('/request-rental')}
-                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
                     {t('rentals.request_rental')}
@@ -371,7 +371,7 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate('/request-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#FFCA28'}
+                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
                     onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
                 >
                     {t('services.request_service')}

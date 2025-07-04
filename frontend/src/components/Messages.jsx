@@ -185,7 +185,7 @@ const Messages = ({ userId }) => {
     className="messages-list"
     style={{ width: '220px', borderRight: '1.5px solid #26A69A', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
   >
-    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#FFCA28', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
+    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#F4F6F8', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
     {conversations.length === 0 ? (
       <p style={{ padding: '10px', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
     ) : (
@@ -224,7 +224,7 @@ const Messages = ({ userId }) => {
   >
     {activeConversation ? (
       <>
-        <div style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#FFCA28', color: '#1C2526' }}>
+        <div style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#F4F6F8', color: '#1C2526' }}>
           <h3>Chat with {activeConversation.name}</h3>
         </div>
         <div style={{ flex: 1, overflowY: 'scroll', padding: '10px', backgroundColor: '#fff' }}>

@@ -304,7 +304,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         <div style={{ position: 'absolute', top: 2, right: 2, zIndex: 8 }}>
                             <ToggleViewButton view={view} setView={setView} />
                         </div>
-                        <div style={{ maxHeight: 600, overflowY: 'auto' }}>
+                        <div style={{ maxHeight: 650, overflowY: 'auto' }}>
                             <ListView rentals={allItems} />
                         </div>
                         <div style={{ height: '48px' }} />

@@ -224,7 +224,7 @@ const Popup = ({ item, onClose }) => {
 
         <div className="p-4 pt-2">
           <button
-            className="w-full bg-[#FFCA28] hover:bg-[#a86c45] text-white font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#a86c45]"
+            className="w-full bg-[#F4F6F8] hover:bg-[#a86c45] text-white font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#a86c45]"
             onClick={handleContact}
           >
             <span className="text-sm">צור קשר</span>
