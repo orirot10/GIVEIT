@@ -52,12 +52,13 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                     )}
                     {item.createdAt && <span>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}</div>
                 <div className="myitems-card-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                    <button className="myitems-edit-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
-                        <span role="img" aria-label="edit">✏️</span> {t('common.edit')}
-                    </button>
-                    <button className="myitems-delete-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
-                        <span role="img" aria-label="delete">🗑</span> {t('common.delete')}
-                    </button>
+
+                <button className="myitems-edit-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
+                    <span role="img" aria-label="edit">✏️</span>
+                </button>
+                <button className="myitems-delete-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
+                    <span role="img" aria-label="delete">🗑</span>
+                </button>
                 </div>
             </div>
         </div>
