@@ -308,7 +308,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             view={view}
                             setView={setView}
                             onSearchInArea={handleSearchInArea}
-                            mapHeight={340}
+                            mapHeight={500}
                             resetSearchArea={resetSearchArea}
                             loading={loading}
                             onBoundsChanged={setMapBounds}
@@ -320,7 +320,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         <div style={{ position: 'absolute', top: 2, right: 2, zIndex:8 }}>
                             <ToggleViewButton view={view} setView={setView} />
                         </div>
-                        <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+                        <div style={{ maxHeight: 500, overflowY: 'auto' }}>
                             <ListView rentals={allItems} />
                         </div>
                         <div style={{ height: '48px' }} />

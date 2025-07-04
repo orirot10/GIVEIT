@@ -210,7 +210,7 @@ const MapView = ({ locations, onApplyFilters, categoryType, view, setView, mapHe
             {userLocation && (
                 <button
                     onClick={handleReturnToLocation}
-                    className="absolute bottom-2 left-2 bg-white text-gray-800 font-semibold p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    className="absolute bottom-4 left-2 bg-white text-gray-800 font-semibold p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
                     title="Return to my location"
                 >
                     <svg
