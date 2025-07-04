@@ -294,7 +294,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             view={view}
                             setView={setView}
                             onSearchInArea={handleSearchInArea}
-                            mapHeight={600}
+                            mapHeight={500}
                             resetSearchArea={resetSearchArea}
                             loading={loading}
                             onBoundsChanged={setMapBounds}
