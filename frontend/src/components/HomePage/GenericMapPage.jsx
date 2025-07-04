@@ -200,8 +200,8 @@ const GenericMapPage = ({ title, apiUrl }) => {
             <div
                 style={{
                     position: 'fixed',
-                    top: 120, // adjust as needed
-                    right: 24, // adjust as needed
+                    top: 230, // adjust as needed
+                    right: 4, // adjust as needed
                     zIndex: 1300, // higher than overlays and FAB
                     display: 'flex',
                     alignItems: 'center',
