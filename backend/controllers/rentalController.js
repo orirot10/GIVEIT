@@ -70,6 +70,7 @@ const getRentals = async (req, res) => {
     try {
     const { lat, lng, radius, minLat, maxLat, minLng, maxLng } = req.query;
     let query = {};
+    // Always select all fields needed for the popup
     let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
     // Bounding box filter
     if (
@@ -80,7 +81,7 @@ const getRentals = async (req, res) => {
             lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
             lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
         };
-        selectFields = 'id title lat lng price'; // Lightweight fields for map
+        // selectFields remains the same (full info)
     } else if (lat && lng && radius) {
         // Find rentals within radius (in meters)
         const userLat = parseFloat(lat);
