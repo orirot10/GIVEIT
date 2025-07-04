@@ -9,6 +9,7 @@ import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../context/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
 
 const GenericMapPage = ({ title, apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
@@ -25,6 +26,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
     const lastFetchedBounds = useRef(null);
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
+    const navigate = useNavigate();
 
     // Define tabs based on contentType and language
     const tabs = useMemo(() => {
@@ -309,6 +311,57 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         </div>
                         <div style={{ height: '48px' }} />
                     </>
+                )}
+                {/* Add Listing/Request Button (FAB) */}
+                {(contentType === 'rentals' || contentType === 'services' || contentType === 'rental_requests' || contentType === 'service_requests') && (
+                    <button
+                        className="myitems-add-btn"
+                        aria-label={
+                            contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
+                            contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
+                            contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
+                            (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
+                        }
+                        title={
+                            contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
+                            contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
+                            contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
+                            (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
+                        }
+                        style={{
+                            position: 'fixed',
+                            bottom: 90,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            zIndex: 1000,
+                            width: 64,
+                            height: 64,
+                            padding: 0,
+                            background: '#26A69A',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '50%',
+                            fontFamily: 'Alef, Inter, sans-serif',
+                            fontSize: 40,
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 16px rgba(38, 166, 154, 0.18)',
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'background 0.2s',
+                        }}
+                        onClick={() => {
+                            if (contentType === 'rentals') navigate('/offer-rental');
+                            else if (contentType === 'services') navigate('/offer-service');
+                            else if (contentType === 'rental_requests') navigate('/request-rental');
+                            else if (contentType === 'service_requests') navigate('/request-service');
+                        }}
+                        onMouseOver={e => e.currentTarget.style.background = '#009688'}
+                        onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                    >
+                        <span style={{fontSize: 40, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}} aria-hidden="true">+</span>
+                    </button>
                 )}
             </div>
         </div>

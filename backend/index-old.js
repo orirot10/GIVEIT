@@ -31,7 +31,7 @@ app.get('/api/rentals', async (req, res) => {
     const rentals = await Rental.find();
     res.json(rentals);
   } catch (err) {
-    res.status(500).json({ error: 'שגיאה בטעינת השכרות' });
+    res.status(500).json({ error: 'שגיאה בטעינת מוצרים' });
   }
 });
 

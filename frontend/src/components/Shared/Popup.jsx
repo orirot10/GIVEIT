@@ -53,7 +53,13 @@ const Popup = ({ item, onClose }) => {
       } catch (error) {
         console.warn(`Failed to resolve image from Firebase Storage, falling back to legacy URL for image: ${img}`, error);
         // Fallback to backend URL
-        if (isMounted) setResolvedImageUrl(`https://giveit-backend.onrender.com${img}`);
+        if (isMounted) {
+          if (img.startsWith('http')) {
+            setResolvedImageUrl(img);
+          } else {
+            setResolvedImageUrl(`https://giveit-backend.onrender.com${img}`);
+          }
+        }
       }
     }
     resolveImage();
@@ -77,7 +83,8 @@ const Popup = ({ item, onClose }) => {
     city = '',
     state = '',
     zipCode = '',
-    phone = 'Contact Info Unavailable',
+    phone,
+    phoneNumber,
     price = null,
     pricePeriod = 'use',
     firstName = 'N/A',
@@ -87,6 +94,7 @@ const Popup = ({ item, onClose }) => {
 
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
+  const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
 
   const handleContact = () => {
     console.log('handleContact called with item:', item);
@@ -216,15 +224,15 @@ const Popup = ({ item, onClose }) => {
               <PhoneIcon className="h-1.5 w-1.5 text-blue-600" />
             </div>
             <div className="px-3 min-w-0 text-right">
-              <p className="text-sm text-gray-500 py-0.5">יצירת קשר</p>
-              <p className="text-sm font-medium break-words py-0.5">{phone}</p>
+              <p className="text-sm text-gray-500 py-0.5"> יצירת קשר</p>
+              <p className="text-sm font-medium break-words py-0.5">{displayPhone} </p>
             </div>
           </div>
         </div>
 
         <div className="p-4 pt-2">
           <button
-            className="w-full bg-[#F4F6F8] hover:bg-[#a86c45] text-white font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#a86c45]"
+            className="w-full bg-[#FEFBC7] hover:bg-[#26A69A] text-black font-semibold py-2 px-3 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.90] transition-all duration-200 ease-in-out border border-[#26A69A]"
             onClick={handleContact}
           >
             <span className="text-sm">צור קשר</span>
