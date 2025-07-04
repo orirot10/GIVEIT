@@ -227,12 +227,14 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             {userLocation && (
                 <button
                     onClick={handleReturnToLocation}
-                    className="absolute bottom-4 left-2 bg-white text-gray-800 font-semibold p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors"
+                    className="fixed z-50 bottom-10 left-2 bg-white text-gray-800 font-semibold p-1 rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
                     title="Return to my location"
+                    style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
+                    data-testid="return-to-location-btn"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-3 w-3"
+                        className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
