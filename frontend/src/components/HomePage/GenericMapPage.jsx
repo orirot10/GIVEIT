@@ -196,6 +196,20 @@ const GenericMapPage = ({ title, apiUrl }) => {
 
     return (
         <div className="map-wrapper" style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+            {/* Filter Button: Always visible, fixed position, in front */}
+            <div
+                style={{
+                    position: 'fixed',
+                    top: 120, // adjust as needed
+                    right: 24, // adjust as needed
+                    zIndex: 1300, // higher than overlays and FAB
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}
+            >
+                <FilterButton onApplyFilters={handleFilter} categoryType={getCategoryType()} />
+            </div>
             {view === "map" ? (
                 <>
                     {/* Map fills the background */}
@@ -257,9 +271,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                             />
                         </div>
                         {/* Map/List controls below search and tabs, always visible */}
-                        <div className="button-group">
-                            <FilterButton onApplyFilters={handleFilter} categoryType={getCategoryType()} />
-                        </div>
+                        {/* FilterButton removed from here */}
                     </div>
                     <div style={{ flex: 1, position: 'relative', width: '100%' }}>
                         <div style={{ width: '100%', height: '100%', overflowY: 'auto', position: 'relative' }}>
