@@ -52,7 +52,11 @@ const Home = () => {
       }
       
       const data = await response.json();
-      setItems(data);
+      // Ensure every item has a phone field
+      setItems(data.map(item => ({
+        ...item,
+        phone: item.phone || item.ownerPhone || 'Contact Info Unavailable'
+      })));
     } catch (error) {
       console.error('Error fetching items:', error);
       // Use mock data when API is unavailable
@@ -83,7 +87,10 @@ const Home = () => {
           city: 'Jerusalem',
           street: 'Jaffa St'
         }
-      ]);
+      ].map(item => ({
+        ...item,
+        phone: item.phone || item.ownerPhone || 'Contact Info Unavailable'
+      })));
     } finally {
       setLoading(false);
     }

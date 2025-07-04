@@ -330,7 +330,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         }
                         style={{
                             position: 'fixed',
-                            bottom: 90,
+                            bottom: 110,
                             left: '50%',
                             transform: 'translateX(-50%)',
                             zIndex: 1000,

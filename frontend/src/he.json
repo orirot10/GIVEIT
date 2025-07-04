@@ -128,8 +128,8 @@
     "my_items": {
         "title": "הלוח שלי",
         "login_required": "עליך להתחבר כדי לצפות בפריטים שלך.",
-        "my_rentals": "מוצרים שלי",
-        "my_services": "שירותים שלי",
+        "my_rentals": "המוצרים שלי",
+        "my_services": "השירותים שלי",
         "my_rental_requests": "בקשות מוצרים",
         "my_service_requests": "בקשות שירותים",
         "rentals": "מוצרים",
