@@ -206,7 +206,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     />
                     {/* Overlay controls */}
                     <div className="map-overlay" style={{ position: 'absolute', top: 10, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
-                        <div style={{ pointerEvents: 'auto' }}>
+                        <div style={{ pointerEvents: 'auto', position: 'relative' }}>
                             <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1>
                             <div className="w-full">
                                 <span className="text-base font-semibold text-center block">
@@ -259,23 +259,19 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         {/* Map/List controls below search and tabs, always visible */}
                         <div className="button-group">
                             <FilterButton onApplyFilters={handleFilter} categoryType={getCategoryType()} />
-                            <ToggleViewButton view={view} setView={setView} />
                         </div>
                     </div>
                     <div style={{ flex: 1, position: 'relative', width: '100%' }}>
                         <div style={{ width: '100%', height: '100%', overflowY: 'auto', position: 'relative' }}>
-                            <div style={{ position: 'absolute', top: 300, left: 20, zIndex: 8 }}>
-                                <ToggleViewButton view={view} setView={setView} />
-                            </div>
-                            
-
-
-
                             <ListView rentals={allItems} />
                         </div>
                     </div>
                 </>
             )}
+            {/* ToggleViewButton: always visible, fixed, in front of everything */}
+            <div style={{ position: 'fixed', bottom: 220, right: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ToggleViewButton view={view} setView={setView} />
+            </div>
             {/* Add Listing/Request Button (FAB) */}
             {(contentType === 'rentals' || contentType === 'services' || contentType === 'rental_requests' || contentType === 'service_requests') && (
                 <button
