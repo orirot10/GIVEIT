@@ -231,26 +231,24 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             </GoogleMap>
 
             {userLocation && (
-                <button
-                    onClick={handleReturnToLocation}
-                    className="fixed z-50 bottom-6 left-2 bg-white text-gray-800 font-semibold p-1 rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
-                    title="Return to my location"
-                    style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
-                    data-testid="return-to-location-btn"
-                >
-<svg
-  xmlns="http://www.w3.org/2000/svg"
-  className="h-4\5 w-5 text-[#087E8B]"
-  viewBox="0 0 24 24"
-  fill="currentColor"
-  stroke="currentColor" 
-
->
-  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
-</svg>
-
-
-                </button>
+               <button
+               onClick={handleReturnToLocation}
+               className="fixed z-50 bottom-5.5 left-1 bg-white text-gray-800 font-semibold rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center w-3 h-3"
+               title="Return to my location"
+               data-testid="return-to-location-btn"
+               style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
+           >
+               <svg
+                   xmlns="http://www.w3.org/2000/svg"
+                   className="h-6 w-6 text-[#087E8B]"
+                   viewBox="0 0 24 24"
+                   fill="currentColor"
+                   stroke="currentColor"
+               >
+                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+               </svg>
+           </button>
+           
             )}
 
             <Popup item={selectedItem} onClose={handlePopupClose} />

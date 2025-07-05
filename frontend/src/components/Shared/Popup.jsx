@@ -5,7 +5,9 @@ import {
   MapPinIcon, 
   TagIcon, 
   CurrencyDollarIcon, 
-  PhoneIcon 
+  PhoneIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
@@ -17,7 +19,8 @@ const Popup = ({ item, onClose }) => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const popupRef = useRef(null);
-  const [resolvedImageUrl, setResolvedImageUrl] = useState(null);
+  const [resolvedImageUrls, setResolvedImageUrls] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   useEffect(() => {
     const handleEscKey = (event) => {
@@ -35,34 +38,43 @@ const Popup = ({ item, onClose }) => {
   
   useEffect(() => {
     let isMounted = true;
-    async function resolveImage() {
-      if (!item || !item.images || !item.images[0]) {
-        setResolvedImageUrl(null);
+    async function resolveImages() {
+      if (!item || !item.images || item.images.length === 0) {
+        setResolvedImageUrls([]);
+        setCurrentImageIndex(0);
         return;
       }
-      const img = item.images[0];
-      if (img.startsWith('http')) {
-        setResolvedImageUrl(img);
-        return;
-      }
-      // Try Firebase Storage
-      try {
-        const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
-        const url = await getDownloadURL(firebaseRef);
-        if (isMounted) setResolvedImageUrl(url);
-      } catch (error) {
-        console.warn(`Failed to resolve image from Firebase Storage, falling back to legacy URL for image: ${img}`, error);
-        // Fallback to backend URL
-        if (isMounted) {
+
+      const resolvedUrls = [];
+      
+      for (const img of item.images) {
+        if (img.startsWith('http')) {
+          resolvedUrls.push(img);
+          continue;
+        }
+        
+        // Try Firebase Storage
+        try {
+          const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
+          const url = await getDownloadURL(firebaseRef);
+          resolvedUrls.push(url);
+        } catch (error) {
+          console.warn(`Failed to resolve image from Firebase Storage, falling back to legacy URL for image: ${img}`, error);
+          // Fallback to backend URL
           if (img.startsWith('http')) {
-            setResolvedImageUrl(img);
+            resolvedUrls.push(img);
           } else {
-            setResolvedImageUrl(`https://giveit-backend.onrender.com${img}`);
+            resolvedUrls.push(`https://giveit-backend.onrender.com${img}`);
           }
         }
       }
+      
+      if (isMounted) {
+        setResolvedImageUrls(resolvedUrls);
+        setCurrentImageIndex(0);
+      }
     }
-    resolveImage();
+    resolveImages();
     return () => { isMounted = false; };
   }, [item]);
   
@@ -139,6 +151,18 @@ const Popup = ({ item, onClose }) => {
     onClose();
   };
 
+  const handlePreviousImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? resolvedImageUrls.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === resolvedImageUrls.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
   return (
     <div 
       className="fixed inset-0 flex justify-center items-center p-4 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
@@ -171,15 +195,43 @@ const Popup = ({ item, onClose }) => {
         </div>
       </div>
 
-        {resolvedImageUrl && (
+        {resolvedImageUrls.length > 0 && (
           <div className="p-4 pb-2 flex justify-center">
             <div className="relative overflow-hidden rounded-xl shadow-lg" style={{ width: '160px', height: '120px' }}>
               <img
-                src={resolvedImageUrl}
-                alt={title}
+                src={resolvedImageUrls[currentImageIndex]}
+                alt={`${title} - Image ${currentImageIndex + 1}`}
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 loading="lazy"
               />
+              
+              {/* Navigation arrows - only show if there are multiple images */}
+              {resolvedImageUrls.length > 1 && (
+                <>
+                  {/* Previous button */}
+                  <button
+                    onClick={handlePreviousImage}
+                    className="absolute -left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors duration-200"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeftIcon className="h-4 w-4" />
+                  </button>
+                  
+                  {/* Next button */}
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors duration-200"
+                    aria-label="Next image"
+                  >
+                    <ChevronRightIcon className="h-4 w-4" />
+                  </button>
+                  
+                  {/* Image counter */}
+                  <div className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                    {currentImageIndex + 1} / {resolvedImageUrls.length}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -188,7 +240,7 @@ const Popup = ({ item, onClose }) => {
           {ownerName && ownerName !== 'N/A' && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <UserIcon className="h-1.5 w-1.5 text-blue-600" />
+                <UserIcon className="h-1.5 w-1.5 text-[#F9A620]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">בעלים</p>
@@ -200,7 +252,7 @@ const Popup = ({ item, onClose }) => {
           {address && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <MapPinIcon className="h-1.5 w-1.5 text-blue-600" />
+                <MapPinIcon className="h-1.5 w-1.5 text-[#F9A620]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">מיקום</p>
@@ -212,7 +264,7 @@ const Popup = ({ item, onClose }) => {
           {price !== null && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <CurrencyDollarIcon className="h-1.5 w-1.5 text-blue-600" />
+                <CurrencyDollarIcon className="h-1.5 w-1.5 text-[#F9A620]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">מחיר</p>
@@ -223,7 +275,7 @@ const Popup = ({ item, onClose }) => {
           
           <div className="bg-gray-100 rounded-lg p-3 flex items-center">
             <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-              <PhoneIcon className="h-1.5 w-1.5 text-blue-600" />
+              <PhoneIcon className="h-1.5 w-1.5 text-[#F9A620]" />
             </div>
             <div className="px-3 min-w-0 text-right">
               <p className="text-xs text-gray-500 py-0.5 font-medium">יצירת קשר</p>
