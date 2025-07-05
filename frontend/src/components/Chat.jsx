@@ -112,7 +112,7 @@ const Chat = ({ userId, contactId, userMap }) => {
             initializeConversation();
           }}
           className="ml-2 px-4 py-2 rounded-lg"
-          style={{ background: '#26A69A', color: '#fff' }}
+          style={{ background: '#2E4057', color: '#fff' }}
         >
           Retry
         </button>
@@ -134,7 +134,7 @@ const Chat = ({ userId, contactId, userMap }) => {
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#F4F6F8', color: '#1C2526' }}>
-      <div className="border-b p-4" style={{ borderColor: '#26A69A', background: '#F4F6F8', color: '#1C2526' }}>
+      <div className="border-b p-4" style={{ borderColor: '#2E4057', background: '#F4F6F8', color: '#1C2526' }}>
         <h2 className="text-xl font-semibold">Chat with {contactName}</h2>
       </div>
       
@@ -156,7 +156,7 @@ const Chat = ({ userId, contactId, userMap }) => {
                     : ''
                 }`}
                 style={{
-                  background: msg.senderId === userId ? '#26A69A' : '#fff',
+                  background: msg.senderId === userId ? '#2E4057' : '#fff',
                   color: msg.senderId === userId ? '#fff' : '#1C2526',
                   border: msg.senderId === userId ? 'none' : '1px solid #607D8B',
                 }}
@@ -172,7 +172,7 @@ const Chat = ({ userId, contactId, userMap }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t p-4" style={{ borderColor: '#26A69A', background: '#fff' }}>
+      <div className="border-t p-4" style={{ borderColor: '#2E4057', background: '#fff' }}>
         <div className="flex gap-1">
           <input
             value={newMessage}
@@ -186,7 +186,7 @@ const Chat = ({ userId, contactId, userMap }) => {
             onClick={sendMessage}
             disabled={!newMessage.trim()}
             className="px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: '#26A69A', color: '#fff' }}
+            style={{ background: '#2E4057', color: '#fff' }}
           >
             Send
           </button>

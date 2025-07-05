@@ -157,8 +157,14 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
     });
       
     return (
-        <div className="w-full relative" style={{ marginBottom: '64px', height: '100%' }}>
-            {children}
+<div
+  className="w-full relative"
+  style={{
+    marginBottom: '64px',
+    paddingTop: '100px', // <== תוספת כאן
+    height: '100%',
+  }}
+>            {children}
             
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
@@ -194,16 +200,16 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                             {/* Custom brand pin */}
                             <div
                                 className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-4 border-white map-pin-hover"
-                                style={{ width: 44, height: 44, background: '#26A69A', position: 'relative' }}
+                                style={{ width: 44, height: 44, background: '#2E4057', position: 'relative' }}
                                 title={item.title || "N/A"}
                             >
-                                <span className="text-white font-bold text-[12px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                <span className="text-white font-bold text-[10px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                     {item.title ? item.title.split(' ')[0] : "?"}
                                 </span>
                             </div>
                             {/* Price below pin */}
                             {item.price !== null && item.price !== undefined && (
-                                <span className="block text-[13px] font-semibold mt-1 text-[#f55363] bg-white rounded px-2 py-0.5 shadow" style={{ marginTop: 2 }}>
+                                <span className="block text-[10px] font-semibold mt-1 text-[#f55363] bg-white rounded px-2 py-0.5 shadow" style={{ marginTop: 2 }}>
                                     {item.price}₪
                                 </span>
                             )}
@@ -227,31 +233,23 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             {userLocation && (
                 <button
                     onClick={handleReturnToLocation}
-                    className="fixed z-50 bottom-10 left-2 bg-white text-gray-800 font-semibold p-1 rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
+                    className="fixed z-50 bottom-6 left-2 bg-white text-gray-800 font-semibold p-1 rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center"
                     title="Return to my location"
                     style={{ width: 36, height: 36, minWidth: 36, minHeight: 36, boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
                     data-testid="return-to-location-btn"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                    </svg>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  className="h-4\5 w-5 text-[#087E8B]"
+  viewBox="0 0 24 24"
+  fill="currentColor"
+  stroke="currentColor" 
+
+>
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+</svg>
+
+
                 </button>
             )}
 

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
 :root {
-  --primary: #26A69A;
+  --primary: #2E4057;
   --primary-hover: #1e8c7a;
   --light-bg: #F4F6F8;
   --card-bg: #fff;
@@ -97,7 +97,7 @@ body {
   background-color: var(--primary-hover);
 }
 .primary-btn:active {
-  box-shadow: 0 0 0 6px #26A69A44;
+  box-shadow: 0 0 0 6px #2E405744;
   background: var(--primary);
   color: #fff;
   outline: none;
@@ -115,7 +115,7 @@ body {
   border-color: var(--primary-hover);
 }
 .outlined-btn:active {
-  box-shadow: 0 0 0 6px #26A69A44;
+  box-shadow: 0 0 0 6px #2E405744;
   background: #b2dfdb;
   color: var(--text-dark);
   border-color: var(--primary);

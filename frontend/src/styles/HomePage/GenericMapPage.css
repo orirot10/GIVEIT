@@ -6,7 +6,7 @@ body, .main-bg-gradient {
 }
 
 :root {
-    --primary: #26A69A;
+    --primary: #2E4057;
     --primary-hover: #1e8c7a;
     --background: #F4F6F8;
     --text: #1C2526;
@@ -99,9 +99,9 @@ body, .main-bg-gradient {
     border-radius: 9999px;
     padding: 1rem 3rem;
     font-size: 1rem;
-    border: 2px solid #26A69A;
+    border: 2px solid #2E4057;
     background-color: #fff;
-    color: #26A69A;
+    color: #2E4057;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -138,7 +138,7 @@ body, .main-bg-gradient {
 
 .search-bar-input {
     background: #fff;
-    border: 1.5px solid #26A69A;
+    border: 1.5px solid #2E4057;
     border-radius: 12px;
     padding: 12px 16px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -150,8 +150,8 @@ body, .main-bg-gradient {
 }
 
 .search-bar-input:focus {
-    border-color: #26A69A;
-    box-shadow: 0 2px 8px #26A69A22;
+    border-color: #2E4057;
+    box-shadow: 0 2px 8px #2E405722;
 }
 
 .search-filter-style {
@@ -159,11 +159,11 @@ body, .main-bg-gradient {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border: 1.5px solid #26A69A;
+    border: 1.5px solid #2E4057;
     border-radius: 8px;
     font-size: 0.95rem;
     background: #fff;
-    color: #26A69A;
+    color: #2E4057;
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(0,0,0,0.07);
     transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
@@ -178,8 +178,8 @@ body, .main-bg-gradient {
 
 .filter-button-large {
     background: #fff;
-    border: 2px solid #26A69A;
-    color: #26A69A;
+    border: 2px solid #2E4057;
+    color: #2E4057;
     border-radius: 8px;
     padding: 12px 24px;
     font-size: 1.1rem;
@@ -199,7 +199,7 @@ body, .main-bg-gradient {
 }
 
 .filter-button-large svg {
-    color: #26A69A !important;
+    color: #2E4057 !important;
 }
 
 /* Add smooth transitions for view changes */
@@ -284,7 +284,7 @@ body, .main-bg-gradient {
     transition: box-shadow 0.3s, border-color 0.3s;
 }
 .map-pin-hover:hover {
-    box-shadow: 0 8px 32px rgba(38, 166, 154, 0.22), 0 0 0 4px #26A69A33;
-    border-color: #26A69A !important;
+    box-shadow: 0 8px 32px rgba(38, 166, 154, 0.22), 0 0 0 4px #2E405733;
+    border-color: #2E4057 !important;
     z-index: 2;
 }

@@ -28,7 +28,6 @@ body {
 }
 
 .app-container {
-  padding-top: 40px;
   width: 100%;
   max-width: 430px;
   min-height: 100vh;

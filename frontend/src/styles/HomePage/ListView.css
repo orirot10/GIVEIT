@@ -53,7 +53,7 @@
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(135deg, #26A69A, #7ed3d1);
+    background: linear-gradient(135deg, #2E4057, #7ed3d1);
 }
 .rental-card:nth-child(4n+3)::before {
     content: '';

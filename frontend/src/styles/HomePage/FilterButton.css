@@ -3,10 +3,10 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    border: 1.5px solid #26A69A;
+    border: 1.5px solid #2E4057;
     border-radius: 6px;
     background-color: #F4F6F8;
-    color: #26A69A;
+    color: #087E8B;
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border 0.2s;
 }
@@ -19,7 +19,7 @@
 
 .filter-icon {
     font-size: 20px;
-    color: #26A69A;
+    color: #2E4057;
 }
 
 .modal-overlay {
@@ -47,7 +47,7 @@
     font-weight: 600;
     margin-bottom: 16px;
     text-align: center;
-    color: #26A69A;
+    color: #2E4057;
 }
 
 .section {
@@ -68,9 +68,9 @@
 .category-btn {
     padding: 6px 12px;
     border-radius: 9999px;
-    border: 1.5px solid #26A69A;
+    border: 1.5px solid #2E4057;
     background-color: #fff;
-    color: #26A69A;
+    color: #2E4057;
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border 0.2s;
 }
@@ -92,9 +92,9 @@
 }
 
 .modal-content .category-btn.selected {
-    background-color: #26A69A;
+    background-color: #2E4057;
     color: #fff;
-    border-color: #26A69A;
+    border-color: #2E4057;
 }
 
 .price-slider {
@@ -107,7 +107,7 @@
 }
 
 .filter-action-btn {
-    background-color: #26A69A;
+    background-color: #2E4057;
     color: #fff;
     padding: 8px 16px;
     border-radius: 6px;

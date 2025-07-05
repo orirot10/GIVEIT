@@ -195,12 +195,17 @@ const GenericMapPage = ({ title, apiUrl }) => {
     };
 
     return (
-        <div className="map-wrapper" style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-            {/* Filter Button: Always visible, fixed position, in front */}
+<div className="map-wrapper" style={{
+    width: '100vw',
+    height: 'calc(100vh - 80px)',
+    position: 'relative',
+    marginTop: '80px'
+}}>          
+  {/* Filter Button: Always visible, fixed position, in front */}
             <div
                 style={{
                     position: 'fixed',
-                    top: 230, // adjust as needed
+                    top: 180, // adjust as needed
                     right: 4, // adjust as needed
                     zIndex: 1300, // higher than overlays and FAB
                     display: 'flex',
@@ -281,7 +286,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 </>
             )}
             {/* ToggleViewButton: always visible, fixed, in front of everything */}
-            <div style={{ position: 'fixed', bottom: 220, right: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'fixed', bottom: 152, right: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <ToggleViewButton view={view} setView={setView} />
             </div>
             {/* Add Listing/Request Button (FAB) */}
@@ -302,14 +307,14 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     }
                     style={{
                         position: 'fixed',
-                        bottom: 150,
+                        bottom: 90,
                         left: '50%',
                         transform: 'translateX(-50%)',
                         zIndex: 1000,
                         width: 48,
                         height: 48,
                         padding: 0,
-                        background: '#26A69A',
+                        background: '#087E8B',
                         color: '#fff',
                         border: 'none',
                         borderRadius: '50%',
@@ -330,7 +335,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
                         else if (contentType === 'service_requests') navigate('/request-service');
                     }}
                     onMouseOver={e => e.currentTarget.style.background = '#009688'}
-                    onMouseOut={e => e.currentTarget.style.background = '#26A69A'}
+                    onMouseOut={e => e.currentTarget.style.background = '#2E4057'}
                 >
                     <span style={{fontSize: 28, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center'}} aria-hidden="true">+</span>
                 </button>

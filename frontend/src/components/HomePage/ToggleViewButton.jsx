@@ -8,14 +8,12 @@ const ToggleViewButton = ({ view, setView }) => {
     };
 
     return (
-        <div className="toggle-view-container">
-            <div
-                className={`toggle-icon active`}
-                onClick={toggleView}
-                title={view === "map" ? "Switch to List View" : "Switch to Map View"}
-            >
-                {view === "map" ? <CiCircleList size={24} /> : <CiMap size={24} />}
-            </div>
+        <div
+            className={`toggle-icon active`}
+            onClick={toggleView}
+            title={view === "map" ? "Switch to List View" : "Switch to Map View"}
+        >
+            {view === "map" ? <CiCircleList size={24} /> : <CiMap size={24} />}
         </div>
     );
 };

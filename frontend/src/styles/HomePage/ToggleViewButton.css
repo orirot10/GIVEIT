@@ -4,23 +4,12 @@
     height: 100%; /* or specific height like 500px */
 }
 
-.toggle-view-container {
+.toggle-icon {
     position: absolute;
     top: 16px;
     right: 16px;
     z-index: 10;
-
-    display: flex;
-    gap: 10px;
-    padding: 8px;
-    background-color: rgba(243, 244, 246, 0.9); /* light transparent bg */
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.toggle-icon {
-    background-color: #fff;
-    border: 2px solid #26A69A;
+    border: 2px solid #2E4057;
     color: #1C2526;
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
     border-radius: 50%;
@@ -29,6 +18,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: rgba(243, 244, 246, 0.9); /* light transparent bg */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .toggle-icon:hover {
@@ -37,7 +28,7 @@
 }
 
 .toggle-icon.active {
-    background-color: #26A69A;
+    background-color: #087E8B;
     color: #fff;
-    border-color: #26A69A;
+    border-color: #087E8B;
 }

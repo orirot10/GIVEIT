@@ -183,9 +183,9 @@ const Messages = ({ userId }) => {
 <div style={{ display: 'flex', maxWidth: '1000px', margin: '0 auto', height: '90vh' }}>
   <div
     className="messages-list"
-    style={{ width: '220px', borderRight: '1.5px solid #26A69A', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
+    style={{ width: '220px', borderRight: '1.5px solid #2E4057', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
   >
-    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#F4F6F8', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
+    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #2E4057', backgroundColor: '#F4F6F8', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
     {conversations.length === 0 ? (
       <p style={{ padding: '10px', fontFamily: 'Alef, Inter, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
     ) : (
@@ -194,7 +194,7 @@ const Messages = ({ userId }) => {
           key={conv.receiverId}
           className={`messages-conv-card${activeConversation?.id === conv.receiverId ? ' active' : ''}`}
           onClick={() => selectConversation(conv.receiverId)}
-          style={{ border: '2px solid #26A69A', background: activeConversation?.id === conv.receiverId ? '#e0f7fa' : '#F4F6F8', color: '#1C2526' }}
+          style={{ border: '2px solid #2E4057', background: activeConversation?.id === conv.receiverId ? '#e0f7fa' : '#F4F6F8', color: '#1C2526' }}
         >
           <div className="messages-conv-contact">{conv.receiverName || conv.receiverId}</div>
           {conv.lastMessage && (
@@ -224,7 +224,7 @@ const Messages = ({ userId }) => {
   >
     {activeConversation ? (
       <>
-        <div style={{ padding: '10px', borderBottom: '1.5px solid #26A69A', backgroundColor: '#F4F6F8', color: '#1C2526' }}>
+        <div style={{ padding: '10px', borderBottom: '1.5px solid #2E4057', backgroundColor: '#F4F6F8', color: '#1C2526' }}>
           <h3>Chat with {activeConversation.name}</h3>
         </div>
         <div style={{ flex: 1, overflowY: 'scroll', padding: '10px', backgroundColor: '#fff' }}>
@@ -238,7 +238,7 @@ const Messages = ({ userId }) => {
                   display: 'inline-block',
                   padding: '8px 12px',
                   borderRadius: '10px',
-                  backgroundColor: msg.senderId === userId ? '#26A69A' : '#fff',
+                  backgroundColor: msg.senderId === userId ? '#2E4057' : '#fff',
                   color: msg.senderId === userId ? '#fff' : '#1C2526',
                   border: msg.senderId === userId ? 'none' : '1.5px solid #607D8B',
                   maxWidth: '70%',
@@ -255,7 +255,7 @@ const Messages = ({ userId }) => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <div style={{ display: 'flex', gap: '10px', padding: '10px', borderTop: '1.5px solid #26A69A', background: '#F4F6F8' }}>
+        <div style={{ display: 'flex', gap: '10px', padding: '10px', borderTop: '1.5px solid #2E4057', background: '#F4F6F8' }}>
           <input
             type="text"
             value={newMessage}
@@ -268,7 +268,7 @@ const Messages = ({ userId }) => {
             onClick={sendMessage}
             style={{
               padding: '8px 16px',
-              backgroundColor: '#26A69A',
+              backgroundColor: '#2E4057',
               color: '#fff',
               border: 'none',
               borderRadius: '5px',

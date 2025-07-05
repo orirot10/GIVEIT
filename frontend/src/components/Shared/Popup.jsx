@@ -162,7 +162,7 @@ const Popup = ({ item, onClose }) => {
         className="bg-white rounded-xl shadow-xl w-full max-w-xs max-h-[80vh] overflow-y-auto overflow-x-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         dir="auto"
       >
-      <div className="bg-[#26A69A] p-6 pb-5 rounded-t-xl relative text-white" dir="auto"> {/* Changed p-4 to p-6 */}
+      <div className="bg-[#2E4057] p-6 pb-5 rounded-t-xl relative text-white" dir="auto"> {/* Changed p-4 to p-6 */}
         <div className="mt-2 mb-1 text-right">
           <h2 className="text-lg font-bold break-words py-1">&nbsp;{title}&nbsp;</h2>
           {description && (
@@ -236,7 +236,7 @@ const Popup = ({ item, onClose }) => {
 
         <div className="p-4 pt-2">
           <button
-            className="w-full bg-[#26A69A] hover:bg-[#1E8A7A] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-in-out"
+            className="w-full bg-[#2E4057] hover:bg-[#1E8A7A] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ease-in-out"
             onClick={handleContact}
           >
             <span className="text-sm">התחל שיחה בצ'אט</span>

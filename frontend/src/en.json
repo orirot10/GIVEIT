@@ -123,7 +123,20 @@
     "recent_activity": "Recent Activity",
     "no_items": "No items found",
     "add_new": "Add New",
-    "view_all": "View All"
+    "view_all": "View All",
+    "welcome_message": "Welcome",
+    "rentals_section": "Rentals",
+    "services_section": "Services",
+    "account_section": "Account",
+    "offer_rental": "Offer Rental",
+    "request_rental": "Request Rental",
+    "offer_service": "Offer Service",
+    "request_service": "Request Service",
+    "edit_profile": "Edit Profile",
+    "messages": "Messages",
+    "switch_to_english": "Switch to English",
+    "switch_to_hebrew": "עבור לעברית",
+    "logout": "Logout"
   },
   "my_items": {
     "title": "My Items",

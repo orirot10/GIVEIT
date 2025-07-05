@@ -20,6 +20,10 @@ function Dashboard() {
     const handleEditProfile = () => navigate('/edit-profile');
     const handleMessages = () => navigate('/messages');
 
+    const handleLanguageChange = () => {
+        i18n.changeLanguage(i18n.language === 'he' ? 'en' : 'he');
+    };
+
     const handleLogout = async () => {
         try {
             await logout();
@@ -43,7 +47,7 @@ function Dashboard() {
     return (
         <div className="dashboard-container custom-dashboard-bg" dir={isRTL ? 'rtl' : 'ltr'}>
             <div className="dashboard-header">
-                <h2 className="dashboard-username">Welcome, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
+                <h2 className="dashboard-username">{t('dashboard.welcome_message')}, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
                 {(user.city || user.address) && (
                     <div className="dashboard-address">
                         {user.city || user.address}
@@ -52,38 +56,41 @@ function Dashboard() {
             </div>
             <div className="dashboard-sections">
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">Rentals</h3>
+                    <h3 className="dashboard-section-title">{t('dashboard.rentals_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="primary-btn dashboard-btn" onClick={() => handleOfferRental(true)}>
-                            Offer Rental
+                            {t('dashboard.offer_rental')}
                         </button>
                         <button className="primary-btn dashboard-btn" onClick={handleRentalRequest}>
-                            Request Rental
+                            {t('dashboard.request_rental')}
                         </button>
                     </div>
                 </div>
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">Services</h3>
+                    <h3 className="dashboard-section-title">{t('dashboard.services_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="primary-btn dashboard-btn" onClick={() => handleOfferService(true)}>
-                            Offer Service
+                            {t('dashboard.offer_service')}
                         </button>
                         <button className="primary-btn dashboard-btn" onClick={handleServiceRequest}>
-                            Request Service
+                            {t('dashboard.request_service')}
                         </button>
                     </div>
                 </div>
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">Account</h3>
+                    <h3 className="dashboard-section-title">{t('dashboard.account_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="outlined-btn dashboard-btn" onClick={handleEditProfile}>
-                            Edit Profile
+                            {t('dashboard.edit_profile')}
                         </button>
                         <button className="outlined-btn dashboard-btn" onClick={handleMessages}>
-                            Messages
+                            {t('dashboard.messages')}
+                        </button>
+                        <button className="outlined-btn dashboard-btn" onClick={handleLanguageChange}>
+                            {i18n.language === 'he' ? t('dashboard.switch_to_english') : t('dashboard.switch_to_hebrew')}
                         </button>
                         <button className="logout-btn dashboard-btn" onClick={handleLogout}>
-                            Logout
+                            {t('dashboard.logout')}
                         </button>
                     </div>
                 </div>
