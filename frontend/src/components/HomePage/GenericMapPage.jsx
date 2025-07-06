@@ -10,7 +10,7 @@ import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import logoBlue from '../../../images/logoBlue.png';
+import logoBlue from '../../../images/logoBlue3.png';
 
 
 const GenericMapPage = ({ apiUrl }) => {
@@ -212,16 +212,17 @@ const GenericMapPage = ({ apiUrl }) => {
                         onBoundsChanged={setMapBounds}
                     />
                     {/* Overlay controls */}
-                    <div className="map-overlay" style={{ position: 'absolute', top: 10, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
+                    {/*             <h2 className="text-lg font-bold">Givit</h2>*/}
+                    <div className="map-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
-                            <div className="flex items-center justify-end gap-0 mb-1 px-1">
-                                <h4 className="text-lg font-bold">Givit</h4>
-                                <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
-                            </div>
-                            <div className="w-full">
-                                <span className="text-base font-semibold text-right block">
+                            <div className="flex items-center justify-between gap-0 mb-0 px-1">
+                                <span className="text-base font-semibold" style={{ marginTop: '30px' }}>
                                     {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
+                                
+                                <div className="flex items-up  gap-0">
+                                    <img src={logoBlue} alt="Givit Logo" className="w-8 h-6" />
+                                </div>
                             </div>
                             <div className="w-full flex flex-col gap-0 items-center">
                                 <div className="w-full">
@@ -245,14 +246,14 @@ const GenericMapPage = ({ apiUrl }) => {
                 // List view: controls at top, list fills rest
                 <>
                     <div>
-                        <div className="flex items-center justify-end gap-0 mb-1 px-1">
-                            <h4 className="text-lg font-bold">Givit</h4>
-                            <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
-                        </div>
-                        <div className="w-full">
-                            <span className="text-base font-semibold text-center block">
+                        <div className="flex items-center justify-between gap-0 mb-1 px-1">
+                            <span className="text-base font-semibold" style={{ marginTop: '2px' }}>
                                 {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
                             </span>
+                            <div className="flex items-center gap-0">
+                                <h4 className="text-lg font-bold">Givit</h4>
+                                <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
+                            </div>
                         </div>
                         <div className="w-full flex flex-col gap-0 items-center">
                             <div className="w-full">
