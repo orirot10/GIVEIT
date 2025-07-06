@@ -188,22 +188,33 @@ const Popup = ({ item, onClose }) => {
       >
       <div className="bg-[#2E4057] p-6 pb-5 rounded-t-xl relative text-white" dir="auto"> {/* Changed p-4 to p-6 */}
         <div className="mt-2 mb-1 text-right">
-          <h2 className="text-lg font-bold break-words py-1">&nbsp;{title}&nbsp;</h2>
+        <h1 className="text-lg font-bold break-words text-white/90">
+  {title}
+</h1>
           {description && (
-            <p className="text-sm text-white/90 mt-1 line-clamp-2 break-words py-1">&nbsp;{description}</p>
+            <p className="text-sm text-white/90 mt-1 break-words py-1 whitespace-pre-wrap">&nbsp;{description}</p>
           )}
         </div>
       </div>
 
         {resolvedImageUrls.length > 0 && (
           <div className="p-4 pb-2 flex justify-center">
-            <div className="relative overflow-hidden rounded-xl shadow-lg" style={{ width: '160px', height: '120px' }}>
-              <img
-                src={resolvedImageUrls[currentImageIndex]}
-                alt={`${title} - Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                loading="lazy"
-              />
+            <div className="relative" style={{ width: '160px', height: '120px' }}>
+              <div className="overflow-hidden rounded-xl shadow-lg w-full h-full">
+                <img
+                  src={resolvedImageUrls[currentImageIndex]}
+                  alt={`${title} - Image ${currentImageIndex + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                />
+                
+                {/* Image counter */}
+                {resolvedImageUrls.length > 1 && (
+                  <div className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
+                    {currentImageIndex + 1} / {resolvedImageUrls.length}
+                  </div>
+                )}
+              </div>
               
               {/* Navigation arrows - only show if there are multiple images */}
               {resolvedImageUrls.length > 1 && (
@@ -211,25 +222,20 @@ const Popup = ({ item, onClose }) => {
                   {/* Previous button */}
                   <button
                     onClick={handlePreviousImage}
-                    className="absolute -left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors duration-200"
+                    className="absolute -left-3 top-1/2 transform -translate-y-1/2 text-[#f55363] hover:text-[#e04454] transition-colors duration-200"
                     aria-label="Previous image"
                   >
-                    <ChevronLeftIcon className="h-4 w-4" />
+                    <ChevronLeftIcon className="h-2 w-2" />
                   </button>
                   
                   {/* Next button */}
                   <button
                     onClick={handleNextImage}
-                    className="absolute -right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-colors duration-200"
+                    className="absolute -right-3 top-1/2 transform -translate-y-1/2 text-[#f55363] hover:text-[#e04454] transition-colors duration-200"
                     aria-label="Next image"
                   >
-                    <ChevronRightIcon className="h-4 w-4" />
+                    <ChevronRightIcon className="h-2 w-2" />
                   </button>
-                  
-                  {/* Image counter */}
-                  <div className="absolute bottom-1 right-1 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                    {currentImageIndex + 1} / {resolvedImageUrls.length}
-                  </div>
                 </>
               )}
             </div>
@@ -240,7 +246,7 @@ const Popup = ({ item, onClose }) => {
           {ownerName && ownerName !== 'N/A' && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <UserIcon className="h-1.5 w-1.5 text-[#F9A620]" />
+                <UserIcon className="h-1.5 w-1.5 text-[#f55363]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">בעלים</p>
@@ -252,7 +258,7 @@ const Popup = ({ item, onClose }) => {
           {address && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <MapPinIcon className="h-1.5 w-1.5 text-[#F9A620]" />
+                <MapPinIcon className="h-1.5 w-1.5 text-[#f55363]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">מיקום</p>
@@ -264,7 +270,7 @@ const Popup = ({ item, onClose }) => {
           {price !== null && (
             <div className="bg-gray-100 rounded-lg p-3 flex items-center">
               <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-                <CurrencyDollarIcon className="h-1.5 w-1.5 text-[#F9A620]" />
+                <CurrencyDollarIcon className="h-1.5 w-1.5 text-[#f55363]" />
               </div>
               <div className="px-3 min-w-0 text-right">
                 <p className="text-xs text-gray-500 py-0.5 font-medium">מחיר</p>
@@ -275,7 +281,7 @@ const Popup = ({ item, onClose }) => {
           
           <div className="bg-gray-100 rounded-lg p-3 flex items-center">
             <div className="bg-transparent rounded-full w-3 h-3 flex items-center justify-center mx-3 flex-shrink-0">
-              <PhoneIcon className="h-1.5 w-1.5 text-[#F9A620]" />
+              <PhoneIcon className="h-1.5 w-1.5 text-[#f55363]" />
             </div>
             <div className="px-3 min-w-0 text-right">
               <p className="text-xs text-gray-500 py-0.5 font-medium">יצירת קשר</p>

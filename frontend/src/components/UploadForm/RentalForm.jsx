@@ -1,19 +1,21 @@
 import { useAuthContext } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import ModalUploadForm from './ModalUploadForm';
 import { rentalCategories } from '../../constants/categories';
 
 const RentalForm = () => {
     const { user } = useAuthContext();
+    const { t } = useTranslation();
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
     return (
         <ModalUploadForm
             user={user}
-            titleText="Offer an Item for Rent"
+            titleText={t('forms.offer_rental_title')}
             categories={rentalCategories}
             submitUrl={`${baseUrl}/api/rentals`}
-            successMessage="You successfully offered a rental item!"
-            submitButtonText="Submit Offer"
+            successMessage={t('forms.offer_rental_success')}
+            submitButtonText={t('forms.submit_offer')}
         />
     );
 };

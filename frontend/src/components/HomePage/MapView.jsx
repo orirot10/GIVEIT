@@ -233,6 +233,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             {userLocation && (
                <button
                onClick={handleReturnToLocation}
+               
                className="fixed z-50 bottom-5.5 left-1 bg-white text-gray-800 font-semibold rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center w-3 h-3"
                title="Return to my location"
                data-testid="return-to-location-btn"

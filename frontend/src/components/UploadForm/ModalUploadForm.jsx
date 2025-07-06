@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ImageUpload from '../ImageUpload';
 import '../../styles/components/UploadForm.css';
 import { geocodeAddress } from '../HomePage/geocode';
@@ -13,6 +14,7 @@ submitButtonText,
 user,
 }) => {
 const navigate = useNavigate();
+const { t } = useTranslation();
 
 const [form, setForm] = useState({
     title: '',
@@ -102,7 +104,7 @@ return (
         {success ? (
             <div className="alert alert-success shadow-lg flex flex-col items-center">
                 <span className="text-lg font-semibold">{successMessage}</span>
-                <button className="btn btn-primary mt-4" onClick={() => navigate('/')}>Close</button>
+                <button className="btn btn-primary mt-4" onClick={() => navigate('/')}>{t('forms.close')}</button>
             </div>
         ) : (
             <>
@@ -114,33 +116,33 @@ return (
                 )}
                 <form onSubmit={handleSubmit} className="upload-form space-y-4" encType="multipart/form-data">
                     <div className="form-group">
-                        <input name="title" placeholder="Title" value={form.title} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="title" placeholder={t('forms.title_placeholder')} value={form.title} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="textarea textarea-bordered w-full" required />
+                        <textarea name="description" placeholder={t('forms.description_placeholder')} value={form.description} onChange={handleChange} className="textarea textarea-bordered w-full" required />
                     </div>
                     <div className="form-group">
                         <select name="category" value={form.category} onChange={handleChange} className="select select-bordered w-full" required>
-                            <option value="">Select category</option>
+                            <option value="">{t('forms.select_category')}</option>
                             {categories.map((cat, index) => <option key={index} value={cat}>{cat}</option>)}
                         </select>
                     </div>
                     <div className="form-group">
-                        <input name="price" type="number" placeholder="Price" value={form.price} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="price" type="number" placeholder={t('forms.price_placeholder')} value={form.price} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
                         <select name="pricePeriod" value={form.pricePeriod} onChange={handleChange} className="select select-bordered w-full">
-                            <option value="use">Per Use</option>
-                            <option value="hour">Per Hour</option>
-                            <option value="day">Per Day</option>
-                            <option value="week">Per Week</option>
-                            <option value="month">Per Month</option>
+                            <option value="use">{t('forms.per_use')}</option>
+                            <option value="hour">{t('forms.per_hour')}</option>
+                            <option value="day">{t('forms.per_day')}</option>
+                            <option value="week">{t('forms.per_week')}</option>
+                            <option value="month">{t('forms.per_month')}</option>
                         </select>
                     </div>
 
                     {/* Image upload */}
                     <div className="form-group">
-                        <label className="block text-sm font-medium mb-2">Images (up to 5)</label>
+                        <label className="block text-sm font-medium mb-2">{t('forms.images_label')}</label>
                         <ImageUpload 
                             onImageUpload={handleImageUpload}
                             multiple={true}
@@ -156,26 +158,26 @@ return (
                     </div>
 
                     <div className="form-group">
-                        <input name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="firstName" placeholder={t('forms.first_name_placeholder')} value={form.firstName} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <input name="lastName" placeholder="Last Name" value={form.lastName} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="lastName" placeholder={t('forms.last_name_placeholder')} value={form.lastName} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="phone" placeholder={t('forms.phone_placeholder')} value={form.phone} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <input name="city" placeholder="City" value={form.city} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="city" placeholder={t('forms.city_placeholder')} value={form.city} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <input name="street" placeholder="Street" value={form.street} onChange={handleChange} className="input input-bordered w-full" required />
+                        <input name="street" placeholder={t('forms.street_placeholder')} value={form.street} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>
 
                     <div className="button-group flex justify-center gap-4 mt-6">
                         <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting}>
-                            {isSubmitting ? 'Submitting...' : submitButtonText}
+                            {isSubmitting ? t('forms.submitting') : submitButtonText}
                         </button>
-                        <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/')}>Cancel</button>
+                        <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/')}>{t('forms.cancel')}</button>
                     </div>
                 </form>
             </>
