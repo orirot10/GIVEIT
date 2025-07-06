@@ -10,8 +10,10 @@ import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useAuthContext } from '../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
+import logoBlue from '../../../images/logoBlue.png';
 
-const GenericMapPage = ({ title, apiUrl }) => {
+
+const GenericMapPage = ({ apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
     const [locations, setLocations] = useState([]);
     const [view, setView] = useState("map");
@@ -71,21 +73,7 @@ const GenericMapPage = ({ title, apiUrl }) => {
         }
     };
 
-    // Function to get the display title based on content type
-    const getDisplayTitle = () => {
-        switch (contentType) {
-            case 'rentals':
-                return i18n.language === 'he' ? t('Available Products') : 'Available Products';
-            case 'services':
-                return i18n.language === 'he' ? t('Available Services') : 'Available Services';
-            case 'rental_requests':
-                return i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products';
-            case 'service_requests':
-                return i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services';
-            default:
-                return title || (i18n.language === 'he' ? t('Explore') : 'Explore');
-        }
-    };
+
 
     // Get user location on mount
     useEffect(() => {
@@ -226,9 +214,12 @@ const GenericMapPage = ({ title, apiUrl }) => {
                     {/* Overlay controls */}
                     <div className="map-overlay" style={{ position: 'absolute', top: 10, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
-                            <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1>
+                            <div className="flex items-center justify-end gap-0 mb-1 px-1">
+                                <h4 className="text-lg font-bold">Givit</h4>
+                                <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
+                            </div>
                             <div className="w-full">
-                                <span className="text-base font-semibold text-center block">
+                                <span className="text-base font-semibold text-right block">
                                     {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
                             </div>
@@ -254,7 +245,10 @@ const GenericMapPage = ({ title, apiUrl }) => {
                 // List view: controls at top, list fills rest
                 <>
                     <div>
-                        <h1 className="text-xl font-bold text-center">{getDisplayTitle()}</h1>
+                        <div className="flex items-center justify-end gap-0 mb-1 px-1">
+                            <h4 className="text-lg font-bold">Givit</h4>
+                            <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
+                        </div>
                         <div className="w-full">
                             <span className="text-base font-semibold text-center block">
                                 {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
