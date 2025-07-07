@@ -23,9 +23,10 @@ const server = http.createServer(app);
 
 // Define allowed origins for CORS
 const allowedOrigins = [
-  'http://localhost:5173', // Vite dev server (local)
-  'http://localhost:3000', // Local frontend (if applicable)
-  process.env.FRONTEND_URL || 'https://giveit-frontend.onrender.com', // Replace with your actual frontend URL
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'capacitor://localhost',
+  process.env.FRONTEND_URL || 'https://giveit-frontend.onrender.com',
 ];
 
 const io = new Server(server, {
