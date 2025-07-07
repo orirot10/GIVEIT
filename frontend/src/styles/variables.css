@@ -6,7 +6,7 @@
     --text-color: #222;
     --background-color: #ffffff;
     
-    --font-base: 'Assistant', Alef, sans-serif;
+    --font-base: 'David Libre', Arial, sans-serif;
     --font-size: 16px;
     
     --border-radius: 12px;
@@ -42,5 +42,5 @@
     --color-neutral: #607D8B;
     --color-error: #E57373;
     --shadow: 0 2px 8px rgba(0,0,0,0.05);
-    --font-primary: 'Alef', 'Inter', sans-serif;
+    --font-primary: 'David Libre', Arial, sans-serif;
 }

@@ -22,7 +22,7 @@
   min-height: calc(100vh - 80px);
   background-color: var(--light-bg);
   padding: 20px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'David Libre', Arial, sans-serif;
   color: var(--text);
 }
 
@@ -53,7 +53,7 @@
 .custom-dashboard-bg {
   background: var(--light-bg);
   min-height: 50vh;
-  font-family: 'Inter', sans-serif;
+  font-family: 'David Libre', Arial, sans-serif;
   color: var(--text);
 }
 

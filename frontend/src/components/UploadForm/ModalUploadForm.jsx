@@ -100,7 +100,7 @@ const handleSubmit = async e => {
 };
 
 return (
-    <div className="upload-form-container">
+    <div className="upload-form-container" style={{ fontFamily: 'David Libre, Arial, sans-serif' }}>
         {success ? (
             <div className="alert alert-success shadow-lg flex flex-col items-center">
                 <span className="text-lg font-semibold">{successMessage}</span>

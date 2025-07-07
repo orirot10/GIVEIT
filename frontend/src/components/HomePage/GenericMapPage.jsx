@@ -234,7 +234,7 @@ const GenericMapPage = ({ apiUrl }) => {
                     <div className="map-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
                             {/* Map view header */}
-                            <div className="flex items-center justify-center gap-2 mb-1 px-10" style={{ marginTop: '-30px' }}>
+                            <div className="flex items-center justify-center gap-5 mb-1 px-10" style={{ marginTop: '-30px' }}>
                                 <span className="text-xl font-semibold" style={{ marginTop: '0px' }}>
                                     {user ? `היי    ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
@@ -266,7 +266,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
                             {/* List view header */}
-                            <div className="flex items-center justify-center gap-2 mb-1 px-10" style={{ marginTop: '-30px' }}>
+                            <div className="flex items-center justify-center gap-5 mb-1 px-10" style={{ marginTop: '-30px' }}>
                                 <span className="text-xl font-semibold" style={{ marginTop: '0px' }}>
                                     {user ? `היי    ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
@@ -332,7 +332,7 @@ const GenericMapPage = ({ apiUrl }) => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: '50%',
-                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontFamily: 'David Libre, Arial, sans-serif',
                         fontSize: 28,
                         cursor: 'pointer',
                         boxShadow: '0 4px 16px rgba(38, 166, 154, 0.18)',

@@ -32,8 +32,8 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                 )}
             </div>
             <div className="myitems-card-content">
-                <div className="myitems-card-title" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 15, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.title}</div>
-                <div className="myitems-card-meta" style={{ fontFamily: 'Alef, Inter, sans-serif', fontSize: 13, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="myitems-card-title" style={{ fontFamily: 'David Libre, Arial, sans-serif', fontSize: 15, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.title}</div>
+                <div className="myitems-card-meta" style={{ fontFamily: 'David Libre, Arial, sans-serif', fontSize: 13, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
                     {item.status && (
                         <span style={{
                             display: 'inline-flex',
@@ -233,7 +233,7 @@ const MyModals = () => {
                         className={`myitems-tab${view === tab.key ? ' active' : ''}`}
                         onClick={() => setView(tab.key)}
                         style={{
-                            fontFamily: 'Alef, Inter, sans-serif',
+                            fontFamily: 'David Libre, Arial, sans-serif',
                             fontSize: 13,
                             color: view === tab.key ? '#2E4057' : '#1C2526',
                             fontWeight: view === tab.key ? 'bold' : 'normal',
@@ -311,7 +311,7 @@ const MyModals = () => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
-                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontFamily: 'David Libre, Arial, sans-serif',
                         fontSize: 16,
                         cursor: 'pointer',
                         width: '100%',
@@ -336,7 +336,7 @@ const MyModals = () => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
-                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontFamily: 'David Libre, Arial, sans-serif',
                         fontSize: 16,
                         cursor: 'pointer',
                         width: '100%',
@@ -360,7 +360,7 @@ const MyModals = () => {
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
-                        fontFamily: 'Alef, Inter, sans-serif',
+                        fontFamily: 'David Libre, Arial, sans-serif',
                         fontSize: 16,
                         cursor: 'pointer',
                         width: '100%',

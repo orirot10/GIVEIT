@@ -31,6 +31,7 @@
   background-color: var(--background-color);
   backdrop-filter: blur(10px);
   color: var(--text-color);
+  font-family: 'David Libre', Arial, sans-serif;
 }
 
 /* Header */

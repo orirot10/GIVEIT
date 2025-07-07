@@ -41,7 +41,7 @@
   }
 
   .messages-conv-contact {
-    font-family: 'Alef', 'Inter', sans-serif;
+    font-family: 'David Libre', Arial, sans-serif;
     font-size: 14px;
     color: #1C2526;
     font-weight: bold;
@@ -51,7 +51,7 @@
   }
 
   .messages-conv-preview {
-    font-family: 'Alef', 'Inter', sans-serif;
+    font-family: 'David Libre', Arial, sans-serif;
     font-size: 14px;
     color: #1C2526;
     text-align: right;
@@ -60,7 +60,7 @@
   }
 
   .messages-conv-timestamp {
-    font-family: 'Alef', 'Inter', sans-serif;
+    font-family: 'David Libre', Arial, sans-serif;
     font-size: 12px;
     color: #607D8B;
     text-align: right;
