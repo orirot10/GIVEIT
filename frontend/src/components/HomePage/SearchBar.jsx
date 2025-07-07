@@ -43,44 +43,35 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClearFilters }) =>
   };
 
   return (
-    <div className="w-full max-w-md flex items-center space-x-2" dir={isRTL ? 'rtl' : 'ltr'}>
-      <div className="relative flex-grow">
-        <CiSearch
-          style={{
-            position: "absolute",
-            [isRTL ? 'right' : 'left']: "8px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "gray",
-            fontSize: "18px",
-            pointerEvents: "none",
-          }}
-        />
-        <input
-          type="text"
-          placeholder={t('rentals.search_placeholder')}
-          value={searchQuery}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          className={`search-bar-input ${isRTL ? 'pr-8 pl-4' : 'pl-8 pr-4'}`}
-        />
-      </div>
-      {isSearched ? (
-        <button
-          onClick={handleClearSearch}
-          className="search-filter-style red"
-        >
-          {t('common.clear')}
-        </button>
-      ) : (
-        <button
-          onClick={handleSearch}
-          className="search-filter-style gray"
-        >
-          {t('common.search')}
-        </button>
-      )}
-    </div>
+<div className="flex justify-center">
+<div className="relative w-[98%] max-w-md flex items-center gap-0.5 mx-auto" dir={isRTL ? 'rtl' : 'ltr'}>
+    <input
+      type="text"
+      placeholder={t('rentals.search_placeholder')}
+      value={searchQuery}
+      onChange={handleInputChange}
+      onKeyPress={handleKeyPress}
+      className={`w-full pl-10 pr-4 py-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary text-base bg-white rounded-full ${isRTL ? 'text-right' : 'text-left'}`}
+    />
+
+    {isSearched ? (
+      <button
+        onClick={handleClearSearch}
+        className="search-filter-style red"
+      >
+        {t('common.clear')}
+      </button>
+    ) : (
+      <button
+        onClick={handleSearch}
+        className="search-filter-style gray rounded-full p-2 flex items-center justify-center"
+        aria-label="Search"
+      >
+        <CiSearch className="text-xl text-gray-700" />
+      </button>
+    )}
+  </div>
+</div>
   );
 };
 

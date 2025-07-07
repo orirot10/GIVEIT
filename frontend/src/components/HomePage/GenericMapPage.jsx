@@ -26,6 +26,7 @@ const GenericMapPage = ({ apiUrl }) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuthContext();
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     // Define tabs based on contentType and language
     const tabs = useMemo(() => {
@@ -100,15 +101,15 @@ const GenericMapPage = ({ apiUrl }) => {
         if (lastFetchedBounds.current === boundsKey) return;
         if (boundsTimeout.current) clearTimeout(boundsTimeout.current);
         boundsTimeout.current = setTimeout(() => {
-            fetchItemsWithinBounds(mapBounds);
+            setLoading(true);
+            fetchItemsWithinBounds(mapBounds).finally(() => setLoading(false));
             lastFetchedBounds.current = boundsKey;
-        }, 300);
+        }, 700);
         return () => clearTimeout(boundsTimeout.current);
     }, [mapBounds, contentType]);
 
     // Fetch items within bounds
     const fetchItemsWithinBounds = async (bounds) => {
-        // setLoading(true); // Removed loading state
         try {
             const currentApiUrl = getApiUrl();
             const { northEast, southWest } = bounds;
@@ -119,11 +120,9 @@ const GenericMapPage = ({ apiUrl }) => {
             setAllItems(items);
             const withCoords = await mapItemsToCoords(items);
             setLocations(withCoords);
-            // setLoading(false); // Removed loading state
         } catch {
             setAllItems([]);
             setLocations([]);
-            // setLoading(false); // Removed loading state
         }
     };
 
@@ -188,12 +187,31 @@ const GenericMapPage = ({ apiUrl }) => {
     height: 'calc(100vh - 80px)',
     position: 'relative',
     marginTop: '80px'
-}}>          
+}}>
+    {/* Loading indicator */}
+    {loading && (
+        <div style={{ position: 'absolute', top: 300, left: '50%', transform: 'translateX(-50%)', zIndex: 2000 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 16, background: 'rgba(255,255,255,0.9)', borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <div
+                    className="animate-spin"
+                    style={{
+                        width: 30,
+                        height: 30,
+                        border: '4px solid #e0e0e0',
+                        borderTop: '4px solid #087E8B',
+                        borderRadius: '50%',
+                        marginBottom: 8,
+                    }}
+                ></div>
+                <span style={{ color: '#087E8B', fontWeight: 500 }}>Loading...</span>
+            </div>
+        </div>
+    )}
   {/* Filter Button: Always visible, fixed position, in front */}
             <div
                 style={{
                     position: 'fixed',
-                    top: 180, // adjust as needed
+                    top: 210, // moved lower
                     right: 4, // adjust as needed
                     zIndex: 1300, // higher than overlays and FAB
                     display: 'flex',
@@ -215,16 +233,16 @@ const GenericMapPage = ({ apiUrl }) => {
                     {/*             <h2 className="text-lg font-bold">Givit</h2>*/}
                     <div className="map-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
-                            <div className="flex items-center justify-between gap-0 mb-0 px-1">
-                                <span className="text-base font-semibold" style={{ marginTop: '30px' }}>
-                                    {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
+                            <div className="flex items-center justify-center gap-10 mb-0 px-10">
+                                <span className="text-base font-semibold" style={{ marginTop: '0px' }}>
+                                    {user ? `היי    ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
                                 
-                                <div className="flex items-up  gap-0">
-                                    <img src={logoBlue} alt="Givit Logo" className="w-8 h-6" />
+                                <div className="flex items-center  gap-0">
+                                    <img src={logoBlue} alt="Givit Logo" className="w-10 h-8" />
                                 </div>
                             </div>
-                            <div className="w-full flex flex-col gap-0 items-center">
+                            <div className="w-full flex flex-col gap-0 items-center" style={{ marginTop: '-35px' }}>
                                 <div className="w-full">
                                     <SearchBar
                                         searchQuery={searchQuery}
