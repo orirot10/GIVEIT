@@ -239,6 +239,8 @@ const GenericMapPage = ({ apiUrl }) => {
     // Debounced fetch for items within bounds
     useEffect(() => {
         if (!mapBounds) return;
+        // Only fetch items within bounds if there is no active search
+        if (searchQuery && searchQuery.trim() !== "") return;
         
         const boundsKey = JSON.stringify(mapBounds) + contentType;
         if (lastFetchedBounds.current === boundsKey) return;
@@ -254,14 +256,14 @@ const GenericMapPage = ({ apiUrl }) => {
                     setHasInitialLoad(true);
                 });
             lastFetchedBounds.current = boundsKey;
-        }, 500); // Reduced from 700ms for better responsiveness
+        }, 800); // Reduced from 700ms for better responsiveness
         
         return () => {
             if (boundsTimeout.current) {
                 clearTimeout(boundsTimeout.current);
             }
         };
-    }, [mapBounds, contentType]);
+    }, [mapBounds, contentType, searchQuery]);
 
     // Fetch items within bounds with error handling
     const fetchItemsWithinBounds = async (bounds) => {
@@ -356,6 +358,7 @@ const GenericMapPage = ({ apiUrl }) => {
         const currentApiUrl = getApiUrl();
         setLoading(true);
         setError(null);
+        setSearchQuery(""); // <-- Clear the search query as well
         
         let url = currentApiUrl;
         if (userLocation) {
@@ -378,7 +381,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 setError('Failed to clear filters');
             })
             .finally(() => setLoading(false));
-    }, [getApiUrl, userLocation]);
+    }, [getApiUrl, userLocation, setSearchQuery]);
 
     const handleRetry = useCallback(() => {
         setError(null);
@@ -409,7 +412,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
             <img src={logoBlue} alt="Givit Logo" style={{
                width: 180,
-               height: 100,
+               height: 120,
             }} />
 
         </div>
@@ -423,7 +426,7 @@ const GenericMapPage = ({ apiUrl }) => {
             width: '100vw',
             height: 'calc(100vh - 80px)',
             position: 'relative',
-            marginTop: '80px',
+            marginTop: '10px',
             background: '#f5f5f5'
         }}>
             {/* Add CSS animation for spinner */}
