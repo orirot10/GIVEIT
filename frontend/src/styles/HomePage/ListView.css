@@ -1,16 +1,16 @@
 /* Parent container of list */
 .list-container-wrapper {
     width: 100%;
-    max-width: 1200px; /* Increased max-width */
+    max-width: 1400px; /* Increased max-width */
     margin: 0 auto; /* Center the container */
-    padding: 1rem; /* Add some padding */
+
 }
 
 /* List container styles */
 .list-container {
     display: grid; /* Use grid for better layout control */
     grid-template-columns: 1fr; /* Single column for table-like rows */
-    gap: 0.5rem; /* Tighter gap */
+    /*gap: 0.5rem;  Tighter gap */
     padding: 0;
     flex-grow: 1;
     contain: layout style paint;

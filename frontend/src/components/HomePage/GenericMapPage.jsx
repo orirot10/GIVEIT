@@ -211,7 +211,7 @@ const GenericMapPage = ({ apiUrl }) => {
             <div
                 style={{
                     position: 'fixed',
-                    top: 210, // moved lower
+                    top: 250, // moved lower
                     right: 4, // adjust as needed
                     zIndex: 1300, // higher than overlays and FAB
                     display: 'flex',
@@ -233,13 +233,13 @@ const GenericMapPage = ({ apiUrl }) => {
                     {/*             <h2 className="text-lg font-bold">Givit</h2>*/}
                     <div className="map-overlay" style={{ position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 10, pointerEvents: 'none' }}>
                         <div style={{ pointerEvents: 'auto', position: 'relative' }}>
-                            <div className="flex items-center justify-center gap-10 mb-0 px-10">
-                                <span className="text-base font-semibold" style={{ marginTop: '0px' }}>
+                            {/* Map view header */}
+                            <div className="flex items-center justify-center gap-2 mb-1 px-10" style={{ marginTop: '-30px' }}>
+                                <span className="text-xl font-semibold" style={{ marginTop: '0px' }}>
                                     {user ? `היי    ${user.displayName || 'user'}` : 'hello guest'}
                                 </span>
-                                
-                                <div className="flex items-center  gap-0">
-                                    <img src={logoBlue} alt="Givit Logo" className="w-10 h-8" />
+                                <div className="flex items-center gap-0">
+                                    <img src={logoBlue} alt="Givit Logo" className="w-12 h-9" />
                                 </div>
                             </div>
                             <div className="w-full flex flex-col gap-0 items-center" style={{ marginTop: '-35px' }}>
@@ -263,16 +263,17 @@ const GenericMapPage = ({ apiUrl }) => {
             ) : (
                 // List view: controls at top, list fills rest
                 <>
-                    <div>
-                        <div className="flex items-center justify-between gap-0 mb-1 px-1">
-                            <span className="text-base font-semibold" style={{ marginTop: '2px' }}>
-                                {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
-                            </span>
-                            <div className="flex items-center gap-0">
-                                <h4 className="text-lg font-bold">Givit</h4>
-                                <img src={logoBlue} alt="Givit Logo" className="w-2 h-2" />
+                
+                        <div style={{ pointerEvents: 'auto', position: 'relative' }}>
+                            {/* List view header */}
+                            <div className="flex items-center justify-center gap-2 mb-1 px-10" style={{ marginTop: '-30px' }}>
+                                <span className="text-xl font-semibold" style={{ marginTop: '0px' }}>
+                                    {user ? `היי    ${user.displayName || 'user'}` : 'hello guest'}
+                                </span>
+                                <div className="flex items-center gap-0">
+                                    <img src={logoBlue} alt="Givit Logo" className="w-12 h-9" />
+                                </div>
                             </div>
-                        </div>
                         <div className="w-full flex flex-col gap-0 items-center">
                             <div className="w-full">
                                 <SearchBar
