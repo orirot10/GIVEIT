@@ -28,25 +28,36 @@ const protect = async (req, res, next) => {
 
     // Get token from header
     const token = req.headers.authorization.split(' ')[1];
+    console.log('Incoming token:', token);
 
     try {
       // Verify token
       const decodedToken = await auth.verifyIdToken(token);
+      console.log('Decoded token:', decodedToken);
       
-      // Find or create user in MongoDB
+      // Find user by Firebase UID
       let mongoUser = await User.findOne({ firebaseUid: decodedToken.uid });
       
       if (!mongoUser) {
-        // Create user in MongoDB if doesn't exist
-        mongoUser = new User({
-          firebaseUid: decodedToken.uid,
-          email: decodedToken.email,
-          firstName: decodedToken.name?.split(' ')[0] || '',
-          lastName: decodedToken.name?.split(' ').slice(1).join(' ') || '',
-          photoURL: decodedToken.picture || ''
-        });
-        await mongoUser.save();
-        console.log('Created new user in MongoDB:', mongoUser._id);
+        // Try to find by email
+        mongoUser = await User.findOne({ email: decodedToken.email });
+        if (mongoUser) {
+          // Link the Firebase UID to the existing user
+          mongoUser.firebaseUid = decodedToken.uid;
+          await mongoUser.save();
+          console.log('Linked existing user to new Firebase UID:', mongoUser._id);
+        } else {
+          // Create user in MongoDB if doesn't exist
+          mongoUser = new User({
+            firebaseUid: decodedToken.uid,
+            email: decodedToken.email,
+            firstName: decodedToken.name?.split(' ')[0] || '',
+            lastName: decodedToken.name?.split(' ').slice(1).join(' ') || '',
+            photoURL: decodedToken.picture || ''
+          });
+          await mongoUser.save();
+          console.log('Created new user in MongoDB:', mongoUser._id);
+        }
       }
       
       // Add user info to request
@@ -60,6 +71,15 @@ const protect = async (req, res, next) => {
 
       next();
     } catch (tokenError) {
+      // If the error is a MongoDB duplicate key error, handle gracefully
+      if (tokenError.code === 11000) {
+        console.error('Duplicate key error when linking/creating user:', tokenError.message);
+        return res.status(500).json({
+          error: 'Database error',
+          message: 'A user with this email already exists. Please contact support if this persists.'
+        });
+      }
+      // Token verification errors
       console.error('Token verification error:', tokenError.message);
       return res.status(401).json({ 
         error: 'Invalid token', 
