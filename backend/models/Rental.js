@@ -23,6 +23,10 @@ const rentalSchema = new mongoose.Schema({
 
 // Add compound index for spatial queries
 rentalSchema.index({ lat: 1, lng: 1 });
+// Add index for category filtering
+rentalSchema.index({ category: 1 });
+// Add index for sorting by creation date
+rentalSchema.index({ createdAt: -1 });
 
 const Rental = mongoose.model('Rental', rentalSchema);
 module.exports = Rental;

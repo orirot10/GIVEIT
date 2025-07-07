@@ -22,4 +22,11 @@ const serviceSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
 });
 
+// Add compound index for spatial queries
+serviceSchema.index({ lat: 1, lng: 1 });
+// Add index for category filtering
+serviceSchema.index({ category: 1 });
+// Add index for sorting by creation date
+serviceSchema.index({ createdAt: -1 });
+
 module.exports = mongoose.model('Service', serviceSchema);
