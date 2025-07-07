@@ -396,8 +396,8 @@ const GenericMapPage = ({ apiUrl }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 10,
-            padding: '0px 8px 8px',
+            gap: 0,
+            padding: '0px 8px 0px',
             background: 'rgba(255,255,255,0.95)',
             backdropFilter: 'blur(10px)',
             borderBottom: '0px solid rgba(0,0,0,0.1)'
@@ -412,7 +412,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
             <img src={logoBlue} alt="Givit Logo" style={{
                width: 180,
-               height: 120,
+               height: 150,
             }} />
 
         </div>
@@ -426,7 +426,7 @@ const GenericMapPage = ({ apiUrl }) => {
             width: '100vw',
             height: 'calc(100vh - 80px)',
             position: 'relative',
-            marginTop: '10px',
+            marginTop: '0px',
             background: '#f5f5f5'
         }}>
             {/* Add CSS animation for spinner */}
@@ -497,10 +497,10 @@ const GenericMapPage = ({ apiUrl }) => {
                         <div style={{ pointerEvents: 'auto' }}>
                             {headerContent}
                             <div className="controls-container" style={{
-                                padding: '10px 16px 16px',
+                                padding: '2px 8px 0px',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 8
+                                gap: 0
                             }}>
                                 <SearchBar
                                     searchQuery={searchQuery}
@@ -526,10 +526,10 @@ const GenericMapPage = ({ apiUrl }) => {
                 }}>
                     {headerContent}
                     <div className="controls-container" style={{
-                        padding: '10px 16px 16px',
+                        padding: '2px 8px 4px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 8,
+                        gap: 0,
                         background: 'white',
                         borderBottom: '1px solid rgba(0,0,0,0.1)'
                     }}>

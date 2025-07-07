@@ -9,8 +9,8 @@
     top: 16px;
     right: 16px;
     z-index: 10;
-    border: 2px solid #2E4057;
-    color: #1C2526;
+    border: 2px solid #d1d5db; /* light gray border */
+    color: #f5ebeb; /* dark gray icon */
     transition: background-color 0.2s, border-color 0.2s, color 0.2s;
     border-radius: 50%;
     padding: 8px;
@@ -18,17 +18,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(243, 244, 246, 0.9); /* light transparent bg */
+    background-color: #f3f4f6; /* solid light gray */
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .toggle-icon:hover {
-    background-color: #F4F6F8;
-    border-color: #1e8c7a;
+    background-color: #e5e7eb;
+    border-color: #bdbdbd;
 }
 
 .toggle-icon.active {
-    background-color: #087E8B;
-    color: #fff;
-    border-color: #087E8B;
+    background-color: #f3f4f6; /* keep light gray for active */
+    color: #222; /* slightly darker icon */
+    border-color: #bdbdbd;
 }

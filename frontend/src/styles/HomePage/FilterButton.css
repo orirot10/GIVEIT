@@ -3,23 +3,23 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    border: 1.5px solid #2E4057;
+    border: 0px solid #bdbdbd; /* neutral gray border */
     border-radius: 6px;
     background-color: #F4F6F8;
-    color: #087E8B;
+    color: #eaf4f5;
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border 0.2s;
 }
 
 .filter-btn:hover {
     background-color: #e0f7fa;
-    color: #1C2526;
-    border-color: #1e8c7a;
+    color: #e8f3f4;
+    border-color: #888; /* slightly darker gray on hover */
 }
 
 .filter-icon {
     font-size: 20px;
-    color: #2E4057;
+    color: #d7e0ed;
 }
 
 .modal-overlay {

@@ -233,18 +233,43 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             {userLocation && (
                <button
                onClick={handleReturnToLocation}
-               
-               className="fixed z-50 bottom-5.5 left-1 bg-white text-gray-800 font-semibold rounded-full shadow-lg border border-gray-300 hover:bg-gray-100 transition-colors flex items-center justify-center w-3 h-3"
+               className="fixed z-50 bottom-5.5 left-1 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center w-3 h-3"
                title="Return to my location"
                data-testid="return-to-location-btn"
-               style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
+               style={{ 
+                   background: '#f3f4f6', // light gray
+                   color: '#444', // dark gray icon
+                   border: '2px solid #d1d5db', // light gray border
+                   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+                   width: 44,
+                   height: 44,
+                   padding: 0,
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   fontSize: 24,
+                   cursor: 'pointer',
+                   transition: 'all 0.2s',
+               }}
+               onMouseOver={e => {
+                   e.currentTarget.style.background = '#e5e7eb';
+                   e.currentTarget.style.border = '2px solid #bdbdbd';
+               }}
+               onMouseOut={e => {
+                   e.currentTarget.style.background = '#f3f4f6';
+                   e.currentTarget.style.border = '2px solid #d1d5db';
+               }}
            >
                <svg
                    xmlns="http://www.w3.org/2000/svg"
-                   className="h-6 w-6 text-[#087E8B]"
+                   className="h-6 w-6"
                    viewBox="0 0 24 24"
-                   fill="currentColor"
-                   stroke="currentColor"
+                   fill="none"
+                   stroke="#444"
+                   strokeWidth="2"
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+                   style={{ width: 24, height: 24 }}
                >
                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
                </svg>

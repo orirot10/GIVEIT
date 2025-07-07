@@ -54,7 +54,7 @@
     },
     "rentals": {
         "explore": "גלה מוצרים",
-        "search_placeholder": "חפש מוצרים או שירותים...",
+        "search_placeholder": "מה מחפשים?",
         "offer_rental": "הצע השכרה",
         "request_rental": "בקש השכרה",
         "price": "מחיר",
@@ -163,10 +163,10 @@
     },
     "mark_available": "סמן כזמין",
     "mark_unavailable": "סמן כלא זמין",
-    "Available Products": "מוצרים זמינים",
-    "Wanted Products": "מוצרים דרושים",
+    "Available Products": "זמינים",
+    "Wanted Products": "דרושים",
     "Available Services": "שירותים זמינים",
-    "Wanted Services": "שירותים דרושים",
+    "Wanted Services": "דרושים",
     "forms": {
         "request_rental_title": "בקש פריט להשכרה",
         "request_service_title": "בקש שירות",
