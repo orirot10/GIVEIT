@@ -397,29 +397,61 @@ const GenericMapPage = ({ apiUrl }) => {
     // Debounced fetch for items within bounds
     useEffect(() => {
         if (!mapBounds || (searchQuery && searchQuery.trim() !== "")) return;
-        
-        const boundsKey = JSON.stringify(mapBounds) + contentType;
+
+        const boundsKey = JSON.stringify(mapBounds) + contentType + (selectedCategory || '');
         if (lastFetchedBounds.current === boundsKey) return;
-        
+
         if (boundsTimeout.current) clearTimeout(boundsTimeout.current);
-        
+
         boundsTimeout.current = setTimeout(() => {
             setLoading(true);
             setError(null);
-            fetchItemsWithinBounds(mapBounds)
-                .finally(() => {
-                    setLoading(false);
-                    setHasInitialLoad(true);
-                });
+            if (selectedCategory) {
+                // If a category filter is active, apply it to the new bounds
+                const currentApiUrl = getApiUrl();
+                const { northEast, southWest } = mapBounds;
+                const params = new URLSearchParams();
+                params.append('category', selectedCategory);
+                params.append('minLat', southWest.lat);
+                params.append('maxLat', northEast.lat);
+                params.append('minLng', southWest.lng);
+                params.append('maxLng', northEast.lng);
+                const url = `${currentApiUrl}/filter?${params.toString()}`;
+                fetch(url)
+                    .then((res) => {
+                        if (!res.ok) throw new Error('Failed to apply filters');
+                        return res.json();
+                    })
+                    .then((data) => {
+                        setAllItems(data);
+                        const withCoords = mapItemsToCoords(data);
+                        setLocations(withCoords);
+                        setError(null);
+                    })
+                    .catch((err) => {
+                        console.error('Filter error:', err);
+                        setError('Failed to apply filters');
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                        setHasInitialLoad(true);
+                    });
+            } else {
+                fetchItemsWithinBounds(mapBounds)
+                    .finally(() => {
+                        setLoading(false);
+                        setHasInitialLoad(true);
+                    });
+            }
             lastFetchedBounds.current = boundsKey;
         }, BOUNCE_TIMEOUT);
-        
+
         return () => {
             if (boundsTimeout.current) {
                 clearTimeout(boundsTimeout.current);
             }
         };
-    }, [mapBounds, contentType, searchQuery, fetchItemsWithinBounds]);
+    }, [mapBounds, contentType, searchQuery, fetchItemsWithinBounds, selectedCategory, getApiUrl, mapItemsToCoords]);
 
     // Search handler
     const handleSearch = useCallback(() => {
