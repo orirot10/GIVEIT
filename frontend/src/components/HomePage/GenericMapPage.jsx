@@ -587,6 +587,11 @@ const GenericMapPage = ({ apiUrl }) => {
         }
     };
 
+    // Scroll to top on mount and when view/contentType changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [view, contentType]);
+
     return (
         <div className="map-wrapper" style={{
             width: '100vw',

@@ -199,7 +199,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                         >
                             {/* Custom brand pin */}
                             <div
-                                className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-4 border-white map-pin-hover"
+                                className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-2 border-white map-pin-hover"
                                 style={{ width: 44, height: 44, background: '#2E4057', position: 'relative' }}
                                 title={item.title || "N/A"}
                             >

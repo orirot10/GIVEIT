@@ -24,7 +24,7 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                         src={imageUrl}
                         alt={item.title}
                         className="myitems-card-img"
-                        style={{ border: '2px solid #607D8B', borderRadius: 8, width: 64, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
+                        style={{ border: '2px solid #607D8B', borderRadius: 8, width: 72, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
                         onError={() => setImgError(true)}
                     />
                 ) : (
@@ -226,7 +226,7 @@ const MyModals = () => {
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
             <h2>{t('my_items.title')}</h2>
-            <div className="myitems-tabs" role="tablist" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20, overflowX: 'auto', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="myitems-tabs" role="tablist" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 20, overflowX: 'auto', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
                 {TAB_CATEGORIES.map(tab => (
                     <button
                         key={tab.key}
