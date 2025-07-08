@@ -12,8 +12,13 @@ import { useAuthContext } from '../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import logoBlue from '../../../images/logoBlue3.png';
 
+// Constants
+const BOUNCE_TIMEOUT = 800;
+const LOCATION_TIMEOUT = 10000;
+const DEFAULT_RADIUS = 1000;
+
 // Loading Component
-const LoadingSpinner = ({ message = "Loading..." }) => (
+const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
     <div className="loading-overlay" style={{
         position: 'absolute',
         top: 0,
@@ -59,10 +64,10 @@ const LoadingSpinner = ({ message = "Loading..." }) => (
             </span>
         </div>
     </div>
-);
+));
 
 // Error Boundary Component
-const ErrorFallback = ({ error, onRetry }) => (
+const ErrorFallback = React.memo(({ error, onRetry }) => (
     <div className="error-state" style={{
         position: 'absolute',
         top: '50%',
@@ -95,29 +100,24 @@ const ErrorFallback = ({ error, onRetry }) => (
             Try Again
         </button>
     </div>
-);
+));
 
 // Empty State Component
-const EmptyState = ({ contentType, searchQuery }) => {
+const EmptyState = React.memo(({ contentType, searchQuery }) => {
     const { t } = useTranslation();
     
-    const getMessage = () => {
+    const message = useMemo(() => {
         if (searchQuery) {
             return `No results found for "${searchQuery}"`;
         }
-        switch (contentType) {
-            case 'rentals':
-                return t('No rental items available in this area');
-            case 'services':
-                return t('No services available in this area');
-            case 'rental_requests':
-                return t('No rental requests in this area');
-            case 'service_requests':
-                return t('No service requests in this area');
-            default:
-                return t('No items available in this area');
-        }
-    };
+        const messageMap = {
+            rentals: t('No rental items available in this area'),
+            services: t('No services available in this area'),
+            rental_requests: t('No rental requests in this area'),
+            service_requests: t('No service requests in this area')
+        };
+        return messageMap[contentType] || t('No items available in this area');
+    }, [contentType, searchQuery, t]);
 
     return (
         <div className="empty-state" style={{
@@ -141,7 +141,7 @@ const EmptyState = ({ contentType, searchQuery }) => {
                 fontSize: 16,
                 marginBottom: 8
             }}>
-                {getMessage()}
+                {message}
             </p>
             <p style={{
                 color: '#999',
@@ -151,7 +151,147 @@ const EmptyState = ({ contentType, searchQuery }) => {
             </p>
         </div>
     );
-};
+});
+
+// Header Component
+const Header = React.memo(({ user }) => (
+    <div className="app-header" style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 0,
+        padding: '0px 8px 0px', // reduced padding
+        background: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '0px solid rgba(0,0,0,0.1)',
+        minHeight: 78, // set a minimum height for compactness
+        height: 78
+    }}>
+        <span style={{
+            fontSize: 18,
+            fontWeight: 600,
+            color: '#087E8B'
+        }}>
+            {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
+        </span>
+
+        <img src={logoBlue} alt="Givit Logo" style={{
+           width: 180,
+           height: 150,
+        }} />
+    </div>
+));
+
+// Controls Component
+const Controls = React.memo(({ 
+    searchQuery, 
+    setSearchQuery, 
+    onSearch, 
+    onClearFilters, 
+    contentType, 
+    setContentType, 
+    tabs 
+}) => (
+    <div className="controls-container" style={{
+        padding: '2px 8px 0px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0
+    }}>
+        <SearchBar
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            onSearch={onSearch}
+            onClearFilters={onClearFilters}
+        />
+        <TabBar
+            activeTab={contentType}
+            onTabChange={setContentType}
+            tabs={tabs}
+        />
+    </div>
+));
+
+// FAB Component
+const FloatingActionButton = React.memo(({ contentType, navigate, t, i18n }) => {
+    const buttonConfig = useMemo(() => {
+        const configs = {
+            rentals: {
+                label: i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental',
+                route: '/offer-rental'
+            },
+            services: {
+                label: i18n.language === 'he' ? t('services.add_service') : 'Add Service',
+                route: '/offer-service'
+            },
+            rental_requests: {
+                label: i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental',
+                route: '/request-rental'
+            },
+            service_requests: {
+                label: i18n.language === 'he' ? t('services.request_service') : 'Request Service',
+                route: '/request-service'
+            }
+        };
+        return configs[contentType];
+    }, [contentType, i18n.language, t]);
+
+    const handleClick = useCallback(() => {
+        if (buttonConfig?.route) {
+            navigate(buttonConfig.route);
+        }
+    }, [buttonConfig, navigate]);
+
+    if (!buttonConfig) return null;
+
+    return (
+        <button
+            className="myitems-add-btn"
+            aria-label={buttonConfig.label}
+            style={{
+                position: 'fixed',
+                bottom: 90,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                width: 56,
+                height: 56,
+                padding: 0,
+                background: '#087E8B',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '50%',
+                fontSize: 24,
+                cursor: 'pointer',
+                boxShadow: '0 6px 20px rgba(8, 126, 139, 0.3)',
+                fontWeight: 400,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s ease'
+            }}
+            onClick={handleClick}
+            onMouseOver={e => {
+                e.currentTarget.style.background = '#009688';
+                e.currentTarget.style.transform = 'translateX(-50%) scale(1.05)';
+            }}
+            onMouseOut={e => {
+                e.currentTarget.style.background = '#087E8B';
+                e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+            }}
+        >
+            <span style={{
+                fontSize: 24,
+                lineHeight: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                +
+            </span>
+        </button>
+    );
+});
 
 const GenericMapPage = ({ apiUrl }) => {
     const [allItems, setAllItems] = useState([]);
@@ -171,76 +311,98 @@ const GenericMapPage = ({ apiUrl }) => {
     const { user } = useAuthContext();
     const navigate = useNavigate();
 
+    // Memoized base URL
+    const baseUrl = useMemo(() => import.meta.env.VITE_API_URL, []);
+
     // Define tabs based on contentType and language
     const tabs = useMemo(() => {
-        if (contentType.includes('rental')) {
-            return [
+        const tabConfigs = {
+            rental: [
                 { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' },
                 { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' }
-            ];
-        } else {
-            return [
+            ],
+            service: [
                 { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' },
                 { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' }
-            ];
-        }
+            ]
+        };
+        return tabConfigs[contentType.includes('rental') ? 'rental' : 'service'];
     }, [contentType, i18n.language, t]);
 
     // Memoized API URL function
     const getApiUrl = useCallback(() => {
-        const baseUrl = import.meta.env.VITE_API_URL;
-        switch (contentType) {
-            case 'rentals':
-                return `${baseUrl}/api/rentals`;
-            case 'services':
-                return `${baseUrl}/api/services`;
-            case 'rental_requests':
-                return `${baseUrl}/api/rental_requests`;
-            case 'service_requests':
-                return `${baseUrl}/api/service_requests`;
-            default:
-                return `${baseUrl}/api/rentals`;
-        }
-    }, [contentType]);
+        const urlMap = {
+            rentals: `${baseUrl}/api/rentals`,
+            services: `${baseUrl}/api/services`,
+            rental_requests: `${baseUrl}/api/rental_requests`,
+            service_requests: `${baseUrl}/api/service_requests`
+        };
+        return urlMap[contentType] || `${baseUrl}/api/rentals`;
+    }, [contentType, baseUrl]);
 
     // Memoized category type function
     const getCategoryType = useCallback(() => {
-        switch (contentType) {
-            case 'rentals':
-            case 'rental_requests':
-                return 'rental';
-            case 'services':
-            case 'service_requests':
-                return 'service';
-            default:
-                return 'rental';
-        }
+        return contentType.includes('rental') ? 'rental' : 'service';
+    }, [contentType]);
+
+    // Memoized item mapping function
+    const mapItemsToCoords = useCallback((items) => {
+        return items
+            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
+            .map(item => ({
+                ...item,
+                id: item._id || item.id,
+                type: contentType
+            }));
     }, [contentType]);
 
     // Get user location on mount
     useEffect(() => {
-        if (!userLocation && navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    setUserLocation({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    });
-                },
-                (error) => {
-                    console.error('Error getting user location:', error);
-                    setError('Unable to get your location. Using default area.');
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        }
+        if (userLocation || !navigator.geolocation) return;
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setUserLocation({
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+            },
+            (error) => {
+                console.error('Error getting user location:', error);
+                setError('Unable to get your location. Using default area.');
+            },
+            { enableHighAccuracy: true, timeout: LOCATION_TIMEOUT, maximumAge: 0 }
+        );
     }, [userLocation]);
+
+    // Fetch items within bounds with error handling
+    const fetchItemsWithinBounds = useCallback(async (bounds) => {
+        try {
+            const currentApiUrl = getApiUrl();
+            const { northEast, southWest } = bounds;
+            const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
+            
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`Failed to fetch items: ${res.status}`);
+            }
+            
+            const items = await res.json();
+            setAllItems(items);
+            const withCoords = mapItemsToCoords(items);
+            setLocations(withCoords);
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching items:', err);
+            setError(err.message);
+            setAllItems([]);
+            setLocations([]);
+        }
+    }, [getApiUrl, mapItemsToCoords]);
 
     // Debounced fetch for items within bounds
     useEffect(() => {
-        if (!mapBounds) return;
-        // Only fetch items within bounds if there is no active search
-        if (searchQuery && searchQuery.trim() !== "") return;
+        if (!mapBounds || (searchQuery && searchQuery.trim() !== "")) return;
         
         const boundsKey = JSON.stringify(mapBounds) + contentType;
         if (lastFetchedBounds.current === boundsKey) return;
@@ -256,50 +418,16 @@ const GenericMapPage = ({ apiUrl }) => {
                     setHasInitialLoad(true);
                 });
             lastFetchedBounds.current = boundsKey;
-        }, 800); // Reduced from 700ms for better responsiveness
+        }, BOUNCE_TIMEOUT);
         
         return () => {
             if (boundsTimeout.current) {
                 clearTimeout(boundsTimeout.current);
             }
         };
-    }, [mapBounds, contentType, searchQuery]);
+    }, [mapBounds, contentType, searchQuery, fetchItemsWithinBounds]);
 
-    // Fetch items within bounds with error handling
-    const fetchItemsWithinBounds = async (bounds) => {
-        try {
-            const currentApiUrl = getApiUrl();
-            const { northEast, southWest } = bounds;
-            const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
-            
-            const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error(`Failed to fetch items: ${res.status}`);
-            }
-            
-            const items = await res.json();
-            setAllItems(items);
-            const withCoords = await mapItemsToCoords(items);
-            setLocations(withCoords);
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching items:', err);
-            setError(err.message);
-            setAllItems([]);
-            setLocations([]);
-        }
-    };
-
-    const mapItemsToCoords = async (items) => {
-        return items
-            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
-            .map(item => ({
-                ...item,
-                id: item._id || item.id,
-                type: contentType
-            }));
-    };
-
+    // Search handler
     const handleSearch = useCallback(() => {
         const currentApiUrl = getApiUrl();
         setLoading(true);
@@ -309,41 +437,45 @@ const GenericMapPage = ({ apiUrl }) => {
             apiUrl: currentApiUrl, 
             searchQuery, 
             setAllItems, 
-            setLocations: async (items) => {
-                const withCoords = await mapItemsToCoords(items);
+            setLocations: (items) => {
+                const withCoords = mapItemsToCoords(items);
                 setLocations(withCoords);
             }
         }).finally(() => setLoading(false));
-    }, [getApiUrl, searchQuery]);
+    }, [getApiUrl, searchQuery, mapItemsToCoords]);
 
+    // Filter handler
     const handleFilter = useCallback(({ categories, minPrice, maxPrice }) => {
         const currentApiUrl = getApiUrl();
         setLoading(true);
         setError(null);
         
-        let url = `${currentApiUrl}/filter?`;
+        const params = new URLSearchParams();
         if (categories.length > 0) {
-            const encodedCategories = categories.map(encodeURIComponent).join(",");
-            url += `category=${encodedCategories}&`;
+            params.append('category', categories.join(','));
         }
         if (minPrice !== null) {
-            url += `minPrice=${minPrice}&`;
+            params.append('minPrice', minPrice);
         }
         if (maxPrice !== null) {
-            url += `maxPrice=${maxPrice}&`;
+            params.append('maxPrice', maxPrice);
         }
         if (userLocation) {
-            url += `lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
+            params.append('lat', userLocation.lat);
+            params.append('lng', userLocation.lng);
+            params.append('radius', DEFAULT_RADIUS);
         }
+        
+        const url = `${currentApiUrl}/filter?${params.toString()}`;
         
         fetch(url)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to apply filters');
                 return res.json();
             })
-            .then(async (data) => {
+            .then((data) => {
                 setAllItems(data);
-                const withCoords = await mapItemsToCoords(data);
+                const withCoords = mapItemsToCoords(data);
                 setLocations(withCoords);
                 setError(null);
             })
@@ -352,27 +484,32 @@ const GenericMapPage = ({ apiUrl }) => {
                 setError('Failed to apply filters');
             })
             .finally(() => setLoading(false));
-    }, [getApiUrl, userLocation]);
+    }, [getApiUrl, userLocation, mapItemsToCoords]);
 
+    // Clear filters handler
     const handleClearFilters = useCallback(() => {
         const currentApiUrl = getApiUrl();
         setLoading(true);
         setError(null);
-        setSearchQuery(""); // <-- Clear the search query as well
+        setSearchQuery("");
         
-        let url = currentApiUrl;
+        const params = new URLSearchParams();
         if (userLocation) {
-            url += `?lat=${userLocation.lat}&lng=${userLocation.lng}&radius=1000`;
+            params.append('lat', userLocation.lat);
+            params.append('lng', userLocation.lng);
+            params.append('radius', DEFAULT_RADIUS);
         }
+        
+        const url = params.toString() ? `${currentApiUrl}?${params.toString()}` : currentApiUrl;
         
         fetch(url)
             .then((res) => {
                 if (!res.ok) throw new Error('Failed to clear filters');
                 return res.json();
             })
-            .then(async (data) => {
+            .then((data) => {
                 setAllItems(data);
-                const withCoords = await mapItemsToCoords(data);
+                const withCoords = mapItemsToCoords(data);
                 setLocations(withCoords);
                 setError(null);
             })
@@ -381,42 +518,15 @@ const GenericMapPage = ({ apiUrl }) => {
                 setError('Failed to clear filters');
             })
             .finally(() => setLoading(false));
-    }, [getApiUrl, userLocation, setSearchQuery]);
+    }, [getApiUrl, userLocation, mapItemsToCoords]);
 
+    // Retry handler
     const handleRetry = useCallback(() => {
         setError(null);
         if (mapBounds) {
             fetchItemsWithinBounds(mapBounds);
         }
-    }, [mapBounds]);
-
-    // Memoized header content
-    const headerContent = useMemo(() => (
-        <div className="app-header" style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 0,
-            padding: '0px 8px 0px',
-            background: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(10px)',
-            borderBottom: '0px solid rgba(0,0,0,0.1)'
-        }}>
-                        <span style={{
-                fontSize: 18,
-                fontWeight: 600,
-                color: '#087E8B'
-            }}>
-                {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
-            </span>
-
-            <img src={logoBlue} alt="Givit Logo" style={{
-               width: 180,
-               height: 150,
-            }} />
-
-        </div>
-    ), [user]);
+    }, [mapBounds, fetchItemsWithinBounds]);
 
     // Show empty state when appropriate
     const shouldShowEmptyState = hasInitialLoad && !loading && allItems.length === 0 && !error;
@@ -429,7 +539,7 @@ const GenericMapPage = ({ apiUrl }) => {
             marginTop: '0px',
             background: '#f5f5f5'
         }}>
-            {/* Add CSS animation for spinner */}
+            {/* CSS Animations */}
             <style>{`
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
@@ -462,7 +572,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 <EmptyState contentType={contentType} searchQuery={searchQuery} />
             )}
 
-            {/* Filter Button: Always visible, fixed position */}
+            {/* Filter Button */}
             <div style={{
                 position: 'fixed',
                 top: 250,
@@ -478,14 +588,12 @@ const GenericMapPage = ({ apiUrl }) => {
 
             {view === "map" ? (
                 <>
-                    {/* Map fills the background */}
                     <MapView
                         locations={locations}
                         mapHeight={"100%"}
                         onBoundsChanged={setMapBounds}
                     />
                     
-                    {/* Overlay controls */}
                     <div className="map-overlay" style={{
                         position: 'absolute',
                         top: 0,
@@ -495,36 +603,26 @@ const GenericMapPage = ({ apiUrl }) => {
                         pointerEvents: 'none'
                     }}>
                         <div style={{ pointerEvents: 'auto' }}>
-                            {headerContent}
-                            <div className="controls-container" style={{
-                                padding: '2px 8px 0px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 0
-                            }}>
-                                <SearchBar
-                                    searchQuery={searchQuery}
-                                    setSearchQuery={setSearchQuery}
-                                    onSearch={handleSearch}
-                                    onClearFilters={handleClearFilters}
-                                />
-                                <TabBar
-                                    activeTab={contentType}
-                                    onTabChange={setContentType}
-                                    tabs={tabs}
-                                />
-                            </div>
+                            <Header user={user} />
+                            <Controls
+                                searchQuery={searchQuery}
+                                setSearchQuery={setSearchQuery}
+                                onSearch={handleSearch}
+                                onClearFilters={handleClearFilters}
+                                contentType={contentType}
+                                setContentType={setContentType}
+                                tabs={tabs}
+                            />
                         </div>
                     </div>
                 </>
             ) : (
-                /* List view */
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
                     height: '100%'
                 }}>
-                    {headerContent}
+                    <Header user={user} />
                     <div className="controls-container" style={{
                         padding: '2px 8px 4px',
                         display: 'flex',
@@ -533,15 +631,13 @@ const GenericMapPage = ({ apiUrl }) => {
                         background: 'white',
                         borderBottom: '1px solid rgba(0,0,0,0.1)'
                     }}>
-                        <SearchBar
+                        <Controls
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
                             onSearch={handleSearch}
                             onClearFilters={handleClearFilters}
-                        />
-                        <TabBar
-                            activeTab={contentType}
-                            onTabChange={setContentType}
+                            contentType={contentType}
+                            setContentType={setContentType}
                             tabs={tabs}
                         />
                     </div>
@@ -562,7 +658,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 </div>
             )}
 
-            {/* ToggleViewButton: always visible, fixed */}
+            {/* Toggle View Button */}
             <div style={{
                 position: 'fixed',
                 bottom: 152,
@@ -573,66 +669,15 @@ const GenericMapPage = ({ apiUrl }) => {
                 <ToggleViewButton view={view} setView={setView} />
             </div>
 
-            {/* Add Listing/Request Button (FAB) */}
-            {(contentType === 'rentals' || contentType === 'services' || contentType === 'rental_requests' || contentType === 'service_requests') && (
-                <button
-                    className="myitems-add-btn"
-                    aria-label={
-                        contentType === 'rentals' ? (i18n.language === 'he' ? t('rentals.add_rental') : 'Add Rental') :
-                        contentType === 'services' ? (i18n.language === 'he' ? t('services.add_service') : 'Add Service') :
-                        contentType === 'rental_requests' ? (i18n.language === 'he' ? t('rentals.request_rental') : 'Request Rental') :
-                        (i18n.language === 'he' ? t('services.request_service') : 'Request Service')
-                    }
-                    style={{
-                        position: 'fixed',
-                        bottom: 90,
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        zIndex: 1000,
-                        width: 56,
-                        height: 56,
-                        padding: 0,
-                        background: '#087E8B',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '50%',
-                        fontSize: 24,
-                        cursor: 'pointer',
-                        boxShadow: '0 6px 20px rgba(8, 126, 139, 0.3)',
-                        fontWeight: 400,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s ease'
-                    }}
-                    onClick={() => {
-                        if (contentType === 'rentals') navigate('/offer-rental');
-                        else if (contentType === 'services') navigate('/offer-service');
-                        else if (contentType === 'rental_requests') navigate('/request-rental');
-                        else if (contentType === 'service_requests') navigate('/request-service');
-                    }}
-                    onMouseOver={e => {
-                        e.currentTarget.style.background = '#009688';
-                        e.currentTarget.style.transform = 'translateX(-50%) scale(1.05)';
-                    }}
-                    onMouseOut={e => {
-                        e.currentTarget.style.background = '#087E8B';
-                        e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-                    }}
-                >
-                    <span style={{
-                        fontSize: 24,
-                        lineHeight: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}>
-                        +
-                    </span>
-                </button>
-            )}
+            {/* Floating Action Button */}
+            <FloatingActionButton 
+                contentType={contentType}
+                navigate={navigate}
+                t={t}
+                i18n={i18n}
+            />
         </div>
     );
-};
+};2
 
 export default GenericMapPage;

@@ -12,7 +12,7 @@ const ServiceForm = () => {
         <ModalUploadForm
             user={user}
             titleText={t('forms.offer_service_title')}
-            categories={serviceCategories}
+            categories={serviceCategories.map(cat => t(`categories.service.${cat}`))}
             submitUrl={`${baseUrl}/api/services/with-urls`}
             successMessage={t('forms.offer_service_success')}
             submitButtonText={t('forms.submit_offer')}

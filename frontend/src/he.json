@@ -196,5 +196,25 @@
         "submitting": "שולח...",
         "close": "סגור",
         "cancel": "ביטול"
+    },
+    "categories": {
+        "rental": {
+            "Tools": "כלים",
+            "Electronics": "אלקטרוניקה",
+            "Vehicles": "רכבים",
+            "Sports": "ספורט",
+            "Furniture": "ריהוט",
+            "Clothes": "בגדים",
+            "Other": "אחר"
+        },
+        "service": {
+            "Repair": "תיקון",
+            "Cleaning": "ניקיון",
+            "Tutoring": "הדרכה",
+            "Moving": "הובלה",
+            "Pet Care": "טיפול בחיות",
+            "Beauty": "יופי",
+            "Other": "אחר"
+        }
     }
 }

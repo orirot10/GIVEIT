@@ -190,5 +190,25 @@
     "submitting": "Submitting...",
     "close": "Close",
     "cancel": "Cancel"
+  },
+  "categories": {
+    "rental": {
+      "Tools": "Tools",
+      "Electronics": "Electronics",
+      "Vehicles": "Vehicles",
+      "Sports": "Sports",
+      "Furniture": "Furniture",
+      "Clothes": "Clothes",
+      "Other": "Other"
+    },
+    "service": {
+      "Repair": "Repair",
+      "Cleaning": "Cleaning",
+      "Tutoring": "Tutoring",
+      "Moving": "Moving",
+      "Pet Care": "Pet Care",
+      "Beauty": "Beauty",
+      "Other": "Other"
+    }
   }
 }

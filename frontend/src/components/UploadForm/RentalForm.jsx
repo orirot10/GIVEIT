@@ -12,7 +12,7 @@ const RentalForm = () => {
         <ModalUploadForm
             user={user}
             titleText={t('forms.offer_rental_title')}
-            categories={rentalCategories}
+            categories={rentalCategories.map(cat => t(`categories.rental.${cat}`))}
             submitUrl={`${baseUrl}/api/rentals`}
             successMessage={t('forms.offer_rental_success')}
             submitButtonText={t('forms.submit_offer')}

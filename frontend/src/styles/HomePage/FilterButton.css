@@ -25,7 +25,7 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(232, 226, 226, 0.5);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,7 +38,7 @@
     border-radius: 8px;
     width: 340px;
     max-width: 90%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(223, 216, 216, 0.2);
     color: #1C2526;
 }
 
@@ -47,7 +47,7 @@
     font-weight: 600;
     margin-bottom: 16px;
     text-align: center;
-    color: #2E4057;
+    color: #dfe6ef;
 }
 
 .section {
@@ -70,7 +70,7 @@
     border-radius: 9999px;
     border: 1.5px solid #2E4057;
     background-color: #fff;
-    color: #2E4057;
+    color: #c9d6e7;
     cursor: pointer;
     transition: background 0.2s, color 0.2s, border 0.2s;
 }
@@ -80,7 +80,7 @@
     border-radius: 9999px;
     border: 1px solid #ccc;
     background-color: white;
-    color: #444;
+    color: #d4caca;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
