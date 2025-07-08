@@ -505,6 +505,18 @@ const GenericMapPage = ({ apiUrl }) => {
             ];
     }, [contentType]);
 
+    // Get translated label for each category
+    const getCategoryLabel = (cat) => {
+        if (i18n.language === 'he') {
+            if (contentType.includes('rental')) {
+                return t(`categories.rental.${cat}`);
+            } else {
+                return t(`categories.service.${cat}`);
+            }
+        }
+        return cat;
+    };
+
     // Category label click handler
     const handleCategoryLabelClick = (cat) => {
         if (selectedCategory === cat) {
@@ -586,7 +598,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 }
                 .category-label {
                     background: #fff;
-                    border: 1px solid #087E8B;
+                    border: 1px solidrgb(225, 233, 234);
                     color: #087E8B;
                     border-radius: 16px;
                     padding: 4px 16px;
@@ -667,7 +679,7 @@ const GenericMapPage = ({ apiUrl }) => {
                                                 className={`category-label${selectedCategory === cat ? ' selected' : ''}`}
                                                 onClick={() => handleCategoryLabelClick(cat)}
                                             >
-                                                {cat}
+                                                {getCategoryLabel(cat)}
                                             </span>
                                         ))}
                                     </div>
