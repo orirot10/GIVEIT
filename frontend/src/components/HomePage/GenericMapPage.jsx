@@ -8,7 +8,6 @@ import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
-import { useAuthContext } from '../../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import logoBlue from '../../../images/logoBlue3.png';
 
@@ -111,10 +110,10 @@ const EmptyState = React.memo(({ contentType, searchQuery }) => {
             return `No results found for "${searchQuery}"`;
         }
         const messageMap = {
-            rentals: t('No rental items available in this area'),
-            services: t('No services available in this area'),
-            rental_requests: t('No rental requests in this area'),
-            service_requests: t('No service requests in this area')
+            rentals: t('נסה להגדיל את האזור'),
+            services: t('נסה להגדיל את האזור'),
+            rental_requests: t('נסה להגדיל את האזור'),
+            service_requests: t('נסה להגדיל את האזור')
         };
         return messageMap[contentType] || t('No items available in this area');
     }, [contentType, searchQuery, t]);
@@ -160,12 +159,12 @@ const Header = React.memo(({ user }) => (
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 0,
-        padding: '0px 8px 0px', // reduced padding
+        padding: '0px 0px 0px', // reduced padding
         background: 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(10px)',
         borderBottom: '0px solid rgba(0,0,0,0.1)',
-        minHeight: 78, // set a minimum height for compactness
-        height: 78
+        minHeight: 0, // set a minimum height for compactness
+        height: 0
     }}>
         <span style={{
             fontSize: 18,
@@ -193,10 +192,10 @@ const Controls = React.memo(({
     tabs 
 }) => (
     <div className="controls-container" style={{
-        padding: '2px 8px 0px',
+        padding: '12px 8px 0px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 0
+        gap: 5
     }}>
         <SearchBar
             searchQuery={searchQuery}
@@ -304,11 +303,11 @@ const GenericMapPage = ({ apiUrl }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const { t, i18n } = useTranslation();
-    const { user } = useAuthContext();
     const navigate = useNavigate();
 
     // Memoized base URL
@@ -339,11 +338,6 @@ const GenericMapPage = ({ apiUrl }) => {
         };
         return urlMap[contentType] || `${baseUrl}/api/rentals`;
     }, [contentType, baseUrl]);
-
-    // Memoized category type function
-    const getCategoryType = useCallback(() => {
-        return contentType.includes('rental') ? 'rental' : 'service';
-    }, [contentType]);
 
     // Memoized item mapping function
     const mapItemsToCoords = useCallback((items) => {
@@ -444,48 +438,6 @@ const GenericMapPage = ({ apiUrl }) => {
         }).finally(() => setLoading(false));
     }, [getApiUrl, searchQuery, mapItemsToCoords]);
 
-    // Filter handler
-    const handleFilter = useCallback(({ categories, minPrice, maxPrice }) => {
-        const currentApiUrl = getApiUrl();
-        setLoading(true);
-        setError(null);
-        
-        const params = new URLSearchParams();
-        if (categories.length > 0) {
-            params.append('category', categories.join(','));
-        }
-        if (minPrice !== null) {
-            params.append('minPrice', minPrice);
-        }
-        if (maxPrice !== null) {
-            params.append('maxPrice', maxPrice);
-        }
-        if (userLocation) {
-            params.append('lat', userLocation.lat);
-            params.append('lng', userLocation.lng);
-            params.append('radius', DEFAULT_RADIUS);
-        }
-        
-        const url = `${currentApiUrl}/filter?${params.toString()}`;
-        
-        fetch(url)
-            .then((res) => {
-                if (!res.ok) throw new Error('Failed to apply filters');
-                return res.json();
-            })
-            .then((data) => {
-                setAllItems(data);
-                const withCoords = mapItemsToCoords(data);
-                setLocations(withCoords);
-                setError(null);
-            })
-            .catch((err) => {
-                console.error('Filter error:', err);
-                setError('Failed to apply filters');
-            })
-            .finally(() => setLoading(false));
-    }, [getApiUrl, userLocation, mapItemsToCoords]);
-
     // Clear filters handler
     const handleClearFilters = useCallback(() => {
         const currentApiUrl = getApiUrl();
@@ -531,6 +483,66 @@ const GenericMapPage = ({ apiUrl }) => {
     // Show empty state when appropriate
     const shouldShowEmptyState = hasInitialLoad && !loading && allItems.length === 0 && !error;
 
+    // Get available categories based on contentType
+    const availableCategories = useMemo(() => {
+        return contentType.includes('rental') ?
+            [
+                'Tools',
+                'Electronics',
+                'Vehicles',
+                'Sports',
+                'Furniture',
+                'Clothes',
+                'Other',
+            ] : [
+                'Repair',
+                'Cleaning',
+                'Tutoring',
+                'Moving',
+                'Pet Care',
+                'Beauty',
+                'Other',
+            ];
+    }, [contentType]);
+
+    // Category label click handler
+    const handleCategoryLabelClick = (cat) => {
+        if (selectedCategory === cat) {
+            setSelectedCategory(null);
+            handleClearFilters();
+        } else {
+            setSelectedCategory(cat);
+            // Filter by category only
+            const currentApiUrl = getApiUrl();
+            setLoading(true);
+            setError(null);
+            const params = new URLSearchParams();
+            params.append('category', cat);
+            if (userLocation) {
+                params.append('lat', userLocation.lat);
+                params.append('lng', userLocation.lng);
+                params.append('radius', DEFAULT_RADIUS);
+            }
+            const url = `${currentApiUrl}/filter?${params.toString()}`;
+            fetch(url)
+                .then((res) => {
+                    if (!res.ok) throw new Error('Failed to apply filters');
+                    return res.json();
+                })
+                .then((data) => {
+                    setAllItems(data);
+                    const withCoords = mapItemsToCoords(data);
+                    setLocations(withCoords);
+                    setError(null);
+                })
+                .catch((err) => {
+                    console.error('Filter error:', err);
+                    setError('Failed to apply filters');
+                })
+                .finally(() => setLoading(false));
+        }
+    };
+
     return (
         <div className="map-wrapper" style={{
             width: '100vw',
@@ -557,6 +569,37 @@ const GenericMapPage = ({ apiUrl }) => {
                 .myitems-add-btn:active {
                     transform: translateX(-50%) scale(0.95);
                 }
+                .floating-category-labels {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
+                    justify-content: flex-start;
+                    gap: 8px;
+                    margin: 0px 0 0 0;
+                    padding: 0 8px 2px 4px;
+                    scrollbar-width: none; /* Firefox */
+                    -ms-overflow-style: none;  /* IE 10+ */
+                    background: transparent;
+                }
+                .floating-category-labels::-webkit-scrollbar {
+                    display: none; /* Chrome/Safari/Webkit */
+                }
+                .category-label {
+                    background: #fff;
+                    border: 1px solid #087E8B;
+                    color: #087E8B;
+                    border-radius: 16px;
+                    padding: 4px 16px;
+                    font-size: 15px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: background 0.2s, color 0.2s;
+                    white-space: nowrap;
+                }
+                .category-label.selected, .category-label:hover {
+                    background: #087E8B;
+                    color: #fff;
+                }
             `}</style>
 
             {/* Loading Overlay */}
@@ -573,6 +616,7 @@ const GenericMapPage = ({ apiUrl }) => {
             )}
 
             {/* Filter Button */}
+            {/*
             <div style={{
                 position: 'fixed',
                 top: 250,
@@ -585,34 +629,50 @@ const GenericMapPage = ({ apiUrl }) => {
                     categoryType={getCategoryType()} 
                 />
             </div>
+            */}
 
             {view === "map" ? (
                 <>
-                    <MapView
-                        locations={locations}
-                        mapHeight={"100%"}
-                        onBoundsChanged={setMapBounds}
-                    />
-                    
-                    <div className="map-overlay" style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        zIndex: 10,
-                        pointerEvents: 'none'
-                    }}>
-                        <div style={{ pointerEvents: 'auto' }}>
-                            <Header user={user} />
-                            <Controls
-                                searchQuery={searchQuery}
-                                setSearchQuery={setSearchQuery}
-                                onSearch={handleSearch}
-                                onClearFilters={handleClearFilters}
-                                contentType={contentType}
-                                setContentType={setContentType}
-                                tabs={tabs}
-                            />
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        <MapView
+                            locations={locations}
+                            mapHeight={"100%"}
+                            onBoundsChanged={setMapBounds}
+                        />
+                        {/* Overlay controls and labels at the top of the map */}
+                        <div style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            zIndex: 20,
+                            pointerEvents: 'none',
+                        }}>
+                            <div style={{ pointerEvents: 'auto' }}>
+                                {/* Header removed */}
+                                <div style={{ position: 'relative' }}>
+                                    <Controls
+                                        searchQuery={searchQuery}
+                                        setSearchQuery={setSearchQuery}
+                                        onSearch={handleSearch}
+                                        onClearFilters={handleClearFilters}
+                                        contentType={contentType}
+                                        setContentType={setContentType}
+                                        tabs={tabs}
+                                    />
+                                    <div className="floating-category-labels">
+                                        {availableCategories.map((cat) => (
+                                            <span
+                                                key={cat}
+                                                className={`category-label${selectedCategory === cat ? ' selected' : ''}`}
+                                                onClick={() => handleCategoryLabelClick(cat)}
+                                            >
+                                                {cat}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </>
@@ -622,7 +682,7 @@ const GenericMapPage = ({ apiUrl }) => {
                     flexDirection: 'column',
                     height: '100%'
                 }}>
-                    <Header user={user} />
+                    {/* Header removed */}
                     <div className="controls-container" style={{
                         padding: '2px 8px 4px',
                         display: 'flex',
