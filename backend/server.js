@@ -119,9 +119,9 @@ const PORT = process.env.PORT || 5173;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
 server.listen(PORT, HOST, () => {
-  console.log(Server running on http://${HOST}:${PORT});
+  console.log(`Server running on http://${HOST}:${PORT}`);
   if (process.env.NODE_ENV === 'production' && process.env.API_URL) {
-    console.log(Accessible via ${process.env.API_URL});
+    console.log(`Accessible via ${process.env.API_URL}`);
   }
 });
 
