@@ -787,6 +787,6 @@ const GenericMapPage = ({ apiUrl }) => {
             />
         </div>
     );
-};2
+};
 
 export default GenericMapPage;

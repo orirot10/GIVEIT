@@ -41,7 +41,7 @@ const ListingForm = ({ type = 'rental', onSuccess }) => {
 
     try {
       const endpoint = type === 'rental' ? 'rentals' : 'services';
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5173'}/api/${endpoint}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com'}/api/${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const http = require('http');http
+const http = require('http');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 const rentalRoutes = require('./routes/rentalRoutes');
@@ -14,21 +14,21 @@ const { loadMessages, sendMessage, getConversations, getMessages } = require('./
 const geocodeRoutes = require('./routes/geocodeRoutes');
 
 require('dotenv').config();
-
-// Initialize Firebase
 require('./config/firebase');
 
 const app = express();
 const server = http.createServer(app);
 
-// Define allowed origins for CORS
+// ✅ הוספנו גם 'https://localhost' לרשימת ה-origin המותרים:
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://localhost', // ← חשוב ל-Capacitor!
   'capacitor://localhost',
   process.env.FRONTEND_URL || 'https://giveit-frontend.onrender.com',
 ];
 
+// --- CORS להגדרת socket.io
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -37,18 +37,15 @@ const io = new Server(server, {
   },
 });
 
-// Connect to DB
-connectDB();
-
-// Middleware
+// ✅ CORS Middleware לאפליקציה הראשית
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files statically with proper MIME types
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {

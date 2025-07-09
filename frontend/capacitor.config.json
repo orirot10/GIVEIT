@@ -1,5 +1,8 @@
 {
   "appId": "com.orirot.givit",
   "appName": "Givit",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "cleartext": true
+  }
 }
