@@ -109,6 +109,9 @@ io.on('connection', (socket) => {
   });
 });
 
+// Connect to MongoDB
+connectDB();
+
 // Start Server
 const PORT = process.env.PORT || 5173;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
