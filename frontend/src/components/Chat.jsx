@@ -135,7 +135,7 @@ const Chat = ({ userId, contactId, userMap }) => {
   return (
     <div className="flex flex-col h-full" style={{ background: '#F4F6F8', color: '#1C2526' }}>
       <div className="border-b p-4" style={{ borderColor: '#2E4057', background: '#F4F6F8', color: '#1C2526' }}>
-        <h2 className="text-xl font-semibold">Chat with {contactName}</h2>
+        <h2 className="main-title">Chat with {contactName}</h2>
       </div>
       
       <div className="flex-1 overflow-y-auto p-4" style={{ background: '#F4F6F8' }}>

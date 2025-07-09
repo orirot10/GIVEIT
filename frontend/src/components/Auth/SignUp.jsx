@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import '../../styles/components/SignUp.css';
 import '../../styles/components/GoogleAuth.css';
 
 function SignUp() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { signUp, signInWithGoogle, loading, error: authError, clearError } = useAuthContext();
     const [formData, setFormData] = useState({
@@ -20,7 +22,6 @@ function SignUp() {
 
     const [error, setError] = useState('');
 
-    // Use auth context error if available
     useEffect(() => {
         if (authError) {
             setError(authError);
@@ -38,53 +39,44 @@ function SignUp() {
         e.preventDefault();
         setError('');
         clearError();
-
-        // Validate password - Firebase requires at least 6 characters
         if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters long');
+            setError(t('errors.password_too_short') || t('auth.password') + ' ' + t('errors.general_error'));
             return;
         }
-
         try {
             await signUp(formData);
             navigate('/dashboard');
         } catch (err) {
             console.error('Signup error:', err);
-            // Error is handled by the AuthContext
         }
     };
 
     const handleGoogleSignIn = async () => {
         setError('');
         clearError();
-        
         try {
             await signInWithGoogle();
             navigate('/dashboard');
         } catch (err) {
             console.error('Google login error:', err);
-            // If it's an unauthorized domain error, provide more helpful information
             if (err.code === 'auth/unauthorized-domain') {
-                setError('This domain is not authorized for Google sign-in. Please contact the administrator or use email/password signup instead.');
-                
-                // For development, show more detailed error info
-                if (process.env.NODE_ENV === 'development') {
+                setError(t('errors.unauthorized_domain') || t('auth.email') + ' ' + t('errors.general_error'));
+                if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.MODE === 'development') {
                     window.open('/auth-domain-error.html', '_blank');
                 }
             }
-            // Other errors are handled by the AuthContext
         }
     };
 
     return (
-        <div className="form-wrapper">
-            <h2>Sign Up</h2>
-            <form onSubmit={handleSubmit} className="form">
+        <>
+            <h2>{t('navigation.sign_up')}</h2>
+            <form onSubmit={handleSubmit} className="sign-up-form">
                 <div className="form-group">
                     <input 
                         name="firstName" 
                         type="text" 
-                        placeholder="First Name" 
+                        placeholder={t('forms.first_name_placeholder')} 
                         value={formData.firstName} 
                         onChange={handleChange} 
                         required 
@@ -93,7 +85,7 @@ function SignUp() {
                     <input 
                         name="lastName" 
                         type="text" 
-                        placeholder="Last Name" 
+                        placeholder={t('forms.last_name_placeholder')} 
                         value={formData.lastName} 
                         onChange={handleChange} 
                         required 
@@ -103,7 +95,7 @@ function SignUp() {
                 <input 
                     name="email" 
                     type="email" 
-                    placeholder="Email" 
+                    placeholder={t('auth.email')} 
                     value={formData.email} 
                     onChange={handleChange} 
                     required 
@@ -112,7 +104,7 @@ function SignUp() {
                 <input 
                     name="phone" 
                     type="tel" 
-                    placeholder="Phone Number" 
+                    placeholder={t('auth.phone')} 
                     value={formData.phone} 
                     onChange={handleChange} 
                     required 
@@ -121,19 +113,18 @@ function SignUp() {
                 <input 
                     name="password" 
                     type="password" 
-                    placeholder="Password" 
+                    placeholder={t('auth.password')} 
                     value={formData.password} 
                     onChange={handleChange} 
                     required 
                     disabled={loading} 
                 />
-                
                 <div className="optional-fields">
-                    <h3>Optional Information</h3>
+                    <h3>{t('common.optional_information') || t('forms.optional_information') || 'Optional Information'}</h3>
                     <input 
                         name="country" 
                         type="text" 
-                        placeholder="Country" 
+                        placeholder={t('forms.country_placeholder') || t('common.country')} 
                         value={formData.country} 
                         onChange={handleChange} 
                         disabled={loading} 
@@ -141,7 +132,7 @@ function SignUp() {
                     <input 
                         name="city" 
                         type="text" 
-                        placeholder="City" 
+                        placeholder={t('forms.city_placeholder') || t('common.city')} 
                         value={formData.city} 
                         onChange={handleChange} 
                         disabled={loading} 
@@ -149,28 +140,24 @@ function SignUp() {
                     <input 
                         name="street" 
                         type="text" 
-                        placeholder="Street" 
+                        placeholder={t('forms.street_placeholder') || t('common.street')} 
                         value={formData.street} 
                         onChange={handleChange} 
                         disabled={loading} 
                     />
                 </div>
-
                 {error && (
-                    <div className="error-message" style={{ color: 'red', margin: '10px 0', padding: '8px', borderRadius: '4px', backgroundColor: 'rgba(255,0,0,0.05)' }}>
+                    <div className="error-message">
                         {error}
                     </div>
                 )}
-
                 <button className="primary-button" type="submit" disabled={loading}>
-                    {loading ? 'Processing...' : 'Sign Up'}
+                    {loading ? t('common.loading') : t('navigation.sign_up')}
                 </button>
-                
                 <div className="or-divider">
                     <hr />
-                    <span>OR</span>
+                    <span>{t('common.or') || 'OR'}</span>
                 </div>
-                
                 <button 
                     type="button" 
                     onClick={handleGoogleSignIn}
@@ -184,21 +171,20 @@ function SignUp() {
                         <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
                         <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
                     </svg>
-                    Sign up with Google
+                    {t('auth.register_with_google') || t('navigation.sign_up') + ' Google'}
                 </button>
-                
                 <div className="auth-links">
-                    <p>Already have an account?</p>
+                    <p>{t('auth.already_have_account') || 'Already have an account?'}</p>
                     <button 
                         type="button" 
                         className="login-link" 
                         onClick={() => navigate('/login')}
                     >
-                        Return to Login
+                        {t('navigation.sign_in')}
                     </button>
                 </div>
             </form>
-        </div>
+        </>
     );
 }
 

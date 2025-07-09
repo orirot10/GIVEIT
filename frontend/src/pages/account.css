@@ -1,181 +1,233 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-:root {
-  --primary: #2E4057;
-  --primary-hover: #1e8c7a;
-  --light-bg: #F4F6F8;
-  --card-bg: #fff;
-  --shadow: 0 8px 24px rgba(38, 166, 154, 0.08);
-  --border-radius: 16px;
-  --transition: all 0.3s ease;
-  --text: #1C2526;
-  --secondary-accent: #F4F6F8;
-  --neutral-accent: #607D8B;
-  --error: #E57373;
-}
-
-/* General Container */
-.account-container {
+/* Login Form - Larger and aligned with design system */
+.login-form {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 80px);
-  background-color: var(--light-bg);
-  padding: 20px;
-  font-family: 'David Libre', Arial, sans-serif;
-  color: var(--text);
-}
-
-/* Login Form */
-.login-form-container {
+  flex-direction: column;
+  gap: 20px;
+  max-width: 500px;
   width: 100%;
-  max-width: 420px;
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  padding: 30px 24px;
-  transition: var(--transition);
-  color: var(--text);
+  margin: 2rem auto;
+  padding: 32px;
+  background-color: var(--card-bg, white);
+  border-radius: var(--border-radius, 16px);
+  box-shadow: var(--shadow, 0 8px 24px rgba(38, 166, 154, 0.08));
+  box-sizing: border-box;
+  font-family: 'David Libre', Arial, sans-serif;
+  color: var(--text, #1C2526);
+  transition: var(--transition, all 0.3s ease);
 }
 
-.login-form-container:hover {
+.login-form:hover {
   box-shadow: 0 10px 28px rgba(38, 166, 154, 0.12);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
-  .login-form-container {
-    padding: 20px 16px;
-  }
-}
-
-/* Dashboard - Consistent Modern Style */
-.custom-dashboard-bg {
-  background: var(--light-bg);
-  min-height: 50vh;
-  font-family: 'David Libre', Arial, sans-serif;
-  color: var(--text);
-}
-
-.dashboard-header {
+.login-form h2 {
   text-align: center;
   margin-bottom: 32px;
-}
-
-.dashboard-username {
-  font-size: 2rem;
+  color: var(--text, #1C2526);
+  font-size: 1.8rem;
   font-weight: 700;
-  color: var(--text);
-  margin-bottom: 6px;
 }
 
-.dashboard-address {
-  font-size: 1rem;
-  color: var(--neutral-accent);
-  font-weight: 400;
-}
-
-.dashboard-sections {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-width: 420px;
-  margin: 0 auto;
-}
-
-.dashboard-section {
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  padding: 16px 20px;
-  color: var(--text);
-}
-
-.dashboard-section-title {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: var(--text);
-}
-
-/* Buttons */
-.dashboard-section-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.dashboard-btn {
-  width: 100%;
-  padding: 12px 0;
+.login-form input {
+  padding: 16px;
+  border: 1px solid #ddd;
   border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: var(--transition);
-  box-shadow: 0 1px 4px rgba(38, 166, 154, 0.04);
+  font-size: 16px;
+  font-family: 'David Libre', Arial, sans-serif;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  color: var(--text, #1C2526);
 }
 
-/* Primary Button */
-.primary-btn, .outlined-btn, .toggle-view-btn {
-  background: #2E4057;
-  color: #fff;
-  border: none;
-  box-shadow: none;
-  transition: box-shadow 0.2s, background 0.2s, color 0.2s, border 0.2s;
-}
-.primary-btn:hover, .outlined-btn:hover, .toggle-view-btn:hover {
-  background: #1e8c7a;
-  color: #fff;
-}
-.primary-btn:active, .outlined-btn:active, .toggle-view-btn:active {
-  box-shadow: 0 0 0 6px #2E405744;
-  background: #2E4057;
-  color: #fff;
+.login-form input:focus {
   outline: none;
-}
-.outlined-btn, .toggle-view-btn {
-  background: #fff;
-  color: #2E4057;
-  border: 2px solid #2E4057;
-}
-.outlined-btn:hover, .toggle-view-btn:hover {
-  background: #e0f7fa;
-  color: #1C2526;
-  border-color: #1e8c7a;
-}
-.outlined-btn:active, .toggle-view-btn:active {
-  box-shadow: 0 0 0 6px #2E405744;
-  background: #b2dfdb;
-  color: #1C2526;
-  border-color: #2E4057;
+  border-color: var(--primary, #2E4057);
+  box-shadow: 0 0 0 3px rgba(46, 64, 87, 0.1);
 }
 
-/* Logout Button */
-.logout-btn {
-  background: #ffeaea;
-  color: var(--error);
-  border: 1.5px solid #f8cfcf;
-}
-.logout-btn:hover {
-  background: #fbbbbb;
-  color: #fff;
+.login-form input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 600px) {
-  .dashboard-btn {
-    width: 100%;
-    padding: 10px 0;
+.login-form input::placeholder {
+  color: var(--neutral-accent, #607D8B);
+}
+
+.login-form button[type="submit"] {
+  background: var(--primary, #2E4057);
+  color: white;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'David Libre', Arial, sans-serif;
+  transition: var(--transition, all 0.3s ease);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.login-form button[type="submit"]:hover:not(:disabled) {
+  background: var(--primary-hover, #1e8c7a);
+  transform: translateY(-1px);
+}
+
+.login-form button[type="submit"]:active:not(:disabled) {
+  box-shadow: 0 0 0 6px rgba(46, 64, 87, 0.3);
+  background: var(--primary, #2E4057);
+  transform: translateY(0);
+}
+
+.login-form button[type="submit"]:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.login-form .google-btn {
+  background-color: white;
+  color: var(--text, #1C2526);
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'David Libre', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: var(--transition, all 0.3s ease);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.login-form .google-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #dadce0;
+  transform: translateY(-1px);
+}
+
+.login-form .google-btn:active:not(:disabled) {
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.1);
+  background-color: #f1f3f4;
+  transform: translateY(0);
+}
+
+.login-form .google-btn:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.login-form .or-divider {
+  display: flex;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.login-form .or-divider hr {
+  flex: 1;
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 0;
+}
+
+.login-form .or-divider span {
+  padding: 0 20px;
+  color: var(--neutral-accent, #607D8B);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.login-form .error-message {
+  color: var(--error, #E57373);
+  background-color: rgba(229, 115, 115, 0.1);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  border-left: 4px solid var(--error, #E57373);
+  margin: 8px 0;
+}
+
+.login-form p {
+  text-align: center;
+  color: var(--neutral-accent, #607D8B);
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+.login-form p button {
+  color: var(--primary, #2E4057);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.login-form p button:hover {
+  color: var(--primary-hover, #1e8c7a);
+}
+
+/* Responsive adjustments for login form */
+@media (max-width: 768px) {
+  .login-form {
+      max-width: none;
+      width: calc(100% - 2rem);
+      margin: 1rem;
+      padding: 24px;
   }
-  .dashboard-header {
-    margin-bottom: 20px;
+  
+  .login-form h2 {
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+  }
+  
+  .login-form input,
+  .login-form button[type="submit"],
+  .login-form .google-btn {
+      padding: 14px;
+      font-size: 15px;
+  }
+  
+  .login-form .or-divider {
+      margin: 20px 0;
   }
 }
 
-/* Error/Success */
-.error-message, .error {
-  color: var(--error);
-}
-.success-message {
-  color: var(--primary);
+@media (max-width: 480px) {
+  .login-form {
+      padding: 20px;
+      gap: 16px;
+  }
+  
+  .login-form h2 {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+  }
+  
+  .login-form input,
+  .login-form button[type="submit"],
+  .login-form .google-btn {
+      padding: 12px;
+      font-size: 14px;
+  }
+  
+  .login-form .or-divider {
+      margin: 16px 0;
+  }
+  
+  .login-form .or-divider span {
+      padding: 0 16px;
+      font-size: 13px;
+  }
 }

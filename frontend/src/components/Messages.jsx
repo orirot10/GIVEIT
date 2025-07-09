@@ -185,7 +185,7 @@ const Messages = ({ userId }) => {
     className="messages-list"
     style={{ width: '220px', borderRight: '1.5px solid #2E4057', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
   >
-    <h6 style={{ padding: '10px', borderBottom: '1.5px solid #2E4057', backgroundColor: '#F4F6F8', fontFamily: 'David Libre, Arial, sans-serif', fontSize: 14, color: '#1C2526', direction: 'rtl', textAlign: 'right' }}>שיחות</h6>
+    <h2 className="main-title">שיחות</h2>
     {conversations.length === 0 ? (
       <p style={{ padding: '10px', fontFamily: 'David Libre, Arial, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
     ) : (

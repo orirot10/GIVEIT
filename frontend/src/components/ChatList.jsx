@@ -45,10 +45,10 @@ const ChatList = () => {
   if (loading) return <div>Loading chats...</div>;
 
   return (
-    <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#1C2526' }}>
+    <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#607D8B' }}>
       {!selectedChat ? (
         <div className="chat-list">
-          <h2 style={{ color: '#2E4057' }}>{t('messages.conversations')}</h2>
+          <h2 className="main-title" style={{}}>{t('messages.conversations')}</h2>
           {chats.length === 0 ? (
             <p style={{ color: '#607D8B' }}>No conversations yet</p>
           ) : (

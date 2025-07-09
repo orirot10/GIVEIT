@@ -225,7 +225,7 @@ const MyModals = () => {
 
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
-            <h2>{t('my_items.title')}</h2>
+            <h2 className="main-title">{t('my_items.title')}</h2>
             <div className="myitems-tabs" role="tablist" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 20, overflowX: 'auto', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
                 {TAB_CATEGORIES.map(tab => (
                     <button

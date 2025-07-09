@@ -203,15 +203,7 @@
   box-sizing: border-box; /* Ensure padding doesn't increase width */
 }
 
-/* Section Dividers */
-.chat-list-container::before {
-  content: '';
-  display: block;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-  margin-bottom: 1.5rem;
-  border-radius: 1px;
-}
+
 
 .chat-list {
   display: flex;

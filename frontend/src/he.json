@@ -38,7 +38,9 @@
         "title": "כותרת",
         "rental": "השכרה",
         "service": "שירות",
-        "select_category": "בחר קטגוריה"
+        "select_category": "בחר קטגוריה",
+        "optional_information": "מידע נוסף (אופציונלי)",
+        "or": "או"
     },
     "navigation": {
         "home": "מוצרים",
@@ -102,7 +104,11 @@
         "register": "הרשמה",
         "logout": "התנתקות",
         "profile": "פרופיל",
-        "edit_profile": "ערוך פרופיל"
+        "edit_profile": "ערוך פרופיל",
+        "already_have_account": "כבר יש לך חשבון?",
+        "register_with_google": "הרשמה עם Google",
+        "sign_in_with_google": "התחבר עם Google",
+        "no_account": "אין לך חשבון?"
     },
     "errors": {
         "required": "שדה חובה",
@@ -195,7 +201,8 @@
         "street_placeholder": "רחוב",
         "submitting": "שולח...",
         "close": "סגור",
-        "cancel": "ביטול"
+        "cancel": "ביטול",
+        "country_placeholder": "מדינה"
     },
     "categories": {
         "rental": {
