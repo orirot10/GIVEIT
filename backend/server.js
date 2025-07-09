@@ -1,7 +1,8 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const http = require('http');
+const http = require('http');http
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
 const rentalRoutes = require('./routes/rentalRoutes');
@@ -14,12 +15,14 @@ const { loadMessages, sendMessage, getConversations, getMessages } = require('./
 const geocodeRoutes = require('./routes/geocodeRoutes');
 
 require('dotenv').config();
+
+// Initialize Firebase
 require('./config/firebase');
 
 const app = express();
 const server = http.createServer(app);
 
-// ✅ הוספנו גם 'https://localhost' לרשימת ה-origin המותרים:
+// Define allowed origins for CORS
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -28,7 +31,6 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://giveit-frontend.onrender.com',
 ];
 
-// --- CORS להגדרת socket.io
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -37,15 +39,18 @@ const io = new Server(server, {
   },
 });
 
-// ✅ CORS Middleware לאפליקציה הראשית
+// Connect to DB
+connectDB();
+
+// Middleware
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files statically with proper MIME types
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
@@ -72,7 +77,7 @@ io.on('connection', (socket) => {
 
   socket.on('join', async (userId) => {
     socket.join(userId);
-    console.log(`${userId} joined their room`);
+    console.log(${userId} joined their room);
   });
 
   socket.on('getConversations', async (userId) => {
@@ -109,16 +114,14 @@ io.on('connection', (socket) => {
   });
 });
 
-// Connect to MongoDB
-connectDB();
-
 // Start Server
 const PORT = process.env.PORT || 5173;
 const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
 
 server.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
+  console.log(Server running on http://${HOST}:${PORT});
   if (process.env.NODE_ENV === 'production' && process.env.API_URL) {
-    console.log(`Accessible via ${process.env.API_URL}`);
+    console.log(Accessible via ${process.env.API_URL});
   }
 });
+
