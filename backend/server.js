@@ -77,7 +77,7 @@ io.on('connection', (socket) => {
 
   socket.on('join', async (userId) => {
     socket.join(userId);
-    console.log(${userId} joined their room);
+    console.log(`${userId} joined their room`);
   });
 
   socket.on('getConversations', async (userId) => {
