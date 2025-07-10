@@ -6,8 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  signInWithRedirect,
-  getRedirectResult
+  signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -34,12 +33,13 @@ const authReducer = (state, action) => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, {
-    user: JSON.parse(localStorage.getItem('user')) || null,
+  const [state, dispatch] = useReducer(authReducer, { 
+    user: JSON.parse(localStorage.getItem('user')) || null, 
     loading: true,
-    error: null,
+    error: null
   });
 
+  // Sync user to MongoDB
   const syncUserToMongo = async (user) => {
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
@@ -59,57 +59,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // 🔁 Step 2: Handle redirect result after Google login
-    getRedirectResult(auth)
-      .then(async (result) => {
-        if (result && result.user) {
-          const user = result.user;
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-
-          if (!userDoc.exists()) {
-            const names = user.displayName?.split(' ') || ['', ''];
-            const firstName = names[0] || '';
-            const lastName = names.slice(1).join(' ') || '';
-
-            await setDoc(doc(db, 'users', user.uid), {
-              firstName,
-              lastName,
-              email: user.email,
-              phone: user.phoneNumber || '',
-              photoURL: user.photoURL || '',
-              createdAt: new Date().toISOString(),
-              authProvider: 'google'
-            });
-          }
-
-          await syncUserToMongo(user);
-          const token = await user.getIdToken(true);
-          dispatch({
-            type: 'LOGIN',
-            payload: {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              token,
-            }
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('Redirect login error:', error);
-        dispatch({ type: 'SET_ERROR', payload: 'Google sign-in failed.' });
-      });
-
-    // 🔄 Firebase auth state listener
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
+          // Get the user's token (force refresh)
           const token = await firebaseUser.getIdToken(true);
+          
+          // Sync user to MongoDB
           await syncUserToMongo(firebaseUser);
+          
+          // Get additional user data from Firestore
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           const userData = userDoc.exists() ? userDoc.data() : {};
-
+          
           dispatch({
             type: 'LOGIN',
             payload: {
@@ -118,102 +80,192 @@ export const AuthProvider = ({ children }) => {
               displayName: firebaseUser.displayName,
               photoURL: firebaseUser.photoURL,
               token,
-              ...userData,
+              ...userData
             }
           });
         } catch (error) {
-          console.error('Error loading user:', error);
+          console.error('Error getting user data:', error);
           dispatch({ type: 'LOGOUT' });
         }
       } else {
         dispatch({ type: 'LOGOUT' });
       }
-
+      
       dispatch({ type: 'SET_LOADING', payload: false });
     });
-
+    
     return () => unsubscribe();
   }, []);
 
+  // Login function
   const login = async (email, password) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Sync user to MongoDB after successful login
       await syncUserToMongo(userCredential.user);
+      // Auth state listener will handle the state update
       return userCredential.user;
     } catch (error) {
-      let message = 'Login failed. Please check your credentials.';
+      dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Login failed. Please check your credentials.';
+      
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        message = 'Invalid email or password';
+        errorMessage = 'Invalid email or password';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many failed login attempts. Please try again later.';
       }
-      dispatch({ type: 'SET_ERROR', payload: message });
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
   };
 
+  // Sign up function
   const signUp = async (userData) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, userData.email, userData.password);
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth, 
+        userData.email, 
+        userData.password
+      );
+      
       const user = userCredential.user;
-
+      
+      // Update profile with display name
       await updateProfile(user, {
         displayName: `${userData.firstName} ${userData.lastName}`
       });
-
+      
+      // Store additional user data in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         firstName: userData.firstName,
         lastName: userData.lastName,
         email: userData.email,
         phone: userData.phone,
+        country: userData.country || '',
         city: userData.city || '',
+        street: userData.street || '',
         createdAt: new Date().toISOString(),
         authProvider: 'email'
       });
-
+      
+      // Sync user to MongoDB after successful signup
       await syncUserToMongo(user);
+      // Auth state listener will handle the state update
       return user;
     } catch (error) {
-      console.error('Signup error:', error.message);
-      dispatch({ type: 'SET_ERROR', payload: 'Signup failed. Please try again.' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Signup failed. Please try again.';
+      
+      console.log('Signup error code:', error.code);
+      console.log('Signup error message:', error.message);
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email is already in use. Please use a different email or login.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak. Please use a stronger password (at least 6 characters).';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email address.';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your internet connection.';
+      } else if (error.message) {
+        // Use the error message if available
+        errorMessage = error.message;
+      }
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
   };
 
-  // ✅ Step 1: Google Sign-In using redirect (safe for mobile)
+  // Google sign-in function
   const signInWithGoogle = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
+      // Import the pre-configured Google provider
       const { googleProvider } = await import('../firebase');
+      
+      // Add additional scopes if needed
       googleProvider.addScope('profile');
       googleProvider.addScope('email');
-      await signInWithRedirect(auth, googleProvider);
+      
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      const user = userCredential.user;
+      
+      // Check if user exists in Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (!userDoc.exists()) {
+        // Store user data in Firestore if it's a new user
+        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+        const firstName = names[0] || '';
+        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+        
+        await setDoc(doc(db, 'users', user.uid), {
+          firstName,
+          lastName,
+          email: user.email,
+          phone: user.phoneNumber || '',
+          photoURL: user.photoURL || '',
+          country: '',
+          city: '',
+          street: '',
+          createdAt: new Date().toISOString(),
+          authProvider: 'google'
+        });
+      }
+      
+      // Sync user to MongoDB after successful Google sign-in
+      await syncUserToMongo(user);
+      return user;
     } catch (error) {
-      console.error('Google Sign-In error:', error);
-      dispatch({ type: 'SET_ERROR', payload: 'Google sign-in failed.' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      let errorMessage = 'Google sign-in failed. Please try again.';
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in popup was closed. Please try again.';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
+      }
+      
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
   };
 
+  // Logout function
   const logout = async () => {
     dispatch({ type: 'SET_LOADING', payload: true });
     try {
       await signOut(auth);
+      // Auth state listener will handle the state update
     } catch (error) {
+      dispatch({ type: 'SET_LOADING', payload: false });
       dispatch({ type: 'SET_ERROR', payload: 'Logout failed. Please try again.' });
+      throw error;
     }
   };
 
-  const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
+  // Clear error function
+  const clearError = () => {
+    dispatch({ type: 'CLEAR_ERROR' });
+  };
 
   return (
-    <AuthContext.Provider value={{
-      ...state,
-      login,
-      signUp,
+    <AuthContext.Provider value={{ 
+      ...state, 
+      login, 
+      signUp, 
       logout,
       signInWithGoogle,
       clearError
