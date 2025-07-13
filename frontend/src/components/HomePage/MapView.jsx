@@ -249,7 +249,9 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                 options={{
                     styles: customMapStyle,
                     gestureHandling: "greedy",
+                    disableDefaultUI: true, 
                     zoomControl: true,
+                    rotateControl: false, 
                     scrollwheel: true,
                     mapTypeControl: false,
                     streetViewControl: false,

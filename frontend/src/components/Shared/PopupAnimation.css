@@ -1,4 +1,4 @@
-/* Enhanced Popup Animations */
+/* Enhanced Popup Animations - Design System Integration */
 
 /* Fade in animation for backdrop */
 @keyframes fade-in {
@@ -45,6 +45,11 @@
 
 .animate-scale-in {
   animation: scale-in 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Enhanced popup enter animation */
+.animate-popup-enter {
+  animation: slide-up 0.2s ease-out forwards;
 }
 
 /* Smooth scrollbar for content */
@@ -96,4 +101,204 @@
 .info-card:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced close button interactions */
+.close-button {
+  transition: all 0.2s ease-in-out;
+}
+
+.close-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.close-button:active {
+  transform: scale(0.95);
+}
+
+/* Image navigation button enhancements */
+.image-nav-button {
+  transition: all 0.2s ease-in-out;
+  backdrop-filter: blur(4px);
+}
+
+.image-nav-button:hover {
+  transform: scale(1.1);
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.image-nav-button:active {
+  transform: scale(0.95);
+}
+
+/* Price pill animation */
+.price-pill {
+  animation: price-pill-enter 0.3s ease-out forwards;
+}
+
+@keyframes price-pill-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Info row hover effects */
+.info-row {
+  transition: all 0.2s ease-in-out;
+}
+
+.info-row:hover {
+  background-color: #f8fafc;
+}
+
+/* Info section styling */
+.info-section {
+  transition: all 0.2s ease-in-out;
+}
+
+/* CTA button enhanced interactions */
+.cta-button {
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3);
+}
+
+.cta-button:active {
+  transform: scale(0.96);
+}
+
+/* Ripple effect for buttons */
+.cta-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.cta-button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Image counter badge */
+.image-counter {
+  animation: counter-fade-in 0.3s ease-out forwards;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes counter-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Description text animation */
+.description-text {
+  animation: text-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes text-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header title animation */
+.header-title {
+  animation: title-slide-in 0.3s ease-out forwards;
+}
+
+@keyframes title-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive animations */
+@media (max-width: 640px) {
+  .animate-popup-enter {
+    animation: slide-up 0.2s ease-out forwards;
+  }
+  
+  .cta-button:hover {
+    transform: none;
+  }
+  
+  .info-row:hover {
+    transform: none;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .popup-content::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+  
+  .popup-content::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  
+  .popup-content::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-popup-enter,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .price-pill,
+  .image-counter,
+  .description-text,
+  .header-title {
+    animation: none;
+  }
+  
+  .close-button,
+  .image-nav-button,
+  .info-row,
+  .cta-button {
+    transition: none;
+  }
+  
+  .cta-button:hover,
+  .info-row:hover {
+    transform: none;
+  }
 }
