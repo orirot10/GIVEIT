@@ -19,7 +19,7 @@ function Navbar() {
   const tabs = [
     { icon: <FiPackage  />, path: '/', label: t('navigation.home') },
     { icon: <RiUserSettingsLine  />, path: '/services', label: t('navigation.services') },
-    { icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
+    //{ icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
     { icon: <BsViewList />, path: '/my-items', label: t('navigation.my_items') },
     { icon: <VscAccount />, path: user ? '/dashboard' : '/account', label: t('navigation.account') },
   ];

@@ -125,7 +125,7 @@ const Home = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'David Libre, Arial, sans-serif' }}>
+    <div className="min-h-screen bg-gray-50" style={{ fontFamily: 'Heebo, Arial, sans-serif' }}>
       {/* Search and Filter Section */}
       <div className="sticky top-0 z-10 bg-white shadow-md p-2">
         <div className="max-w-7xl mx-auto">

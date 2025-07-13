@@ -11,7 +11,7 @@
   border-radius: var(--border-radius, 16px);
   box-shadow: var(--shadow, 0 8px 24px rgba(38, 166, 154, 0.08));
   box-sizing: border-box;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
   color: var(--text, #1C2526);
   transition: var(--transition, all 0.3s ease);
 }
@@ -26,7 +26,7 @@
   color: var(--text, #1C2526);
   font-size: 1.8rem;
   font-weight: 700;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
 }
 
 .sign-up-form input {
@@ -34,7 +34,7 @@
   border: 1px solid #ddd;
   border-radius: 12px;
   font-size: 16px;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
   box-sizing: border-box;
   width: 100%;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -67,7 +67,7 @@
   cursor: pointer;
   font-size: 16px;
   font-weight: 500;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
   transition: var(--transition, all 0.3s ease);
   box-sizing: border-box;
   width: 100%;
@@ -173,7 +173,7 @@
   color: var(--text, #1C2526);
   font-size: 1.8rem;
   font-weight: 700;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
 }
 
 /* Responsive adjustments for sign up form */

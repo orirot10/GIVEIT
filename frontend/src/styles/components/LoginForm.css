@@ -19,7 +19,7 @@
   color: var(--text, #1C2526);
   font-size: 1.8rem;
   font-weight: 700;
-  font-family: 'David Libre', Arial, sans-serif;
+  font-family: 'Heebo', Arial, sans-serif;
 }
 
 .login-form input {

@@ -166,7 +166,7 @@ const Popup = ({ item, onClose }) => {
   return (
     <div 
       className="fixed inset-0 flex justify-center items-center p-4 bg-black/30 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
-      style={{ zIndex: 9999, fontFamily: 'David Libre, Arial, sans-serif' }}
+      style={{ zIndex: 9999, fontFamily: 'Heebo, Arial, sans-serif' }}
       onClick={handleBackdropClick}
       aria-modal="true"
       role="dialog"

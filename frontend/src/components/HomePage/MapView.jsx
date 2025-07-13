@@ -4,6 +4,69 @@ import Popup from "../Shared/Popup";
 import FilterButton from "./FilterButton";
 import ToggleViewButton from "./ToggleViewButton";
 
+// Design System - Unified Color Palette & Typography
+const DESIGN_TOKENS = {
+    colors: {
+        primary: {
+            50: '#f0fdfa',
+            100: '#ccfbf1',
+            200: '#99f6e4',
+            300: '#5eead4',
+            400: '#2dd4bf',
+            500: '#14b8a6', // Main accent
+            600: '#0d9488',
+            700: '#0f766e',
+            800: '#115e59',
+            900: '#134e4a'
+        },
+        neutral: {
+            50: '#f8fafc',
+            100: '#f1f5f9',
+            200: '#e2e8f0',
+            300: '#cbd5e1',
+            400: '#94a3b8',
+            500: '#64748b',
+            600: '#475569',
+            700: '#334155',
+            800: '#1e293b',
+            900: '#0f172a'
+        },
+        semantic: {
+            success: '#10b981',
+            warning: '#f59e0b',
+            error: '#ef4444',
+            info: '#3b82f6'
+        }
+    },
+    typography: {
+        fontFamily: {
+            primary: "'Assistant', 'David Libre', Arial, sans-serif",
+            secondary: "'Inter', 'Alef', Arial, sans-serif"
+        },
+        fontSize: {
+            xs: '10px',
+            sm: '12px',
+            base: '14px',
+            lg: '16px',
+            xl: '18px',
+            '2xl': '20px',
+            '3xl': '24px'
+        },
+        fontWeight: {
+            normal: 400,
+            medium: 500,
+            semibold: 600,
+            bold: 700
+        }
+    },
+    shadows: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        md: '0 4px 6px rgba(0, 0, 0, 0.07)',
+        lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+        xl: '0 20px 25px rgba(0, 0, 0, 0.15)'
+    }
+};
+
 const containerStyle = {
     width: "100%",
     height: "100%",
@@ -15,17 +78,15 @@ const defaultCenter = {
 };
 
 const getPixelPositionOffset = () => ({
-    x: -(10 / 2),
-    y: -(20 / 2),
+    x: -(20 / 2),
+    y: -(40 / 2),
 });
 
 const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
-    const mapRef = useRef(null); // ref 
-    // 
-    //  control the map
-    const hasSetInitialLocation = useRef(false); // Track if initial location was set
+    const mapRef = useRef(null);
+    const hasSetInitialLocation = useRef(false);
 
     useEffect(() => {
         if (hasSetInitialLocation.current || !navigator.geolocation) {
@@ -39,11 +100,11 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                     lng: position.coords.longitude,
                 };
                 setUserLocation(newLocation);
-                hasSetInitialLocation.current = true; // Prevent future updates
+                hasSetInitialLocation.current = true;
             },
             (error) => {
                 console.error("Error getting user location:", error);
-                setUserLocation(defaultCenter); // Fallback to default center
+                setUserLocation(defaultCenter);
                 hasSetInitialLocation.current = true;
             },
             {
@@ -89,45 +150,45 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
         }
     };
 
+    // Enhanced map style with better contrast
     const customMapStyle = [
         {
-          featureType: "poi", // Hide points of interest (restaurants, etc.)
-          elementType: "labels",
-          stylers: [{ visibility: "off" }]
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }]
         },
         {
-          featureType: "transit", // Hide transit stations
-          elementType: "labels",
-          stylers: [{ visibility: "off" }]
+            featureType: "transit",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }]
         },
         {
-          featureType: "road",
-          elementType: "labels", // Keep street labels
-          stylers: [{ visibility: "on" }]
+            featureType: "road",
+            elementType: "labels",
+            stylers: [{ visibility: "on" }]
         },
         {
-          featureType: "road",
-          elementType: "geometry",
-          stylers: [{ color: "#ffffff" }] // Clean white roads
+            featureType: "road",
+            elementType: "geometry",
+            stylers: [{ color: "#ffffff" }]
         },
         {
-          featureType: "landscape",
-          elementType: "geometry",
-          stylers: [{ color: "#f5f5f5" }]
+            featureType: "landscape",
+            elementType: "geometry",
+            stylers: [{ color: DESIGN_TOKENS.colors.neutral[50] }]
         },
         {
-          featureType: "water",
-          elementType: "geometry",
-          stylers: [{ color: "#d6e5fb" }]
+            featureType: "water",
+            elementType: "geometry",
+            stylers: [{ color: DESIGN_TOKENS.colors.primary[100] }]
         },
         {
-          featureType: "administrative",
-          elementType: "labels",
-          stylers: [{ visibility: "on" }] // Optional: city names, etc.
+            featureType: "administrative",
+            elementType: "labels",
+            stylers: [{ visibility: "on" }]
         }
     ];
 
-    // Fix the height calculation
     const getMapHeight = () => {
         if (mapHeight === "100%") {
             return "100%";
@@ -141,13 +202,21 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
         if (typeof mapHeight === "string" && mapHeight.includes("px")) {
             return mapHeight;
         }
-        return "420px"; // fallback
+        return "420px";
     };
 
     const mapContainerStyle = {
         ...containerStyle,
         height: getMapHeight(),
-        minHeight: "300px", // Ensure minimum height
+        minHeight: "300px",
+    };
+
+    // Get marker color based on item type
+    const getMarkerColor = (item) => {
+        if (item.type?.includes('request')) {
+            return DESIGN_TOKENS.colors.semantic.warning; // Orange for wanted items
+        }
+        return DESIGN_TOKENS.colors.semantic.success; // Green for available items
     };
 
     console.log('MapView rendering with:', { 
@@ -157,14 +226,16 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
     });
       
     return (
-<div
-  className="w-full relative"
-  style={{
-    marginBottom: '64px',
-    paddingTop: '100px', // <== תוספת כאן
-    height: '100%',
-  }}
->            {children}
+        <div
+            className="w-full relative"
+            style={{
+                marginBottom: '64px',
+                paddingTop: '100px',
+                height: '100%',
+                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+            }}
+        >
+            {children}
             
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
@@ -179,7 +250,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                     styles: customMapStyle,
                     gestureHandling: "greedy",
                     zoomControl: true,
-                    scrollwheel: true, // Changed from false to true
+                    scrollwheel: true,
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false,
@@ -196,85 +267,144 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                         <div
                             className="flex flex-col items-center cursor-pointer"
                             onClick={() => handleMarkerClick(item)}
+                            style={{
+                                transition: 'all 0.2s ease'
+                            }}
                         >
-                            {/* Custom brand pin */}
+                            {/* Enhanced marker with better visual hierarchy */}
                             <div
                                 className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-2 border-white map-pin-hover"
-                                style={{ width: 44, height: 44, background: '#2E4057', position: 'relative' }}
+                                style={{ 
+                                    width: 40, 
+                                    height: 40, 
+                                    background: getMarkerColor(item), 
+                                    position: 'relative',
+                                    boxShadow: DESIGN_TOKENS.shadows.lg,
+                                    transition: 'all 0.2s ease'
+                                }}
                                 title={item.title || "N/A"}
+                                onMouseOver={e => {
+                                    e.currentTarget.style.transform = 'scale(1.1)';
+                                    e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.xl;
+                                }}
+                                onMouseOut={e => {
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                    e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.lg;
+                                }}
                             >
-                                <span className="text-white font-bold text-[10px]" style={{ lineHeight: '44px', width: '100%', textAlign: 'center', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                <span 
+                                    className="text-white font-bold" 
+                                    style={{ 
+                                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                                        lineHeight: '40px', 
+                                        width: '100%', 
+                                        textAlign: 'center', 
+                                        overflow: 'hidden', 
+                                        whiteSpace: 'nowrap', 
+                                        textOverflow: 'ellipsis',
+                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                                    }}
+                                >
                                     {item.title ? item.title.split(' ')[0] : "?"}
                                 </span>
                             </div>
-                            {/* Price below pin */}
+                            
+                            {/* Enhanced price pill with better styling */}
                             {item.price !== null && item.price !== undefined && (
-                                <span className="block text-[10px] font-semibold mt-1 text-[#f55363] bg-white rounded px-2 py-0.5 shadow" style={{ marginTop: 2 }}>
+                                <div 
+                                    className="price-pill"
+                                    style={{
+                                        background: 'white',
+                                        color: DESIGN_TOKENS.colors.neutral[800],
+                                        borderRadius: '12px',
+                                        padding: '4px 8px',
+                                        marginTop: '4px',
+                                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                                        boxShadow: DESIGN_TOKENS.shadows.md,
+                                        border: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
+                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                                        minWidth: 'fit-content',
+                                        textAlign: 'center'
+                                    }}
+                                >
                                     {item.price}₪
-                                </span>
+                                </div>
                             )}
                         </div>
                     </OverlayView>
                 ))}
 
+                {/* Enhanced user location marker */}
                 {userLocation && (
                     <OverlayView
                         position={userLocation}
                         mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
                     >
-                        <div className="relative w-3 h-3">
-                            <div className="absolute inset-1 rounded-full bg-cyan-400 animate-ping opacity-60"></div>
-                            <div className="absolute inset-1 rounded-full bg-teal-500"></div>
+                        <div className="relative" style={{ width: '16px', height: '16px' }}>
+                            <div 
+                                className="absolute inset-0 rounded-full animate-ping opacity-60"
+                                style={{ 
+                                    background: DESIGN_TOKENS.colors.primary[400],
+                                    animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite'
+                                }}
+                            ></div>
+                            <div 
+                                className="absolute inset-0 rounded-full"
+                                style={{ background: DESIGN_TOKENS.colors.primary[500] }}
+                            ></div>
                         </div>
                     </OverlayView>
                 )}
             </GoogleMap>
 
+            {/* Enhanced return to location button */}
             {userLocation && (
-               <button
-               onClick={handleReturnToLocation}
-               className="fixed z-50 bottom-5.5 left-1 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center w-3 h-3"
-               title="Return to my location"
-               data-testid="return-to-location-btn"
-               style={{ 
-                   background: '#f3f4f6', // light gray
-                   color: '#444', // dark gray icon
-                   border: '2px solid #d1d5db', // light gray border
-                   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-                   width: 44,
-                   height: 44,
-                   padding: 0,
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   fontSize: 24,
-                   cursor: 'pointer',
-                   transition: 'all 0.2s',
-               }}
-               onMouseOver={e => {
-                   e.currentTarget.style.background = '#e5e7eb';
-                   e.currentTarget.style.border = '2px solid #bdbdbd';
-               }}
-               onMouseOut={e => {
-                   e.currentTarget.style.background = '#f3f4f6';
-                   e.currentTarget.style.border = '2px solid #d1d5db';
-               }}
-           >
-               <svg
-                   xmlns="http://www.w3.org/2000/svg"
-                   className="h-6 w-6"
-                   viewBox="0 0 24 24"
-                   fill="none"
-                   stroke="#444"
-                   strokeWidth="2"
-                   strokeLinecap="round"
-                   strokeLinejoin="round"
-                   style={{ width: 24, height: 24 }}
-               >
-                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
-               </svg>
-           </button>
-           
+                <button
+                    onClick={handleReturnToLocation}
+                    className="fixed z-50 bottom-5.5 left-1 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center"
+                    title="Return to my location"
+                    data-testid="return-to-location-btn"
+                    style={{ 
+                        background: 'white',
+                        color: DESIGN_TOKENS.colors.neutral[700],
+                        border: `2px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
+                        boxShadow: DESIGN_TOKENS.shadows.lg,
+                        width: 48,
+                        height: 48,
+                        padding: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                    }}
+                    onMouseOver={e => {
+                        e.currentTarget.style.background = DESIGN_TOKENS.colors.neutral[50];
+                        e.currentTarget.style.border = `2px solid ${DESIGN_TOKENS.colors.neutral[300]}`;
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseOut={e => {
+                        e.currentTarget.style.background = 'white';
+                        e.currentTarget.style.border = `2px solid ${DESIGN_TOKENS.colors.neutral[200]}`;
+                        e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke={DESIGN_TOKENS.colors.neutral[700]}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ width: 20, height: 20 }}
+                    >
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+                    </svg>
+                </button>
             )}
 
             <Popup item={selectedItem} onClose={handlePopupClose} />

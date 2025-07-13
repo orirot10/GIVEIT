@@ -187,7 +187,7 @@ const Messages = ({ userId }) => {
   >
     <h2 className="main-title">שיחות</h2>
     {conversations.length === 0 ? (
-      <p style={{ padding: '10px', fontFamily: 'David Libre, Arial, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
+      <p style={{ padding: '10px', fontFamily: 'Heebo, Arial, sans-serif', fontSize: 14, color: '#607D8B', direction: 'rtl', textAlign: 'right' }}>אין שיחות עדיין.</p>
     ) : (
       conversations.map((conv) => (
         <div

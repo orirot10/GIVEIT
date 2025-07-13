@@ -11,6 +11,90 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import logoBlue from '../../../images/logoBlue3.png';
 
+// Design System - Unified Color Palette & Typography
+const DESIGN_TOKENS = {
+    // Primary Color Palette (Teal-based)
+    colors: {
+        primary: {
+            50: '#f0fdfa',
+            100: '#ccfbf1',
+            200: '#99f6e4',
+            300: '#5eead4',
+            400: '#2dd4bf',
+            500: '#14b8a6', // Main accent
+            600: '#0d9488',
+            700: '#0f766e',
+            800: '#115e59',
+            900: '#134e4a'
+        },
+        neutral: {
+            50: '#f8fafc',
+            100: '#f1f5f9',
+            200: '#e2e8f0',
+            300: '#cbd5e1',
+            400: '#94a3b8',
+            500: '#64748b',
+            600: '#475569',
+            700: '#334155',
+            800: '#1e293b',
+            900: '#0f172a'
+        },
+        semantic: {
+            success: '#10b981',
+            warning: '#f59e0b',
+            error: '#ef4444',
+            info: '#3b82f6'
+        }
+    },
+    // Typography System
+    typography: {
+        fontFamily: {
+            primary: "'Assistant', 'David Libre', Arial, sans-serif",
+            secondary: "'Inter', 'Alef', Arial, sans-serif"
+        },
+        fontSize: {
+            xs: '12px',
+            sm: '14px',
+            base: '16px',
+            lg: '18px',
+            xl: '20px',
+            '2xl': '24px',
+            '3xl': '30px'
+        },
+        fontWeight: {
+            normal: 400,
+            medium: 500,
+            semibold: 600,
+            bold: 700
+        }
+    },
+    // Spacing System
+    spacing: {
+        xs: '4px',
+        sm: '8px',
+        md: '12px',
+        lg: '16px',
+        xl: '24px',
+        '2xl': '32px',
+        '3xl': '48px'
+    },
+    // Border Radius
+    borderRadius: {
+        sm: '6px',
+        md: '12px',
+        lg: '16px',
+        xl: '20px',
+        full: '9999px'
+    },
+    // Shadows
+    shadows: {
+        sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        md: '0 4px 6px rgba(0, 0, 0, 0.07)',
+        lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
+        xl: '0 20px 25px rgba(0, 0, 0, 0.15)'
+    }
+};
+
 // Constants
 const BOUNCE_TIMEOUT = 800;
 const LOCATION_TIMEOUT = 10000;
@@ -27,37 +111,39 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(255,255,255,0.8)',
+        background: 'rgba(255,255,255,0.9)',
         zIndex: 2000,
-        backdropFilter: 'blur(2px)'
+        backdropFilter: 'blur(4px)',
+        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
         <div className="loading-content" style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 16,
-            padding: 24,
+            gap: DESIGN_TOKENS.spacing.lg,
+            padding: DESIGN_TOKENS.spacing.xl,
             background: 'white',
-            borderRadius: 12,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            maxWidth: 200,
+            borderRadius: DESIGN_TOKENS.borderRadius.lg,
+            boxShadow: DESIGN_TOKENS.shadows.xl,
+            maxWidth: 240,
             textAlign: 'center'
         }}>
             <div
                 className="spinner"
                 style={{
-                    width: 40,
-                    height: 40,
-                    border: '4px solid #f0f0f0',
-                    borderTop: '4px solid #087E8B',
+                    width: 48,
+                    height: 48,
+                    border: `4px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
+                    borderTop: `4px solid ${DESIGN_TOKENS.colors.primary[500]}`,
                     borderRadius: '50%',
                     animation: 'spin 1s linear infinite'
                 }}
             />
             <span style={{
-                color: '#087E8B',
-                fontWeight: 500,
-                fontSize: 14
+                color: DESIGN_TOKENS.colors.primary[600],
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
             }}>
                 {message}
             </span>
@@ -73,28 +159,46 @@ const ErrorFallback = React.memo(({ error, onRetry }) => (
         left: '50%',
         transform: 'translate(-50%, -50%)',
         textAlign: 'center',
-        padding: 24,
+        padding: DESIGN_TOKENS.spacing.xl,
         background: 'white',
-        borderRadius: 12,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        maxWidth: 300,
-        zIndex: 2000
+        borderRadius: DESIGN_TOKENS.borderRadius.lg,
+        boxShadow: DESIGN_TOKENS.shadows.xl,
+        maxWidth: 320,
+        zIndex: 2000,
+        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
-        <h3 style={{ color: '#d32f2f', marginBottom: 12 }}>Something went wrong</h3>
-        <p style={{ color: '#666', marginBottom: 16, fontSize: 14 }}>
+        <h3 style={{ 
+            color: DESIGN_TOKENS.colors.semantic.error, 
+            marginBottom: DESIGN_TOKENS.spacing.md,
+            fontSize: DESIGN_TOKENS.typography.fontSize.lg,
+            fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold
+        }}>
+            Something went wrong
+        </h3>
+        <p style={{ 
+            color: DESIGN_TOKENS.colors.neutral[600], 
+            marginBottom: DESIGN_TOKENS.spacing.lg, 
+            fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+            lineHeight: 1.5
+        }}>
             {error || 'Unable to load items. Please try again.'}
         </p>
         <button
             onClick={onRetry}
             style={{
-                background: '#087E8B',
+                background: DESIGN_TOKENS.colors.primary[500],
                 color: 'white',
                 border: 'none',
-                padding: '8px 16px',
-                borderRadius: 6,
+                padding: `${DESIGN_TOKENS.spacing.sm} ${DESIGN_TOKENS.spacing.lg}`,
+                borderRadius: DESIGN_TOKENS.borderRadius.sm,
                 cursor: 'pointer',
-                fontWeight: 500
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                transition: 'all 0.2s ease',
+                boxShadow: DESIGN_TOKENS.shadows.sm
             }}
+            onMouseOver={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[600]}
+            onMouseOut={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[500]}
         >
             Try Again
         </button>
@@ -125,26 +229,29 @@ const EmptyState = React.memo(({ contentType, searchQuery }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             textAlign: 'center',
-            padding: 24,
-            zIndex: 1000
+            padding: DESIGN_TOKENS.spacing.xl,
+            zIndex: 1000,
+            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
         }}>
             <div style={{
-                fontSize: 48,
-                marginBottom: 16,
-                opacity: 0.3
+                fontSize: 56,
+                marginBottom: DESIGN_TOKENS.spacing.lg,
+                opacity: 0.4,
+                color: DESIGN_TOKENS.colors.neutral[400]
             }}>
                 📍
             </div>
             <p style={{
-                color: '#666',
-                fontSize: 16,
-                marginBottom: 8
+                color: DESIGN_TOKENS.colors.neutral[700],
+                fontSize: DESIGN_TOKENS.typography.fontSize.base,
+                marginBottom: DESIGN_TOKENS.spacing.sm,
+                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium
             }}>
                 {message}
             </p>
             <p style={{
-                color: '#999',
-                fontSize: 14
+                color: DESIGN_TOKENS.colors.neutral[500],
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm
             }}>
                 Try adjusting your search or filters
             </p>
@@ -159,17 +266,18 @@ const Header = React.memo(({ user }) => (
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 0,
-        padding: '0px 0px 0px', // reduced padding
+        padding: '0px 0px 0px',
         background: 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(10px)',
         borderBottom: '0px solid rgba(0,0,0,0.1)',
-        minHeight: 0, // set a minimum height for compactness
-        height: 0
+        minHeight: 0,
+        height: 0,
+        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
         <span style={{
-            fontSize: 18,
-            fontWeight: 600,
-            color: '#087E8B'
+            fontSize: DESIGN_TOKENS.typography.fontSize.lg,
+            fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+            color: DESIGN_TOKENS.colors.primary[600]
         }}>
             {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
         </span>
@@ -189,27 +297,194 @@ const Controls = React.memo(({
     onClearFilters, 
     contentType, 
     setContentType, 
-    tabs 
-}) => (
-    <div className="controls-container" style={{
-        padding: '12px 8px 0px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 5
-    }}>
-        <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            onSearch={onSearch}
-            onClearFilters={onClearFilters}
-        />
-        <TabBar
-            activeTab={contentType}
-            onTabChange={setContentType}
-            tabs={tabs}
-        />
-    </div>
-));
+    tabs,
+    onAddListing,
+    onMessages
+}) => {
+    const [showSearchBar, setShowSearchBar] = useState(false);
+
+    const toggleSearchBar = () => {
+        setShowSearchBar(!showSearchBar);
+        if (showSearchBar) {
+            // Clear search when hiding
+            setSearchQuery("");
+            onClearFilters();
+        }
+    };
+
+    const handleBackButton = () => {
+        // Clear search and hide search bar
+        setSearchQuery("");
+        onClearFilters();
+        setShowSearchBar(false);
+    };
+
+    return (
+        <div className="controls-container" style={{
+            padding: `${DESIGN_TOKENS.spacing.md} ${DESIGN_TOKENS.spacing.sm} 0px`,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: DESIGN_TOKENS.spacing.xs,
+            alignItems: 'flex-start',
+            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+        }}>
+            {showSearchBar ? (
+                <div style={{
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    height: '48px'
+                }}>
+                    <button
+                        onClick={handleBackButton}
+                        className="back-button"
+                        style={{
+                            background: 'transparent',
+                            color: '#000000',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '32px',
+                            height: '32px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                        }}
+                        onMouseOver={e => e.currentTarget.style.color = '#000000'}
+                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                        aria-label="Back"
+                    >
+                        <svg 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                        >
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
+                    <SearchBar
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                        onSearch={onSearch}
+                        onClearFilters={onClearFilters}
+                    />
+                </div>
+            ) : (
+                <div className="search-toggle-container" style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '0 8px'
+                }}>
+                    <button
+                        onClick={toggleSearchBar}
+                        className="search-button"
+                        style={{
+                            background: 'transparent',
+                            color: '#000000',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.color = '#333333'}
+                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                        aria-label="Search"
+                    >
+                        <svg 
+                            width="20" 
+                            height="20" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                    <button
+                        onClick={onAddListing}
+                        className="add-listing-button"
+                        style={{
+                            background: 'transparent',
+                            color: '#000000',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.color = '#333333'}
+                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                        aria-label="Add Listing"
+                    >
+                        <svg 
+                            width="20" 
+                            height="20" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                        >
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                    <button
+                        onClick={onMessages}
+                        className="messages-button"
+                        style={{
+                            background: 'transparent',
+                            color: '#000000',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '40px',
+                            height: '40px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        onMouseOver={e => e.currentTarget.style.color = '#333333'}
+                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                        aria-label="Messages"
+                    >
+                        <svg 
+                            width="20" 
+                            height="20" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="2"
+                        >
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            )}
+            <TabBar
+                activeTab={contentType}
+                onTabChange={setContentType}
+                tabs={tabs}
+            />
+        </div>
+    );
+});
 
 // FAB Component
 const FloatingActionButton = React.memo(({ contentType, navigate, t, i18n }) => {
@@ -512,6 +787,25 @@ const GenericMapPage = ({ apiUrl }) => {
         }
     }, [mapBounds, fetchItemsWithinBounds]);
 
+    // Add listing handler
+    const handleAddListing = useCallback(() => {
+        const routeMap = {
+            rentals: '/offer-rental',
+            services: '/offer-service',
+            rental_requests: '/request-rental',
+            service_requests: '/request-service'
+        };
+        const route = routeMap[contentType];
+        if (route) {
+            navigate(route);
+        }
+    }, [contentType, navigate]);
+
+    // Messages handler
+    const handleMessages = useCallback(() => {
+        navigate('/messages');
+    }, [navigate]);
+
     // Show empty state when appropriate
     const shouldShowEmptyState = hasInitialLoad && !loading && allItems.length === 0 && !error;
 
@@ -598,7 +892,8 @@ const GenericMapPage = ({ apiUrl }) => {
             height: 'calc(100vh - 80px)',
             position: 'relative',
             marginTop: '0px',
-            background: '#f5f5f5'
+            background: DESIGN_TOKENS.colors.neutral[50],
+            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
         }}>
             {/* CSS Animations */}
             <style>{`
@@ -635,19 +930,39 @@ const GenericMapPage = ({ apiUrl }) => {
                 }
                 .category-label {
                     background: #fff;
-                    border: 1px solidrgb(225, 233, 234);
-                    color: #087E8B;
-                    border-radius: 16px;
-                    padding: 4px 16px;
-                    font-size: 15px;
-                    font-weight: 500;
+                    border: 1px solid ${DESIGN_TOKENS.colors.neutral[300]};
+                    color: ${DESIGN_TOKENS.colors.neutral[700]};
+                    border-radius: ${DESIGN_TOKENS.borderRadius.lg};
+                    padding: ${DESIGN_TOKENS.spacing.xs} ${DESIGN_TOKENS.spacing.lg};
+                    font-size: ${DESIGN_TOKENS.typography.fontSize.sm};
+                    font-weight: ${DESIGN_TOKENS.typography.fontWeight.medium};
                     cursor: pointer;
-                    transition: background 0.2s, color 0.2s;
+                    transition: all 0.2s ease;
                     white-space: nowrap;
+                    font-family: ${DESIGN_TOKENS.typography.fontFamily.primary};
+                    box-shadow: ${DESIGN_TOKENS.shadows.sm};
                 }
                 .category-label.selected, .category-label:hover {
-                    background: #087E8B;
+                    background: ${DESIGN_TOKENS.colors.primary[500]};
                     color: #fff;
+                    border-color: ${DESIGN_TOKENS.colors.primary[500]};
+                    box-shadow: ${DESIGN_TOKENS.shadows.md};
+                }
+            `}</style>
+
+            {/* Additional CSS for search toggle animation */}
+            <style>{`
+                .search-toggle-container {
+                    transition: all 0.3s ease;
+                }
+                .search-button, .add-listing-button, .messages-button, .back-button {
+                    transition: all 0.2s ease;
+                }
+                .search-button:hover, .add-listing-button:hover, .messages-button:hover, .back-button:hover {
+                    transform: scale(1.05);
+                }
+                .search-button:active, .add-listing-button:active, .messages-button:active, .back-button:active {
+                    transform: scale(0.95);
                 }
             `}</style>
 
@@ -708,6 +1023,8 @@ const GenericMapPage = ({ apiUrl }) => {
                                         contentType={contentType}
                                         setContentType={setContentType}
                                         tabs={tabs}
+                                        onAddListing={handleAddListing}
+                                        onMessages={handleMessages}
                                     />
                                     <div className="floating-category-labels">
                                         {availableCategories.map((cat) => (
@@ -748,6 +1065,8 @@ const GenericMapPage = ({ apiUrl }) => {
                             contentType={contentType}
                             setContentType={setContentType}
                             tabs={tabs}
+                            onAddListing={handleAddListing}
+                            onMessages={handleMessages}
                         />
                     </div>
                     <div style={{
@@ -778,13 +1097,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 <ToggleViewButton view={view} setView={setView} />
             </div>
 
-            {/* Floating Action Button */}
-            <FloatingActionButton 
-                contentType={contentType}
-                navigate={navigate}
-                t={t}
-                i18n={i18n}
-            />
+
         </div>
     );
 };
