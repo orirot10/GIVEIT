@@ -582,6 +582,7 @@ const GenericMapPage = ({ apiUrl }) => {
     
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
+    const cacheRef = useRef(new Map());
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
 
@@ -644,11 +645,21 @@ const GenericMapPage = ({ apiUrl }) => {
         );
     }, [userLocation]);
 
-    // Fetch items within bounds with error handling
+    // Fetch items within bounds with error handling (with cache)
     const fetchItemsWithinBounds = useCallback(async (bounds) => {
         try {
             const currentApiUrl = getApiUrl();
             const { northEast, southWest } = bounds;
+            const boundsKey = JSON.stringify(bounds) + contentType + (selectedCategory || '');
+            // Check cache first
+            if (cacheRef.current.has(boundsKey)) {
+                const cached = cacheRef.current.get(boundsKey);
+                setAllItems(cached);
+                const withCoords = mapItemsToCoords(cached);
+                setLocations(withCoords);
+                setError(null);
+                return;
+            }
             const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
             
             const res = await fetch(url);
@@ -657,6 +668,8 @@ const GenericMapPage = ({ apiUrl }) => {
             }
             
             const items = await res.json();
+            // Store in cache
+            cacheRef.current.set(boundsKey, items);
             setAllItems(items);
             const withCoords = mapItemsToCoords(items);
             setLocations(withCoords);
@@ -667,7 +680,7 @@ const GenericMapPage = ({ apiUrl }) => {
             setAllItems([]);
             setLocations([]);
         }
-    }, [getApiUrl, mapItemsToCoords]);
+    }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory]);
 
     // Debounced fetch for items within bounds
     useEffect(() => {

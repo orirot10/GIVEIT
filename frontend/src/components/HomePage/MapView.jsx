@@ -260,82 +260,12 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                 }}
             >
                 {locations && locations.map((item, index) => (
-                    <OverlayView
+                    <MemoizedMarker
                         key={item.id || index}
-                        position={{ lat: item.lat, lng: item.lng }}
-                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                        getPixelPositionOffset={getPixelPositionOffset}
-                    >
-                        <div
-                            className="flex flex-col items-center cursor-pointer"
-                            onClick={() => handleMarkerClick(item)}
-                            style={{
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            {/* Enhanced marker with better visual hierarchy */}
-                            <div
-                                className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-2 border-white map-pin-hover"
-                                style={{ 
-                                    width: 40, 
-                                    height: 40, 
-                                    background: getMarkerColor(item), 
-                                    position: 'relative',
-                                    boxShadow: DESIGN_TOKENS.shadows.lg,
-                                    transition: 'all 0.2s ease'
-                                }}
-                                title={item.title || "N/A"}
-                                onMouseOver={e => {
-                                    e.currentTarget.style.transform = 'scale(1.1)';
-                                    e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.xl;
-                                }}
-                                onMouseOut={e => {
-                                    e.currentTarget.style.transform = 'scale(1)';
-                                    e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.lg;
-                                }}
-                            >
-                                <span 
-                                    className="text-white font-bold" 
-                                    style={{ 
-                                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                                        fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                                        lineHeight: '40px', 
-                                        width: '100%', 
-                                        textAlign: 'center', 
-                                        overflow: 'hidden', 
-                                        whiteSpace: 'nowrap', 
-                                        textOverflow: 'ellipsis',
-                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
-                                    }}
-                                >
-                                    {item.title ? item.title.split(' ')[0] : "?"}
-                                </span>
-                            </div>
-                            
-                            {/* Enhanced price pill with better styling */}
-                            {item.price !== null && item.price !== undefined && (
-                                <div 
-                                    className="price-pill"
-                                    style={{
-                                        background: 'white',
-                                        color: DESIGN_TOKENS.colors.neutral[800],
-                                        borderRadius: '12px',
-                                        padding: '4px 8px',
-                                        marginTop: '4px',
-                                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                                        boxShadow: DESIGN_TOKENS.shadows.md,
-                                        border: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
-                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
-                                        minWidth: 'fit-content',
-                                        textAlign: 'center'
-                                    }}
-                                >
-                                    {item.price}₪
-                                </div>
-                            )}
-                        </div>
-                    </OverlayView>
+                        item={item}
+                        getMarkerColor={getMarkerColor}
+                        handleMarkerClick={handleMarkerClick}
+                    />
                 ))}
 
                 {/* Enhanced user location marker */}
@@ -413,5 +343,82 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
         </div>
     );
 };
+
+// Memoized OverlayView marker
+const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor, handleMarkerClick }) {
+    return (
+        <OverlayView
+            key={item.id}
+            position={{ lat: item.lat, lng: item.lng }}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={getPixelPositionOffset}
+        >
+            <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleMarkerClick(item)}
+                style={{ transition: 'all 0.2s ease' }}
+            >
+                <div
+                    className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-2 border-white map-pin-hover"
+                    style={{
+                        width: 40,
+                        height: 40,
+                        background: getMarkerColor(item),
+                        position: 'relative',
+                        boxShadow: DESIGN_TOKENS.shadows.lg,
+                        transition: 'all 0.2s ease'
+                    }}
+                    title={item.title || "N/A"}
+                    onMouseOver={e => {
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.xl;
+                    }}
+                    onMouseOut={e => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = DESIGN_TOKENS.shadows.lg;
+                    }}
+                >
+                    <span
+                        className="text-white font-bold"
+                        style={{
+                            fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                            fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                            lineHeight: '40px',
+                            width: '100%',
+                            textAlign: 'center',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                        }}
+                    >
+                        {item.title ? item.title.split(' ')[0] : "?"}
+                    </span>
+                </div>
+                {item.price !== null && item.price !== undefined && (
+                    <div
+                        className="price-pill"
+                        style={{
+                            background: 'white',
+                            color: DESIGN_TOKENS.colors.neutral[800],
+                            borderRadius: '12px',
+                            padding: '4px 8px',
+                            marginTop: '4px',
+                            fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                            fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                            boxShadow: DESIGN_TOKENS.shadows.md,
+                            border: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
+                            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                            minWidth: 'fit-content',
+                            textAlign: 'center'
+                        }}
+                    >
+                        {item.price}₪
+                    </div>
+                )}
+            </div>
+        </OverlayView>
+    );
+});
 
 export default MapView;
