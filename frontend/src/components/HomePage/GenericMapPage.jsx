@@ -579,6 +579,7 @@ const GenericMapPage = ({ apiUrl }) => {
     const [error, setError] = useState(null);
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [showGentleLoading, setShowGentleLoading] = useState(false);
     
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
@@ -899,6 +900,17 @@ const GenericMapPage = ({ apiUrl }) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [view, contentType]);
 
+    // Show loading spinner only if loading lasts > 300ms
+    useEffect(() => {
+        let timer;
+        if (loading) {
+            timer = setTimeout(() => setShowGentleLoading(true), 300);
+        } else {
+            setShowGentleLoading(false);
+        }
+        return () => clearTimeout(timer);
+    }, [loading]);
+
     return (
         <div className="map-wrapper" style={{
             width: '100vw',
@@ -979,8 +991,18 @@ const GenericMapPage = ({ apiUrl }) => {
                 }
             `}</style>
 
-            {/* Loading Overlay */}
-            {loading && <LoadingSpinner message="Loading nearby items..." />}
+            {/* Loading Overlay (gentle, delayed, with fade) */}
+            <style>{`
+                .gentle-loading-fade {
+                    opacity: 1;
+                    transition: opacity 0.3s;
+                }
+                .gentle-loading-fade.hide {
+                    opacity: 0;
+                    pointer-events: none;
+                }
+            `}</style>
+            {<div className={`gentle-loading-fade${showGentleLoading ? '' : ' hide'}`}>{showGentleLoading && <LoadingSpinner message="Updating map..." />}</div>}
 
             {/* Error State */}
             {error && !loading && (
