@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapIcon, MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
 import Popup from '../components/Shared/Popup';
+import { usePricePeriodTranslation } from '../utils/pricePeriodTranslator';
 
 const categories = [
   { id: 'tools', name: 'Tools', icon: '🔧' },
@@ -14,6 +15,7 @@ const categories = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const { translatePricePeriod } = usePricePeriodTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -238,7 +240,7 @@ const Home = () => {
                   <p className="text-gray-600 text-sm mb-2">{item.description.substring(0,
                     100)}...</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-blue-600 font-semibold">${item.price}/{item.pricePeriod}</span>
+                    <span className="text-blue-600 font-semibold">${item.price}/{translatePricePeriod(item.pricePeriod)}</span>
                     <span className="text-sm text-gray-500">{item.city}</span>
                   </div>
                 </div>

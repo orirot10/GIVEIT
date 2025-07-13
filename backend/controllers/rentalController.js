@@ -68,66 +68,82 @@ const uploadNewRental = async (req, res) => {
 // Get all rentals
 const getRentals = async (req, res) => {
     try {
-    const { lat, lng, radius, minLat, maxLat, minLng, maxLng } = req.query;
-    let query = {};
-    // Always select all fields needed for the popup
-    let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
-    // Bounding box filter
-    if (
-        minLat !== undefined && maxLat !== undefined &&
-        minLng !== undefined && maxLng !== undefined
-    ) {
-        query = {
-            lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
-            lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
-        };
-        // selectFields remains the same (full info)
-    } else if (lat && lng && radius) {
-        // Find rentals within radius (in meters)
-        const userLat = parseFloat(lat);
-        const userLng = parseFloat(lng);
-        const maxDistance = parseFloat(radius) || 1000;
-        // Use MongoDB $geoWithin with $centerSphere (approximate Earth radius in radians)
-        query = {
-            lat: { $exists: true, $ne: null },
-            lng: { $exists: true, $ne: null },
-            $expr: {
-                $lte: [
-                    {
-                        $multiply: [
-                            6371000, // Earth radius in meters
-                            { $acos: {
-                                $add: [
-                                    { $multiply: [ { $sin: { $degreesToRadians: userLat } }, { $sin: { $degreesToRadians: "$lat" } } ] },
-                                    { $multiply: [ { $cos: { $degreesToRadians: userLat } }, { $cos: { $degreesToRadians: "$lat" } }, { $cos: { $subtract: [ { $degreesToRadians: "$lng" }, { $degreesToRadians: userLng } ] } } ] }
-                                ]
-                            }}
-                        ]
-                    },
-                    maxDistance
-                ]
+        const { lat, lng, radius, minLat, maxLat, minLng, maxLng, limit = 200 } = req.query;
+        let query = {};
+        let rentals = [];
+        // Only select fields needed for the map/popup
+        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
+        // Bounding box filter (fast, uses index)
+        if (
+            minLat !== undefined && maxLat !== undefined &&
+            minLng !== undefined && maxLng !== undefined
+        ) {
+            query = {
+                lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
+                lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
+            };
+            rentals = await Rental.find(query)
+                .select(selectFields)
+                .limit(Number(limit))
+                .sort({ createdAt: -1 });
+        } else if (lat && lng && radius) {
+            // Fast radius query: bounding box + JS filter
+            const userLat = parseFloat(lat);
+            const userLng = parseFloat(lng);
+            const maxDistance = parseFloat(radius) || 1000;
+            // Calculate bounding box in degrees
+            const degLat = maxDistance / 111320; // meters per degree latitude
+            const degLng = maxDistance / (40075000 * Math.cos(userLat * Math.PI / 180) / 360);
+            const minLatBox = userLat - degLat;
+            const maxLatBox = userLat + degLat;
+            const minLngBox = userLng - degLng;
+            const maxLngBox = userLng + degLng;
+            query = {
+                lat: { $gte: minLatBox, $lte: maxLatBox },
+                lng: { $gte: minLngBox, $lte: maxLngBox }
+            };
+            // Fetch extra for filtering
+            let candidates = await Rental.find(query)
+                .select(selectFields)
+                .limit(Number(limit) * 2)
+                .sort({ createdAt: -1 });
+            // Haversine filter in JS
+            function haversine(lat1, lng1, lat2, lng2) {
+                const R = 6371000; // meters
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLng = (lng2 - lng1) * Math.PI / 180;
+                const a = Math.sin(dLat/2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLng/2) ** 2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             }
-        };
-    }
-    const rentals = await Rental.find(query)
-        .select(selectFields)
-        .sort({ createdAt: -1 });
-    // Fetch user phones and merge into rentals
-    const ownerIds = rentals.map(r => r.ownerId);
-    const users = await User.find({ firebaseUid: { $in: ownerIds } }).select('firebaseUid phone');
-    const userPhoneMap = {};
-    users.forEach(u => { userPhoneMap[u.firebaseUid] = u.phone; });
-    const rentalsWithPhone = rentals.map(r => {
-        const rentalObj = r.toObject();
-        if (!rentalObj.phone) {
-            rentalObj.phone = userPhoneMap[rentalObj.ownerId] || '';
+            rentals = candidates.filter(r =>
+                typeof r.lat === 'number' && typeof r.lng === 'number' &&
+                haversine(userLat, userLng, r.lat, r.lng) <= maxDistance
+            ).slice(0, Number(limit));
+        } else {
+            // Default: return most recent rentals (limit)
+            rentals = await Rental.find({})
+                .select(selectFields)
+                .limit(Number(limit))
+                .sort({ createdAt: -1 });
         }
-        return rentalObj;
-    });
-    res.status(200).json(rentalsWithPhone);
+        // Fetch user phones and merge into rentals
+        const ownerIds = rentals.map(r => r.ownerId);
+        const users = await User.find({ firebaseUid: { $in: ownerIds } }).select('firebaseUid phone');
+        const userPhoneMap = {};
+        users.forEach(u => { userPhoneMap[u.firebaseUid] = u.phone; });
+        const rentalsWithPhone = rentals.map(r => {
+            const rentalObj = r.toObject();
+            if (!rentalObj.phone) {
+                rentalObj.phone = userPhoneMap[rentalObj.ownerId] || '';
+            }
+            return rentalObj;
+        });
+        res.status(200).json(rentalsWithPhone);
     } catch (err) {
-    console.error('Error fetching rentals:', err);
-    res.status(500).json({ error: 'Failed to fetch rentals', details: err.message });
+        console.error('Error fetching rentals:', err);
+        res.status(500).json({ error: 'Failed to fetch rentals', details: err.message });
     }
 };
 

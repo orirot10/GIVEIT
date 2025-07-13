@@ -5,12 +5,14 @@ import '../../styles/components/ModalCard.css';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import EditModal from './EditModal';
 import { useAuthContext } from '../../context/AuthContext';
+import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
 const placeholderSVG = `<svg width='80' height='80' xmlns='http://www.w3.org/2000/svg'><rect width='80' height='80' rx='12' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='18' y='32' width='44' height='28' rx='6' fill='#CFD8DC'/><rect x='28' y='44' width='24' height='10' rx='3' fill='#B0BEC5'/></svg>`;
 
 const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'he';
+    const { translatePricePeriod } = usePricePeriodTranslation();
     const [active, setActive] = useState(item.status === 'available');
     const [showDetails, setShowDetails] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -110,7 +112,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                     </span>
                 </div>
                 <div style={{ fontFamily: 'Heebo, Arial, sans-serif', fontSize: 15, color: '#607D8B', marginBottom: 8, width: '100%', textAlign: isRTL ? 'right' : 'left' }}>
-                    {item.price}₪ / {type === 'rental' ? t('common.per_day') : t('common.per_hour')}
+                    {item.price}₪ / {translatePricePeriod(item.pricePeriod)}
                 </div>
                 <div className="card-actions" style={{ display: 'flex', gap: 10, marginTop: 8, width: '100%', justifyContent: isRTL ? 'flex-end' : 'flex-start' }}>
                     <button
@@ -166,7 +168,7 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                         <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 10, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.description')}:</strong> {item.description}</div>
                         <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.category')}:</strong> {item.category}</div>
                         <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.phone')}:</strong> {item.phone}</div>
-                        <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.price')}:</strong> {item.price}₪ / {type === 'rental' ? t('common.per_day') : t('common.per_hour')}</div>
+                        <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.price')}:</strong> {item.price}₪ / {translatePricePeriod(item.pricePeriod)}</div>
                         <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.city')}:</strong> {item.city}</div>
                         <div style={{ fontSize: 15, color: '#607D8B', marginBottom: 6, textAlign: isRTL ? 'right' : 'left' }}><strong>{t('common.street')}:</strong> {item.street}</div>
                     </div>

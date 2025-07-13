@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ImageUpload from '../ImageUpload';
 import '../../styles/components/UploadForm.css';
 import { geocodeAddress } from '../HomePage/geocode';
+import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
 const ModalUploadForm = ({
 titleText,
@@ -15,6 +16,7 @@ user,
 }) => {
 const navigate = useNavigate();
 const { t } = useTranslation();
+const { getPricePeriodOptions } = usePricePeriodTranslation();
 
 const [form, setForm] = useState({
     title: '',
@@ -132,11 +134,11 @@ return (
                     </div>
                     <div className="form-group">
                         <select name="pricePeriod" value={form.pricePeriod} onChange={handleChange} className="select select-bordered w-full">
-                            <option value="use">{t('forms.per_use')}</option>
-                            <option value="hour">{t('forms.per_hour')}</option>
-                            <option value="day">{t('forms.per_day')}</option>
-                            <option value="week">{t('forms.per_week')}</option>
-                            <option value="month">{t('forms.per_month')}</option>
+                            {getPricePeriodOptions().map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
                         </select>
                     </div>
 

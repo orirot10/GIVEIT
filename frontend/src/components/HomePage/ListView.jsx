@@ -2,11 +2,13 @@ import React, { useState } from "react";
 // import ImagePopup from "./ListImagePopup.jsx"; // Remove ImagePopup import
 import Popup from "../Shared/Popup"; // Import the correct Popup component
 import '../../styles/HomePage/ListView.css';
+import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
 const ListView = ({ rentals }) => {
   // Rename state for clarity (optional but good practice)
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadedImages, setLoadedImages] = useState({});
+  const { translatePricePeriod } = usePricePeriodTranslation();
 
   const handleItemClick = (item) => {
     console.log('[ListView] Item passed to handleItemClick:', item); // Add log to check item data
@@ -49,7 +51,7 @@ const ListView = ({ rentals }) => {
               <h3 className="rental-title">{rental.title}</h3>
               <p className="rental-description">{rental.description}</p>
               <p className="rental-info">Category: {rental.category}</p>
-              <p className="rental-info">Price: {rental.price} per day</p>
+              <p className="rental-info">Price: {rental.price} {translatePricePeriod(rental.pricePeriod)}</p>
               <p className="rental-info">Location: {rental.city}</p>
             </div>
           </div>

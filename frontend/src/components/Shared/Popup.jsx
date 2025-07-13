@@ -14,6 +14,7 @@ import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/PopupAnimation.css';
 import { getDownloadURL, ref as storageRef } from 'firebase/storage';
 import { storage } from '../../firebase';
+import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -105,6 +106,7 @@ const Popup = ({ item, onClose }) => {
   const popupRef = useRef(null);
   const [resolvedImageUrls, setResolvedImageUrls] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { translatePricePeriod } = usePricePeriodTranslation();
   
   useEffect(() => {
     const handleEscKey = (event) => {
@@ -415,7 +417,7 @@ const Popup = ({ item, onClose }) => {
                       lineHeight: 1.2
                     }}
                   >
-                    ₪{price} <span className="font-semibold text-gray-600">ל{pricePeriod}</span>
+                    ₪{price} <span className="font-semibold text-gray-600">{translatePricePeriod(pricePeriod)}</span>
                   </p>
                 </div>
               </div>
