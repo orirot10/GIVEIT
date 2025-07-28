@@ -3,6 +3,18 @@
   "appName": "Givit",
   "webDir": "dist",
   "server": {
-    "cleartext": true
+    "cleartext": true,
+    "allowNavigation": [
+      "*.google.com",
+      "*.googleapis.com",
+      "*.firebaseapp.com",
+      "*.firebase.com"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#ffffff"
+    }
   }
 }

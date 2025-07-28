@@ -1,25 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import React from 'react';
-import Layout from './components/Layout';
-import Account from './pages/account.jsx';
-import ErrorBoundary from './ErrorBoundary.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import EditProfile from './pages/EditProfile.jsx';
-import SignUp from './components/Auth/SignUp.jsx';
-import LoginForm from './components/Auth/LoginForm.jsx';
-import './styles/global.css';
-import RentalForm from './components/UploadForm/RentalForm.jsx';
-import MyModals from './components/MyItems/MyModals.jsx';
-import MessagesPage from './pages/Messages';
-import ServiceForm from './components/UploadForm/ServiceForm';
-import RentalsMapPage from './components/HomePage/RentalsMapPage.jsx';
-import ServicesMapPage from './components/HomePage/ServicesMapPage.jsx';
-import RequestRentalForm from './components/RequestRental/RequestRentalForm';
-import { useAuthContext } from './context/AuthContext';
-import GoogleMapsLoader from './components/GoogleMapsLoader.jsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
+import GoogleMapsLoader from './components/GoogleMapsLoader';
+import ErrorBoundary from './ErrorBoundary';
+import Layout from './components/Layout';
+import RentalsMapPage from './components/HomePage/RentalsMapPage';
+import ServicesMapPage from './components/HomePage/ServicesMapPage';
+import Account from './pages/account';
+import Dashboard from './pages/Dashboard';
+import EditProfile from './pages/EditProfile';
+import SignUp from './components/Auth/SignUp';
+import LoginForm from './components/Auth/LoginForm';
+import RentalForm from './components/UploadForm/RentalForm';
+import RequestRentalForm from './components/RequestRental/RequestRentalForm';
+import MyModals from './components/MyItems/MyModals';
+import MessagesPage from './pages/Messages';
+import ServiceForm from './components/UploadForm/ServiceForm';
 import RequestServiceForm from './components/RequestService/RequestServiceForm';
+import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 
 function App() {
   const { user } = useAuthContext();
@@ -44,6 +44,7 @@ function App() {
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/offer-service" element={<ServiceForm />} />
                 <Route path="/request-service" element={<RequestServiceForm />} />
+                <Route path="/auth-handler" element={<MobileAuthHandler />} />
              </Route>
             </Routes>
           </div>

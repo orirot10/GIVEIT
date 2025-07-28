@@ -11,7 +11,7 @@ const firebaseConfig = {
   storageBucket: "givitori.appspot.com", // תקן כאן, זה לא "firebasestorage.app"
   messagingSenderId: "552189348251",
   appId: "1:552189348251:web:482bdf4500beebe934b93e",
-  measurementId: "G-BQYJMH3Y7X"
+  measurementId: "G-BQYJMH3X"
 };
 
 // ✅ Initialize Firebase only once
@@ -32,7 +32,22 @@ isSupported().then((supported) => {
 
 // ✅ Configure Google Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ prompt: 'select_account' });
+googleProvider.setCustomParameters({ 
+  prompt: 'select_account',
+  // Add mobile-specific parameters
+  ...(window.Capacitor && {
+    // For mobile apps, we need to handle redirects differently
+    redirect_uri: window.location.origin
+  })
+});
 
-// ✅ Export everything
-export { db, auth, storage, analytics, googleProvider };
+// ✅ Configure auth for mobile environments
+if (window.Capacitor) {
+  // Set persistence to LOCAL for mobile apps
+  auth.setPersistence('local');
+  
+  // Configure auth settings for mobile
+  auth.settings.appVerificationDisabledForTesting = false;
+}
+
+export { auth, db, storage, analytics, googleProvider };
