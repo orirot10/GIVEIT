@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  XMarkIcon, 
-  UserIcon, 
-  MapPinIcon, 
-  TagIcon, 
-  CurrencyDollarIcon, 
+import {
+  XMarkIcon,
+  UserIcon,
+  MapPinIcon,
+  TagIcon,
+  CurrencyDollarIcon,
   PhoneIcon,
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/solid';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/PopupAnimation.css';
@@ -106,6 +107,7 @@ const Popup = ({ item, onClose }) => {
   const popupRef = useRef(null);
   const [resolvedImageUrls, setResolvedImageUrls] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const { translatePricePeriod } = usePricePeriodTranslation();
   
   useEffect(() => {
@@ -193,6 +195,13 @@ const Popup = ({ item, onClose }) => {
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
   const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
+  const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '');
+
+
+  const toggleFullScreen = () => {
+    setIsFullScreen((prev) => !prev);
+  };
+
 
   const handleContact = () => {
     console.log('handleContact called with item:', item);
@@ -311,8 +320,8 @@ const Popup = ({ item, onClose }) => {
 
         {/* Hero Image Section */}
         {resolvedImageUrls.length > 0 && (
-          <div className="relative" style={{ aspectRatio: '3/2' }}>
-            <div 
+          <div className="relative shadow-sm" style={{ aspectRatio: '3/2', boxShadow: DESIGN_TOKENS.shadows.md }}>
+            <div
               className="w-full h-full overflow-hidden"
               style={{
                 background: DESIGN_TOKENS.colors.neutral[100],
@@ -323,7 +332,8 @@ const Popup = ({ item, onClose }) => {
               <img
                 src={resolvedImageUrls[currentImageIndex]}
                 alt={`${title} - Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover transition-transform duration-300"
+                className="w-full h-full object-cover transition-transform duration-300 cursor-zoom-in"
+                onClick={toggleFullScreen}
                 loading="lazy"
               />
             </div>
@@ -332,11 +342,11 @@ const Popup = ({ item, onClose }) => {
             
             {/* Image counter */}
             {resolvedImageUrls.length > 1 && (
-              <div 
-                className="image-counter absolute top-2 left-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-md"
+              <div
+                className="image-counter absolute bottom-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-md"
                 style={{ borderRadius: DESIGN_TOKENS.borderRadius.sm }}
               >
-                {currentImageIndex + 1} / {resolvedImageUrls.length}
+                {currentImageIndex + 1} of {resolvedImageUrls.length}
               </div>
             )}
             
@@ -362,6 +372,19 @@ const Popup = ({ item, onClose }) => {
                 </button>
               </>
             )}
+          </div>
+        )}
+
+        {isFullScreen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
+            onClick={toggleFullScreen}
+          >
+            <img
+              src={resolvedImageUrls[currentImageIndex]}
+              alt={`${title} - full view`}
+              className="max-w-full max-h-full object-contain"
+            />
           </div>
         )}
 
@@ -542,8 +565,8 @@ const Popup = ({ item, onClose }) => {
                 >
                   יצירת קשר
                 </p>
-                <a 
-                  href={`tel:${displayPhone}`} 
+                <a
+   href={`tel:${sanitizedPhone}`}
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
                   style={{
                     fontSize: DESIGN_TOKENS.typography.fontSize.sm,
@@ -553,18 +576,29 @@ const Popup = ({ item, onClose }) => {
                 >
                   {displayPhone}
                 </a>
+                {sanitizedPhone && (
+                  <a
+                    href={`https://wa.me/${sanitizedPhone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center ml-2 text-green-600 hover:text-green-800"
+                    style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm }}
+                  >
+                    <FaWhatsapp className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             </div>
           </div>
         </div>
 
         {/* Call-to-Action Button */}
-        <div className="px-3 pt-3 pb-3">
+        <div className="px-3 pt-3 pb-3 space-y-2">
           <button
-            className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
+            className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
             style={{
               background: DESIGN_TOKENS.colors.primary[500],
-              height: '36px',
+              height: '44px',
               borderRadius: DESIGN_TOKENS.borderRadius.full,
               fontSize: DESIGN_TOKENS.typography.fontSize.sm,
               fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
@@ -578,6 +612,20 @@ const Popup = ({ item, onClose }) => {
           >
             <span className="text-sm">התחל שיחה בצ'אט</span>
           </button>
+          {sanitizedPhone && (
+            <a
+              href={`tel:${sanitizedPhone}`}
+              className="w-full text-center border border-current text-primary-500 rounded-full block"
+              style={{
+                height: '44px',
+                lineHeight: '44px',
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                borderColor: DESIGN_TOKENS.colors.primary[500]
+              }}
+            >
+              התקשר
+            </a>
+          )}
         </div>
       </div>
     </div>
