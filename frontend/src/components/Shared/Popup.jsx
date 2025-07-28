@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  XMarkIcon, 
-  UserIcon, 
-  MapPinIcon, 
-  TagIcon, 
-  CurrencyDollarIcon, 
+import {
+  XMarkIcon,
+  UserIcon,
+  MapPinIcon,
+  TagIcon,
+  CurrencyDollarIcon,
   PhoneIcon,
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/solid';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/PopupAnimation.css';
@@ -193,6 +194,7 @@ const Popup = ({ item, onClose }) => {
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
   const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
+  const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '');
 
   const handleContact = () => {
     console.log('handleContact called with item:', item);
@@ -542,8 +544,8 @@ const Popup = ({ item, onClose }) => {
                 >
                   יצירת קשר
                 </p>
-                <a 
-                  href={`tel:${displayPhone}`} 
+                <a
+                  href={`tel:${displayPhone}`}
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
                   style={{
                     fontSize: DESIGN_TOKENS.typography.fontSize.sm,
@@ -553,6 +555,17 @@ const Popup = ({ item, onClose }) => {
                 >
                   {displayPhone}
                 </a>
+                {sanitizedPhone && (
+                  <a
+                    href={`https://wa.me/${sanitizedPhone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center ml-2 text-green-600 hover:text-green-800"
+                    style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm }}
+                  >
+                    <FaWhatsapp className="h-4 w-4" />
+                  </a>
+                )}
               </div>
             </div>
           </div>
