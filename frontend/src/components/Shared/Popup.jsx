@@ -197,11 +197,9 @@ const Popup = ({ item, onClose }) => {
   const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
   const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '');
 
-
   const toggleFullScreen = () => {
     setIsFullScreen((prev) => !prev);
   };
-
 
   const handleContact = () => {
     console.log('handleContact called with item:', item);
@@ -567,6 +565,7 @@ const Popup = ({ item, onClose }) => {
                 </p>
                 <a
    href={`tel:${sanitizedPhone}`}
+
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
                   style={{
                     fontSize: DESIGN_TOKENS.typography.fontSize.sm,
@@ -624,6 +623,23 @@ const Popup = ({ item, onClose }) => {
               }}
             >
               התקשר
+            </a>
+          )}
+          {sanitizedPhone && (
+            <a
+              href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center rounded-full text-white"
+              style={{
+                height: '44px',
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                borderRadius: DESIGN_TOKENS.borderRadius.full,
+                background: '#25D366'
+              }}
+            >
+              <FaWhatsapp className="h-4 w-4 ml-1" />
+              <span className="text-sm">start whatsapp conversation</span>
             </a>
           )}
         </div>
