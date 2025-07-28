@@ -189,3 +189,28 @@ form a:hover {
   font-size: 14px;
   margin-top: -10px;
 }
+
+/* Reusable rounded action buttons */
+.toggle-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 1rem 3rem;
+  font-size: 1rem;
+  border: 2px solid #2E4057;
+  background-color: #fff;
+  color: #2E4057;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.toggle-view-btn:hover {
+  background-color: #F4F6F8;
+  color: #1C2526;
+  border-color: #1e8c7a;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
