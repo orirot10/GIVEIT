@@ -6,7 +6,9 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-  signInWithPopup
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -38,6 +40,13 @@ export const AuthProvider = ({ children }) => {
     loading: true,
     error: null
   });
+
+  // Detect if running in mobile WebView
+  const isMobileWebView = () => {
+    return window.Capacitor || 
+           /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           window.innerWidth <= 768;
+  };
 
   // Sync user to MongoDB
   const syncUserToMongo = async (user) => {
@@ -93,6 +102,23 @@ export const AuthProvider = ({ children }) => {
       
       dispatch({ type: 'SET_LOADING', payload: false });
     });
+
+    // Handle redirect result for mobile
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          console.log('Redirect sign-in successful:', result.user);
+          // The auth state listener will handle the rest
+        }
+      } catch (error) {
+        console.error('Redirect sign-in error:', error);
+        dispatch({ type: 'SET_ERROR', payload: 'Google sign-in failed. Please try again.' });
+      }
+    };
+
+    // Check for redirect result on mount
+    handleRedirectResult();
     
     return () => unsubscribe();
   }, []);
@@ -197,36 +223,46 @@ export const AuthProvider = ({ children }) => {
       googleProvider.addScope('profile');
       googleProvider.addScope('email');
       
-      const userCredential = await signInWithPopup(auth, googleProvider);
-      const user = userCredential.user;
-      
-      // Check if user exists in Firestore
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      
-      if (!userDoc.exists()) {
-        // Store user data in Firestore if it's a new user
-        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
-        const firstName = names[0] || '';
-        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+      // Use redirect for mobile WebView, popup for desktop
+      if (isMobileWebView()) {
+        console.log('Using redirect sign-in for mobile');
+        await signInWithRedirect(auth, googleProvider);
+        // Don't return here - the redirect will happen
+        return;
+      } else {
+        console.log('Using popup sign-in for desktop');
+        const userCredential = await signInWithPopup(auth, googleProvider);
+        const user = userCredential.user;
         
-        await setDoc(doc(db, 'users', user.uid), {
-          firstName,
-          lastName,
-          email: user.email,
-          phone: user.phoneNumber || '',
-          photoURL: user.photoURL || '',
-          country: '',
-          city: '',
-          street: '',
-          createdAt: new Date().toISOString(),
-          authProvider: 'google'
-        });
+        // Check if user exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        
+        if (!userDoc.exists()) {
+          // Store user data in Firestore if it's a new user
+          const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+          const firstName = names[0] || '';
+          const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+          
+          await setDoc(doc(db, 'users', user.uid), {
+            firstName,
+            lastName,
+            email: user.email,
+            phone: user.phoneNumber || '',
+            photoURL: user.photoURL || '',
+            country: '',
+            city: '',
+            street: '',
+            createdAt: new Date().toISOString(),
+            authProvider: 'google'
+          });
+        }
+        
+        // Sync user to MongoDB after successful Google sign-in
+        await syncUserToMongo(user);
+        return user;
       }
-      
-      // Sync user to MongoDB after successful Google sign-in
-      await syncUserToMongo(user);
-      return user;
     } catch (error) {
+      console.error('Google sign-in error:', error);
       dispatch({ type: 'SET_LOADING', payload: false });
       let errorMessage = 'Google sign-in failed. Please try again.';
       
@@ -236,6 +272,8 @@ export const AuthProvider = ({ children }) => {
         errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
       } else if (error.code === 'auth/unauthorized-domain') {
         errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
+      } else if (error.code === 'auth/account-exists-with-different-credential') {
+        errorMessage = 'An account already exists with the same email address but different sign-in credentials.';
       }
       
       dispatch({ type: 'SET_ERROR', payload: errorMessage });

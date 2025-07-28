@@ -63,12 +63,26 @@ const LoginForm = () => {
         clearError();
 
         try {
-            await signInWithGoogle();
-            const user = auth.currentUser;
-            if (user) {
-                await syncUserToMongo(user);
+            // Check if we're in a mobile environment
+            const isMobile = window.Capacitor || 
+                           /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                           window.innerWidth <= 768;
+
+            if (isMobile) {
+                // Show mobile-specific message
+                setError('Redirecting to Google sign-in...');
             }
-            navigate('/dashboard');
+
+            await signInWithGoogle();
+            
+            // For mobile, the redirect will happen, so we don't navigate here
+            if (!isMobile) {
+                const user = auth.currentUser;
+                if (user) {
+                    await syncUserToMongo(user);
+                }
+                navigate('/dashboard');
+            }
         } catch (err) {
             console.error('Google login error:', err);
             
@@ -76,6 +90,10 @@ const LoginForm = () => {
                 setError(t('errors.unauthorized_domain') || t('auth.email') + ' ' + t('errors.general_error'));
             } else if (err.code === 'auth/operation-not-allowed') {
                 setError(t('errors.operation_not_allowed') || t('auth.email') + ' ' + t('errors.general_error'));
+            } else if (err.code === 'auth/popup-closed-by-user') {
+                setError(t('errors.popup_closed') || 'Sign-in was cancelled. Please try again.');
+            } else if (err.code === 'auth/popup-blocked') {
+                setError(t('errors.popup_blocked') || 'Sign-in popup was blocked. Please allow popups for this site.');
             } else {
                 setError(t('errors.google_signin_failed') || t('auth.email') + ' ' + t('errors.general_error'));
             }
