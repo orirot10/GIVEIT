@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthContext } from '../context/AuthContext';
 import { useLocation } from 'react-router-dom';
-import { doc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import ChatList from '../components/ChatList';
 import RealtimeChat from '../components/RealtimeChat';
@@ -26,19 +26,6 @@ function Messages() {
                 
                 // Create chat ID by sorting UIDs
                 const chatId = [user.uid, contactId].sort().join('_');
-                
-                // Check if chat already exists
-                const chatsRef = collection(db, 'chats');
-                const q = query(chatsRef, where('participants', 'array-contains', user.uid));
-                const querySnapshot = await getDocs(q);
-                
-                let existingChat = null;
-                querySnapshot.forEach(doc => {
-                    const chatData = doc.data();
-                    if (chatData.participants.includes(contactId)) {
-                        existingChat = { id: doc.id, ...chatData };
-                    }
-                });
                 
                 // Create or update chat document
                 const chatRef = doc(db, 'chats', chatId);

@@ -1,23 +1,5 @@
 /* Enhanced Chat CSS with Modern Improvements */
 
-:root {
-  --primary-color: #2E4057;
-  --primary-hover: #1e8c7a;
-  --secondary-color: #F4F6F8;
-  --neutral-accent: #607D8B;
-  --error-color: #E57373;
-  --background-color: #F4F6F8;
-  --text-color: #1C2526;
-  --accent-1: #F4F6F8;
-  --accent-2: #2E4057;
-  --accent-3: #607D8B;
-  --accent-4: #E57373;
-  --border-radius: 12px;
-  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
-  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
 
 .chat-container {
   display: flex;
