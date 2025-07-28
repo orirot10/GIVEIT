@@ -307,7 +307,7 @@ const MyModals = () => {
                     className="myitems-add-btn"
                     style={{
                         marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#2E4057',
+                        background: '#087E8B',
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
@@ -320,8 +320,8 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate(view === 'rentals' ? '/offer-rental' : '/offer-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
-                    onMouseOut={e => e.currentTarget.style.background = '#2E4057'}
+                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
+                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {view === 'rentals' ? t('rentals.add_rental') : t('services.add_service')}
                 </button>
@@ -332,7 +332,7 @@ const MyModals = () => {
                     className="myitems-add-btn"
                     style={{
                         marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#2E4057',
+                        background: '#087E8B',
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
@@ -345,8 +345,8 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate('/request-rental')}
-                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
-                    onMouseOut={e => e.currentTarget.style.background = '#2E4057'}
+                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
+                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {t('rentals.request_rental')}
                 </button>
@@ -356,7 +356,7 @@ const MyModals = () => {
                     className="myitems-add-btn"
                     style={{
                         marginTop: 0, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#2E4057',
+                        background: '#087E8B',
                         color: '#fff',
                         border: 'none',
                         borderRadius: 8,
@@ -369,8 +369,8 @@ const MyModals = () => {
                         boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
                     }}
                     onClick={() => navigate('/request-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#F4F6F8'}
-                    onMouseOut={e => e.currentTarget.style.background = '#2E4057'}
+                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
+                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {t('services.request_service')}
                 </button>
