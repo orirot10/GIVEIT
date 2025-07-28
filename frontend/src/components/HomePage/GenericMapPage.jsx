@@ -580,12 +580,17 @@ const GenericMapPage = ({ apiUrl }) => {
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showGentleLoading, setShowGentleLoading] = useState(false);
-    
+
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const cacheRef = useRef(new Map());
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+
+    // Reset selected category whenever content type changes
+    useEffect(() => {
+        setSelectedCategory(null);
+    }, [contentType]);
 
     // Memoized base URL
     const baseUrl = useMemo(() => import.meta.env.VITE_API_URL, []);
@@ -861,7 +866,6 @@ const GenericMapPage = ({ apiUrl }) => {
     const handleCategoryLabelClick = (cat) => {
         if (selectedCategory === cat) {
             setSelectedCategory(null);
-            handleClearFilters();
         } else {
             setSelectedCategory(cat);
             // Filter by category only
