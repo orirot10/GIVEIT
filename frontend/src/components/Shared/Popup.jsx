@@ -197,9 +197,11 @@ const Popup = ({ item, onClose }) => {
   const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
   const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '');
 
+
   const toggleFullScreen = () => {
     setIsFullScreen((prev) => !prev);
   };
+
 
   const handleContact = () => {
     console.log('handleContact called with item:', item);
@@ -564,7 +566,7 @@ const Popup = ({ item, onClose }) => {
                   יצירת קשר
                 </p>
                 <a
-                  href={`tel:${sanitizedPhone}`}
+   href={`tel:${sanitizedPhone}`}
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
                   style={{
                     fontSize: DESIGN_TOKENS.typography.fontSize.sm,
