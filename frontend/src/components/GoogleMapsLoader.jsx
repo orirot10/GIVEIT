@@ -9,7 +9,7 @@ const GoogleMapsLoader = ({ children }) => {
         <LoadScript
             googleMapsApiKey={GOOGLE_MAPS_API_KEY}
             libraries={LIBRARIES}
-            loadingElement={<div>Loading Google Maps... Please wait.</div>}
+            loadingElement={<div />}
         >
             {children}
         </LoadScript>
