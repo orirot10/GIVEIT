@@ -552,16 +552,8 @@ const Popup = ({ item, onClose }) => {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <p 
-                  className="text-xs text-gray-500 font-medium mb-0"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      color: DESIGN_TOKENS.colors.neutral[500],
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                      lineHeight: 1.2
-                    }}
-                >
-                  יצירת קשר
+                <p    >
+                 מספר טלפון
                 </p>
                 <a
    href={`tel:${sanitizedPhone}`}
@@ -575,17 +567,7 @@ const Popup = ({ item, onClose }) => {
                 >
                   {displayPhone}
                 </a>
-                {sanitizedPhone && (
-                  <a
-                    href={`https://wa.me/${sanitizedPhone}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center ml-2 text-green-600 hover:text-green-800"
-                    style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm }}
-                  >
-                    <FaWhatsapp className="h-4 w-4" />
-                  </a>
-                )}
+
               </div>
             </div>
           </div>
@@ -638,8 +620,8 @@ const Popup = ({ item, onClose }) => {
                 background: '#25D366'
               }}
             >
-              <FaWhatsapp className="h-4 w-4 ml-1" />
-              <span className="text-sm">start whatsapp conversation</span>
+              <FaWhatsapp className="h-2 w-2 ml-1" />
+              <span className="text-sm"> whatsapp </span>
             </a>
           )}
         </div>
