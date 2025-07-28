@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
-import FilterButton from "./FilterButton";
-import ToggleViewButton from "./ToggleViewButton";
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -295,7 +293,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             {userLocation && (
                 <button
                     onClick={handleReturnToLocation}
-                    className="fixed z-50 bottom-5.5 left-1 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center"
+                    className="absolute z-50 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center"
                     title="Return to my location"
                     data-testid="return-to-location-btn"
                     style={{ 
@@ -311,7 +309,9 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                         justifyContent: 'center',
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                        bottom: 16,
+                        left: 16
                     }}
                     onMouseOver={e => {
                         e.currentTarget.style.background = DESIGN_TOKENS.colors.neutral[50];
