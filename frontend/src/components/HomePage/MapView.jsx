@@ -227,8 +227,8 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
         <div
             className="w-full relative"
             style={{
-                marginBottom: '64px',
-                paddingTop: '100px',
+                marginBottom: '40px',
+                paddingTop: '80px',
                 height: '100%',
                 fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
             }}
