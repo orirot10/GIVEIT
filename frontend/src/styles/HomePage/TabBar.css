@@ -27,6 +27,7 @@
 
 .tab-button.active {
     color: #1C2526;
+    font-weight: 600;
 }
 
 .tab-indicator {
