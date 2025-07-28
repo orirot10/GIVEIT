@@ -564,7 +564,8 @@ const Popup = ({ item, onClose }) => {
                   יצירת קשר
                 </p>
                 <a
-                  href={`tel:${sanitizedPhone}`}
+   href={`tel:${sanitizedPhone}`}
+
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
                   style={{
                     fontSize: DESIGN_TOKENS.typography.fontSize.sm,
