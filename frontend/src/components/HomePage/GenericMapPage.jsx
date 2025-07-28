@@ -580,12 +580,17 @@ const GenericMapPage = ({ apiUrl }) => {
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showGentleLoading, setShowGentleLoading] = useState(false);
-    
+
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const cacheRef = useRef(new Map());
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+
+    // Reset selected category whenever content type changes
+    useEffect(() => {
+        setSelectedCategory(null);
+    }, [contentType]);
 
     // Memoized base URL
     const baseUrl = useMemo(() => import.meta.env.VITE_API_URL, []);
@@ -861,7 +866,6 @@ const GenericMapPage = ({ apiUrl }) => {
     const handleCategoryLabelClick = (cat) => {
         if (selectedCategory === cat) {
             setSelectedCategory(null);
-            handleClearFilters();
         } else {
             setSelectedCategory(cat);
             // Filter by category only
@@ -991,18 +995,39 @@ const GenericMapPage = ({ apiUrl }) => {
                 }
             `}</style>
 
-            {/* Loading Overlay (gentle, delayed, with fade) */}
+            {/* Map update spinner */}
             <style>{`
                 .gentle-loading-fade {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
                     opacity: 1;
                     transition: opacity 0.3s;
+                    pointer-events: none;
+                    z-index: 2000;
                 }
                 .gentle-loading-fade.hide {
                     opacity: 0;
-                    pointer-events: none;
                 }
             `}</style>
-            {<div className={`gentle-loading-fade${showGentleLoading ? '' : ' hide'}`}>{showGentleLoading && <LoadingSpinner message="Updating map..." />}</div>}
+            {
+                <div className={`gentle-loading-fade${showGentleLoading ? '' : ' hide'}`}>
+                    {showGentleLoading && (
+                        <div
+                            className="spinner"
+                            style={{
+                                width: 32,
+                                height: 32,
+                                border: `4px solid ${DESIGN_TOKENS.colors.neutral[200]}`,
+                                borderTop: `4px solid ${DESIGN_TOKENS.colors.primary[500]}`,
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite'
+                            }}
+                        />
+                    )}
+                </div>
+            }
 
             {/* Error State */}
             {error && !loading && (
@@ -1123,7 +1148,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
             {/* Toggle View Button */}
             <div style={{
-                position: 'fixed',
+                position: 'absolute',
                 bottom: 152,
                 right: 16,
                 zIndex: 1200,
