@@ -24,7 +24,6 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                         src={imageUrl}
                         alt={item.title}
                         className="myitems-card-img"
-                        style={{ border: '2px solid #607D8B', borderRadius: 8, width: 72, height: 64, objectFit: 'cover', background: '#F4F6F8' }}
                         onError={() => setImgError(true)}
                     />
                 ) : (
@@ -32,31 +31,20 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                 )}
             </div>
             <div className="myitems-card-content">
-                <div className="myitems-card-title" style={{ fontFamily: 'Heebo, Arial, sans-serif', fontSize: 15, color: '#1C2526', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', fontWeight: 600 }}>{item.title}</div>
-                <div className="myitems-card-meta" style={{ fontFamily: 'Heebo, Arial, sans-serif', fontSize: 13, color: '#607D8B', direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="myitems-card-title" dir={isRTL ? 'rtl' : 'ltr'}>{item.title}</div>
+                <div className="myitems-card-meta" dir={isRTL ? 'rtl' : 'ltr'}>
                     {item.status && (
-                        <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            background: item.status === 'active' ? '#C8E6C9' : item.status === 'expired' ? '#ECEFF1' : '#FFE0B2',
-                            color: item.status === 'active' ? '#388E3C' : item.status === 'expired' ? '#607D8B' : '#FFA000',
-                            borderRadius: 8,
-                            padding: '2px 8px',
-                            fontSize: 12,
-                            fontWeight: 500,
-                            marginRight: isRTL ? 0 : 8,
-                            marginLeft: isRTL ? 8 : 0,
-                        }}>
+                        <span >
                             ● {t(`common.${item.status}`)}
                         </span>
                     )}
                     {item.createdAt && <span>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}</div>
-                <div className="myitems-card-actions" style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <div className="myitems-card-actions">
 
-                <button className="myitems-edit-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
+                <button className="myitems-edit-btn" onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
                     <span role="img" aria-label="edit">✏️</span>
                 </button>
-                <button className="myitems-delete-btn" style={{ fontSize: 14, display: 'flex', alignItems: 'center', gap: 4 }} onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
+                <button className="myitems-delete-btn" onClick={() => setDeleteTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
                     <span role="img" aria-label="delete">🗑</span>
                 </button>
                 </div>
@@ -226,55 +214,21 @@ const MyModals = () => {
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
             <h2 className="main-title">{t('my_items.title')}</h2>
-            <div className="myitems-tabs" role="tablist" style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 20, overflowX: 'auto', maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+            <div className="myitems-tabs" role="tablist">
                 {TAB_CATEGORIES.map(tab => (
                     <button
                         key={tab.key}
                         className={`myitems-tab${view === tab.key ? ' active' : ''}`}
                         onClick={() => setView(tab.key)}
-                        style={{
-                            fontFamily: 'Heebo, Arial, sans-serif',
-                            fontSize: 13,
-                            color: view === tab.key ? '#2E4057' : '#1C2526',
-                            fontWeight: view === tab.key ? 'bold' : 'normal',
-                            borderRadius: 10,
-                            direction: isRTL ? 'rtl' : 'ltr',
-                            background: 'none',
-                            border: 'none',
-                            padding: '8px 14px',
-                            cursor: 'pointer',
-                            position: 'relative',
-                            outline: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            minWidth: 80,
-                            maxWidth: 120,
-                            whiteSpace: 'nowrap',
-                        }}
+                       
                         role="tab"
                         aria-selected={view === tab.key}
                     >
                         {tab.label}
-                        {view === tab.key && (
-                            <span style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                height: 2,
-                                background: '#2E4057',
-                                borderRadius: 2,
-                                width: '80%',
-                                margin: '0 auto',
-                                display: 'block',
-                                content: '""',
-                            }} />
-                        )}
                     </button>
                 ))}
             </div>
-            <div className="myitems-list-scroll" style={{ maxWidth: 420, margin: '0 auto' }}>
+            <div className="myitems-list-scroll">
                 {(() => {
                     const items =
                         view === 'rentals' ? rentals :
@@ -305,23 +259,7 @@ const MyModals = () => {
             {(view === 'rentals' || view === 'services') && (
                 <button
                     className="myitems-add-btn"
-                    style={{
-                        marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#087E8B',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontFamily: 'Heebo, Arial, sans-serif',
-                        fontSize: 16,
-                        cursor: 'pointer',
-                        width: '100%',
-                        maxWidth: 320,
-                        alignSelf: 'center',
-                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
-                    }}
                     onClick={() => navigate(view === 'rentals' ? '/offer-rental' : '/offer-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
-                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {view === 'rentals' ? t('rentals.add_rental') : t('services.add_service')}
                 </button>
@@ -330,23 +268,7 @@ const MyModals = () => {
             {view === 'rental_requests' && (
                 <button
                     className="myitems-add-btn"
-                    style={{
-                        marginTop: 2, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#087E8B',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontFamily: 'Heebo, Arial, sans-serif',
-                        fontSize: 16,
-                        cursor: 'pointer',
-                        width: '100%',
-                        maxWidth: 320,
-                        alignSelf: 'center',
-                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
-                    }}
                     onClick={() => navigate('/request-rental')}
-                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
-                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {t('rentals.request_rental')}
                 </button>
@@ -354,23 +276,7 @@ const MyModals = () => {
             {view === 'service_requests' && (
                 <button
                     className="myitems-add-btn"
-                    style={{
-                        marginTop: 0, // Changed from 24 to 10 to move the button upward                        padding: '12px 24px',
-                        background: '#087E8B',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: 8,
-                        fontFamily: 'Heebo, Arial, sans-serif',
-                        fontSize: 16,
-                        cursor: 'pointer',
-                        width: '100%',
-                        maxWidth: 320,
-                        alignSelf: 'center',
-                        boxShadow: '0 2px 8px rgba(38, 166, 154, 0.08)'
-                    }}
                     onClick={() => navigate('/request-service')}
-                    onMouseOver={e => e.currentTarget.style.background = '#009688'}
-                    onMouseOut={e => e.currentTarget.style.background = '#087E8B'}
                 >
                     {t('services.request_service')}
                 </button>
