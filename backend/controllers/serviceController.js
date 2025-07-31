@@ -135,12 +135,12 @@ const getUserServices = async (req, res) => {
 
 const editService = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, phone } = req.body;
+    const { title, description, category, price, phone, city, street, lat, lng } = req.body;
 
     try {
         const updated = await Service.findByIdAndUpdate(
             id,
-            { title, description, category, price, phone },
+            { title, description, category, price, phone, city, street, lat, lng },
             { new: true }
         );
 

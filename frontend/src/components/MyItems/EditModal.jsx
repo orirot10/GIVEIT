@@ -2,19 +2,35 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../../styles/components/Modal.css';
 import { rentalCategories, serviceCategories } from '../../constants/categories';
+import { geocodeAddress } from '../HomePage/geocode';
 
 const EditModal = ({ item, type, onSave, onCancel }) => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'he';
-    const [form, setForm] = useState({ ...item });
+    const [form, setForm] = useState({
+        ...item,
+        city: item.city || '',
+        street: item.street || '',
+    });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = () => {
-        onSave(form);
+    const handleSubmit = async () => {
+        let updatedForm = { ...form };
+        try {
+            if (form.street && form.city) {
+                const coords = await geocodeAddress(form.street, form.city);
+                if (coords) {
+                    updatedForm = { ...updatedForm, ...coords };
+                }
+            }
+        } catch (err) {
+            console.warn('Geocoding failed', err);
+        }
+        onSave(updatedForm);
     };
 
     const categoryOptions = type === 'rental' ? rentalCategories : serviceCategories;
@@ -47,6 +63,12 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
 
                 <label htmlFor="phone">{t('common.phone')}</label>
                 <input name="phone" value={form.phone} onChange={handleChange} />
+
+                <label htmlFor="city">{t('common.city')}</label>
+                <input name="city" value={form.city} onChange={handleChange} />
+
+                <label htmlFor="street">{t('common.street')}</label>
+                <input name="street" value={form.street} onChange={handleChange} />
 
                 <label htmlFor="price">{t('common.price')} (₪)</label>
                 <input
