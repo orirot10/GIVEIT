@@ -144,8 +144,15 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                         <div><strong>{t('common.category')}:</strong> {item.category}</div>
                         <div><strong>{t('common.phone')}:</strong> {item.phone}</div>
                         <div><strong>{t('common.price')}:</strong> {item.price}₪ / {translatePricePeriod(item.pricePeriod)}</div>
-                        <div><strong>{t('common.city')}:</strong> {item.city}</div>
-                        <div><strong>{t('common.street')}:</strong> {item.street}</div>
+                        {item.location && (
+                            <div><strong>{t('common.location')}:</strong> {item.location}</div>
+                        )}
+                        {item.city && (
+                            <div><strong>{t('common.city')}:</strong> {item.city}</div>
+                        )}
+                        {item.street && (
+                            <div><strong>{t('common.street')}:</strong> {item.street}</div>
+                        )}
                     </div>
                 </div>
             )}

@@ -11,6 +11,7 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
         ...item,
         city: item.city || '',
         street: item.street || '',
+        location: item.location || '',
     });
 
     const handleChange = (e) => {
@@ -23,6 +24,11 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
         try {
             if (form.street && form.city) {
                 const coords = await geocodeAddress(form.street, form.city);
+                if (coords) {
+                    updatedForm = { ...updatedForm, ...coords };
+                }
+            } else if (form.location) {
+                const coords = await geocodeAddress(form.location);
                 if (coords) {
                     updatedForm = { ...updatedForm, ...coords };
                 }
@@ -63,6 +69,9 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
 
                 <label htmlFor="phone">{t('common.phone')}</label>
                 <input name="phone" value={form.phone} onChange={handleChange} />
+
+                <label htmlFor="location">{t('common.location')}</label>
+                <input name="location" value={form.location} onChange={handleChange} />
 
                 <label htmlFor="city">{t('common.city')}</label>
                 <input name="city" value={form.city} onChange={handleChange} />

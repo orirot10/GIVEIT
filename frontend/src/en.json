@@ -35,6 +35,7 @@
     "category": "Category",
     "phone": "Phone",
     "price": "Price",
+    "location": "Location",
     "city": "City",
     "street": "Street",
     "title": "Title",
