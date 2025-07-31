@@ -171,12 +171,12 @@ const getUserRentals = async (req, res) => {
 // Edit a rental
 const editRental = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, images, phone } = req.body;
+    const { title, description, category, price, images, phone, city, street, lat, lng } = req.body;
 
     try {
     const updated = await Rental.findByIdAndUpdate(
         id,
-        { title, description, category, price, images, phone },
+        { title, description, category, price, images, phone, city, street, lat, lng },
         { new: true }
     );
 
