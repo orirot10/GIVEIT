@@ -116,7 +116,7 @@
         "invalid_email": "כתובת דואר אלקטרוני לא תקינה",
         "password_mismatch": "הסיסמאות אינן תואמות",
         "invalid_phone": "מספר טלפון לא תקין",
-        "general_error": "משהו השתבש. אנא נסה שוב.",
+        "general_error": "אנא נסה שוב.",
         "login_required": "אנא התחבר כדי להמשיך",
         "session_expired": "הסשן שלך פג תוקף. אנא התחבר מחדש",
         "price_range_invalid": "מחיר מקסימום לא יכול להיות נמוך ממחיר מינימום"

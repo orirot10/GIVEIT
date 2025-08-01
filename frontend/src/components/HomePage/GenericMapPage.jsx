@@ -9,7 +9,6 @@ import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logoBlue from '../../../images/logoBlue3.png';
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -167,14 +166,6 @@ const ErrorFallback = React.memo(({ error, onRetry }) => (
         zIndex: 2000,
         fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
-        <h3 style={{ 
-            color: DESIGN_TOKENS.colors.semantic.error, 
-            marginBottom: DESIGN_TOKENS.spacing.md,
-            fontSize: DESIGN_TOKENS.typography.fontSize.lg,
-            fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold
-        }}>
-            Something went wrong
-        </h3>
         <p style={{ 
             color: DESIGN_TOKENS.colors.neutral[600], 
             marginBottom: DESIGN_TOKENS.spacing.lg, 
@@ -282,10 +273,6 @@ const Header = React.memo(({ user }) => (
             {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
         </span>
 
-        <img src={logoBlue} alt="Givit Logo" style={{
-           width: 180,
-           height: 150,
-        }} />
     </div>
 ));
 
