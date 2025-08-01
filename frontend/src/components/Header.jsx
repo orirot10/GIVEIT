@@ -8,9 +8,7 @@ const Header = () => {
 
     return (
         <header className="flex flex-col sm:flex-row justify-between items-center p-4" dir={t('navigation.home') === 'מוצרים' ? 'rtl' : 'ltr'}>
-            {/* Logo & Greeting */}
             <div className="flex flex-col items-center sm:items-start">
-                {/* <img src={logo} alt="GiveIt Logo" className="w-40 h-auto mb-1" /> */}
                 {user && (
                     <div className="flex flex-col">
                         <div className="text-2xl text-gray-700 font-semibold mt-2 ml-2">

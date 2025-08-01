@@ -80,7 +80,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
 }
 
 .sign-up-form button[type="submit"]:hover:not(:disabled),
