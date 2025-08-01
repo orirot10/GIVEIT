@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import EditModal from './EditModal';
 
-const placeholderSVG = `<svg width='64' height='64' xmlns='http://www.w3.org/2000/svg'><rect width='64' height='64' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='40' height='24' rx='4' fill='#CFD8DC'/><rect x='20' y='32' width='24' height='8' rx='2' fill='#B0BEC5'/></svg>`;
+const placeholderSVG = `<svg width='16' height='16' xmlns='http://www.w3.org/2000/svg'><rect width='16' height='16' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='12' height='8' rx='4' fill='#CFD8DC'/><rect x='12' y='12' width='12' height='6' rx='2' fill='#B0BEC5'/></svg>`;
 
 const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, placeholderSVG }) => {
     const [imgError, setImgError] = useState(false);

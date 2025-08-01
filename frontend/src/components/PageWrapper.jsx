@@ -7,7 +7,7 @@ const PageWrapper = ({ children }) => {
       <img
         src={givitIcon}
         alt="givit"
-        className="absolute top-2 left-2 w-8 h-8"
+        className="absolute top-0.5 left-2 w-2 h-3 z-200"
       />
       <div className="w-full">
         {children}
