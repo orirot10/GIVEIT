@@ -167,22 +167,7 @@ const ErrorFallback = React.memo(({ error, onRetry }) => (
         zIndex: 2000,
         fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
-        <h3 style={{ 
-            color: DESIGN_TOKENS.colors.semantic.error, 
-            marginBottom: DESIGN_TOKENS.spacing.md,
-            fontSize: DESIGN_TOKENS.typography.fontSize.lg,
-            fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold
-        }}>
-            Something went wrong
-        </h3>
-        <p style={{ 
-            color: DESIGN_TOKENS.colors.neutral[600], 
-            marginBottom: DESIGN_TOKENS.spacing.lg, 
-            fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-            lineHeight: 1.5
-        }}>
-            {error || 'Unable to load items. Please try again.'}
-        </p>
+
         <button
             onClick={onRetry}
             style={{
@@ -599,12 +584,14 @@ const GenericMapPage = ({ apiUrl }) => {
     const tabs = useMemo(() => {
         const tabConfigs = {
             rental: [
-                { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' },
-                { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' }
+                { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' },
+
+                { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' }
             ],
             service: [
-                { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' },
-                { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' }
+            
+                { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' },
+                    { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' }
             ]
         };
         return tabConfigs[contentType.includes('rental') ? 'rental' : 'service'];

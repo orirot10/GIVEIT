@@ -144,6 +144,7 @@ const Popup = ({ item, onClose }) => {
         // Try Firebase Storage
         try {
           const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
+          
           const url = await getDownloadURL(firebaseRef);
           resolvedUrls.push(url);
         } catch (error) {
@@ -195,7 +196,7 @@ const Popup = ({ item, onClose }) => {
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
   const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
-  const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '');
+  const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '').replace(/^0/, '+972');
 
   const toggleFullScreen = () => {
     setIsFullScreen((prev) => !prev);

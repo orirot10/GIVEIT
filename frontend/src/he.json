@@ -170,10 +170,10 @@
     },
     "mark_available": "סמן כזמין",
     "mark_unavailable": "סמן כלא זמין",
-    "Available Products": "זמינים",
-    "Wanted Products": "דרושים",
+    "Available Products": " מוצרים זמינים",
+    "Wanted Products": "מוצרים דרושים",
     "Available Services": "שירותים זמינים",
-    "Wanted Services": "דרושים",
+    "Wanted Services": "שירותים דרושים",
     "forms": {
         "request_rental_title": "בקש פריט להשכרה",
         "request_service_title": "בקש שירות",
