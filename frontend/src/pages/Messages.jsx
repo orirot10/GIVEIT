@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthContext } from '../context/AuthContext';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import ChatList from '../components/ChatList';
@@ -11,6 +11,7 @@ import '../styles/Chat.css';
 function Messages() {
     const { user } = useAuthContext();
     const location = useLocation();
+    const navigate = useNavigate();
     const [directChat, setDirectChat] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -71,6 +72,10 @@ function Messages() {
 
     return (
         <div className="messages-container">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px' }}>
+                <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>→</button>
+                <h2 style={{ margin: 0, fontFamily: 'Heebo, Arial, sans-serif' }}>חזור</h2>
+            </div>
             {directChat ? (
                 <div className="chat-view">
                     <button 

@@ -1,0 +1,11 @@
+<svg width="150" height="50" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .text {
+      font-family: 'Arial', sans-serif;
+      font-size: 40px;
+      font-weight: bold;
+      fill: #1A8D7D; /* הצבע מתוך התמונה ששלחת */
+    }
+  </style>
+  <text x="0" y="40" class="text">Givit</text>
+</svg>

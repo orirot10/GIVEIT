@@ -186,7 +186,7 @@ const Messages = ({ userId }) => {
     style={{ width: '220px', borderRight: '1.5px solid #2E4057', overflowY: 'auto', backgroundColor: '#F4F6F8' }}
   >
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>←</button>
+      <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>←</button>
       <h2 className="main-title">שיחות</h2>
     </div>
     {conversations.length === 0 ? (
@@ -228,7 +228,7 @@ const Messages = ({ userId }) => {
     {activeConversation ? (
       <>
         <div style={{ padding: '10px', borderBottom: '1.5px solid #2E4057', backgroundColor: '#F4F6F8', color: '#1C2526' }}>
-          <h3>Chat with {activeConversation.name}</h3>
+          <h3>{activeConversation.name}</h3>
         </div>
         <div style={{ flex: 1, overflowY: 'scroll', padding: '10px', backgroundColor: '#fff' }}>
           {messages.map((msg, index) => (

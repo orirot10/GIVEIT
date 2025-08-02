@@ -237,7 +237,7 @@ const Popup = ({ item, onClose }) => {
     navigate('/messages', {
       state: {
         contactId: ownerId,
-        contactName: ownerName,
+        contactName: title,
         itemTitle: title,
         initialMessage: true
       }
