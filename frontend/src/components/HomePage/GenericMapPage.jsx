@@ -167,25 +167,7 @@ const ErrorFallback = React.memo(({ error, onRetry }) => (
         fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
     }}>
 
-        <button
-            onClick={onRetry}
-            style={{
-                background: DESIGN_TOKENS.colors.primary[500],
-                color: 'white',
-                border: 'none',
-                padding: `${DESIGN_TOKENS.spacing.sm} ${DESIGN_TOKENS.spacing.lg}`,
-                borderRadius: DESIGN_TOKENS.borderRadius.sm,
-                cursor: 'pointer',
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                transition: 'all 0.2s ease',
-                boxShadow: DESIGN_TOKENS.shadows.sm
-            }}
-            onMouseOver={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[600]}
-            onMouseOut={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[500]}
-        >
-            Try Again
-        </button>
+
     </div>
 ));
 
