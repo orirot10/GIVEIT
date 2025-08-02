@@ -112,7 +112,7 @@
     "invalid_email": "Invalid email address",
     "password_mismatch": "Passwords do not match",
     "invalid_phone": "Invalid phone number",
-    "general_error": "Something went wrong. Please try again.",
+    "general_error": "Please try again.",
     "login_required": "Please login to continue",
     "session_expired": "Your session has expired. Please login again",
     "price_range_invalid": "Maximum price cannot be less than minimum price"

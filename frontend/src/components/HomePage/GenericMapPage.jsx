@@ -9,7 +9,6 @@ import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import logoBlue from '../../../images/logoBlue3.png';
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -267,10 +266,6 @@ const Header = React.memo(({ user }) => (
             {user ? `היי ${user.displayName || 'user'}` : 'hello guest'}
         </span>
 
-        <img src={logoBlue} alt="Givit Logo" style={{
-           width: 180,
-           height: 150,
-        }} />
     </div>
 ));
 
