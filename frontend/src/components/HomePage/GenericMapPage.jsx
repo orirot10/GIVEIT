@@ -151,25 +151,6 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
 ));
 
 // Error Boundary Component
-const ErrorFallback = React.memo(({ error, onRetry }) => (
-    <div className="error-state" style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        textAlign: 'center',
-        padding: DESIGN_TOKENS.spacing.xl,
-        background: 'white',
-        borderRadius: DESIGN_TOKENS.borderRadius.lg,
-        boxShadow: DESIGN_TOKENS.shadows.xl,
-        maxWidth: 320,
-        zIndex: 2000,
-        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
-    }}>
-
-
-    </div>
-));
 
 // Empty State Component
 const EmptyState = React.memo(({ contentType, searchQuery }) => {
