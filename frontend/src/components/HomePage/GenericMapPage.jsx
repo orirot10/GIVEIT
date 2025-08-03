@@ -151,6 +151,10 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
 ));
 
 // Error Boundary Component
+const ErrorFallback = React.memo(({ error, onRetry }) => {
+    // Do nothing - just return null to prevent app crash
+    return null;
+});
 
 // Empty State Component
 const EmptyState = React.memo(({ contentType, searchQuery }) => {
