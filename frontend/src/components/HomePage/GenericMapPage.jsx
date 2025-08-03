@@ -978,10 +978,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 </div>
             }
 
-            {/* Error State */}
-            {error && !loading && (
-                <ErrorFallback error={error} onRetry={handleRetry} />
-            )}
+            {/* Error State - Do nothing */}
 
             {/* Empty State */}
             {shouldShowEmptyState && (
