@@ -55,6 +55,10 @@ const handleSubmit = async e => {
             throw new Error('You must be logged in to create a listing');
         }
 
+        if (!form.firstName.trim() || !form.lastName.trim()) {
+            throw new Error('First and last name are required');
+        }
+
         // Get Firebase Auth token
         const { getAuth } = await import('firebase/auth');
         const auth = getAuth();
@@ -71,6 +75,8 @@ const handleSubmit = async e => {
         // Prepare listing data with Firebase image URLs and lat/lng
         const listingData = {
             ...form,
+            firstName: form.firstName || 'Anonymous',
+            lastName: form.lastName || '',
             images: imageUrls,
             lat: coords ? coords.lat : undefined,
             lng: coords ? coords.lng : undefined
