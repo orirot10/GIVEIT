@@ -60,13 +60,15 @@ const protect = async (req, res, next) => {
         }
       }
       
-      // Add user info to request
+      // Add user info to request with fallbacks for missing names
+      const tokenFirst = decodedToken.name?.split(' ')[0] || '';
+      const tokenLast = decodedToken.name?.split(' ').slice(1).join(' ') || '';
       req.user = {
         uid: decodedToken.uid,
         email: decodedToken.email,
         mongoUser,
-        firstName: mongoUser.firstName,
-        lastName: mongoUser.lastName
+        firstName: mongoUser.firstName || tokenFirst || 'Anonymous',
+        lastName: mongoUser.lastName || tokenLast || ''
       };
 
       next();

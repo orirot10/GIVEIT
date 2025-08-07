@@ -41,8 +41,8 @@ const uploadNewRentalRequest = async (req, res) => {
         console.log('Image paths:', imagePaths);
 
         const newRentalRequest = await RentalRequest.create({
-            firstName: req.user.firstName,
-            lastName: req.user.lastName,
+            firstName: req.user.firstName || req.body.firstName || 'Anonymous',
+            lastName: req.user.lastName || req.body.lastName || '',
             email: req.user.email,
             ownerId: req.user.mongoUser._id,
             title,
