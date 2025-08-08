@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { I18nextProvider } from 'react-i18next';
@@ -20,8 +20,23 @@ import MessagesPage from './pages/Messages';
 import ServiceForm from './components/UploadForm/ServiceForm';
 import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
+import splashLogo from '../images/logogood.png';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => setShowSplash(false), 2000);
+    return () => clearTimeout(timerId);
+  }, []);
+
+  if (showSplash) {
+    return (
+      <div className="splash-screen">
+        <img src={splashLogo} alt="GIVIT" />
+      </div>
+    );
+  }
   const { user } = useAuthContext();
   return (
     <GoogleMapsLoader>
