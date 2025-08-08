@@ -46,7 +46,8 @@ function Dashboard() {
 
     return (
         <div className="dashboard-container custom-dashboard-bg" dir={isRTL ? 'rtl' : 'ltr'}>
-<div className="dashboard-header" style={{ position: 'relative', zIndex: 10 }}>
+<div className="dashboard-header" style={{ position: 'relative', zIndex: 10, marginTop: '20px'}}>
+
                 <h2 className="dashboard-username">{t('dashboard.welcome_message')}, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
                 {(user.city || user.address) && (
                     <div className="dashboard-address">
