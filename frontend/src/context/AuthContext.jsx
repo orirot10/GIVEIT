@@ -236,13 +236,13 @@ export const AuthProvider = ({ children }) => {
         
         // Check if user exists in Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
-        
+
+        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+        const firstName = names[0] || '';
+        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+
         if (!userDoc.exists()) {
           // Store user data in Firestore if it's a new user
-          const names = user.displayName ? user.displayName.split(' ') : ['', ''];
-          const firstName = names[0] || '';
-          const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
-          
           await setDoc(doc(db, 'users', user.uid), {
             firstName,
             lastName,
@@ -255,6 +255,15 @@ export const AuthProvider = ({ children }) => {
             createdAt: new Date().toISOString(),
             authProvider: 'google'
           });
+        } else {
+          // Update missing name fields for existing users
+          const data = userDoc.data();
+          const updates = {};
+          if (!data.firstName && firstName) updates.firstName = firstName;
+          if (!data.lastName && lastName) updates.lastName = lastName;
+          if (Object.keys(updates).length > 0) {
+            await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+          }
         }
         
         // Sync user to MongoDB after successful Google sign-in

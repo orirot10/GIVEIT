@@ -160,17 +160,35 @@ exports.syncUser = async (req, res) => {
     // Find or create user in MongoDB
     let mongoUser = await User.findOne({ firebaseUid: uid });
     console.log('Existing MongoDB user:', !!mongoUser);
-    
+
+    const names = displayName ? displayName.split(' ') : [];
+    const firstName = names[0] || '';
+    const lastName = names.slice(1).join(' ') || '';
+
     if (!mongoUser) {
       console.log('Creating new MongoDB user via sync...');
       mongoUser = await User.create({
         firebaseUid: uid,
         email,
-        firstName: displayName?.split(' ')[0] || '',
-        lastName: displayName?.split(' ').slice(1).join(' ') || '',
+        firstName,
+        lastName,
         authProvider: provider || 'unknown'
       });
       console.log('MongoDB user created via sync:', mongoUser._id);
+    } else {
+      // Update missing names if necessary
+      let updated = false;
+      if (!mongoUser.firstName && firstName) {
+        mongoUser.firstName = firstName;
+        updated = true;
+      }
+      if (!mongoUser.lastName && lastName) {
+        mongoUser.lastName = lastName;
+        updated = true;
+      }
+      if (updated) {
+        await mongoUser.save();
+      }
     }
     
     res.status(200).json({ mongoUser });
