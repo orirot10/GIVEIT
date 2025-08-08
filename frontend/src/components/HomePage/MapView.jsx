@@ -71,20 +71,41 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-    lat: 32.0308,
+    lat: 32.0508,
     lng: 34.7658,
 };
 
-const getPixelPositionOffset = () => ({
-    x: -(20 / 2),
-    y: -(40 / 2),
-});
+
 
 const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const mapRef = useRef(null);
     const hasSetInitialLocation = useRef(false);
+
+    // Fit the map so that its visible WIDTH is exactly `widthKm` around `center`
+    const fitMapToWidthInKm = (center, widthKm = 1) => {
+        if (!center || !mapRef.current || !window.google) return;
+        const mapDiv = mapRef.current.getDiv();
+        const widthPx = mapDiv?.clientWidth || 1;
+        const heightPx = mapDiv?.clientHeight || 1;
+
+        const lat = center.lat;
+        const lngMetersPerDegree = 111320 * Math.cos((lat * Math.PI) / 180);
+        const widthDegrees = (widthKm * 1000) / Math.max(lngMetersPerDegree, 1e-6);
+        const heightDegrees = widthDegrees * (heightPx / widthPx);
+
+        const bounds = new window.google.maps.LatLngBounds(
+            { lat: center.lat - heightDegrees / 2, lng: center.lng - widthDegrees / 2 },
+            { lat: center.lat + heightDegrees / 2, lng: center.lng + widthDegrees / 2 }
+        );
+        mapRef.current.fitBounds(bounds);
+    };
+
+    const setMapToUserLocation = (location) => {
+        if (!location) return;
+        fitMapToWidthInKm(location, 1);
+    };
 
     useEffect(() => {
         if (hasSetInitialLocation.current || !navigator.geolocation) {
@@ -99,6 +120,11 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                 };
                 setUserLocation(newLocation);
                 hasSetInitialLocation.current = true;
+                
+                // Set map bounds to show 1km radius after a short delay
+                setTimeout(() => {
+                    setMapToUserLocation(newLocation);
+                }, 100);
             },
             (error) => {
                 console.error("Error getting user location:", error);
@@ -128,7 +154,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
 
     const handleReturnToLocation = () => {
         if (userLocation && mapRef.current) {
-            mapRef.current.panTo(userLocation);
+            setMapToUserLocation(userLocation);
         }
     };
 
@@ -238,10 +264,16 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={userLocation || defaultCenter}
-                zoom={15}
                 onLoad={(map) => {
                     mapRef.current = map;
                     console.log('Google Map loaded successfully');
+                    
+                    // Set initial bounds if user location is already available
+                    if (userLocation) {
+                        setTimeout(() => {
+                            setMapToUserLocation(userLocation);
+                        }, 100);
+                    }
                 }}
                 onIdle={handleMapIdle}
                 options={{
@@ -294,7 +326,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                 <button
                     onClick={handleReturnToLocation}
                     className="absolute z-50 font-semibold rounded-full shadow-lg border transition-colors flex items-center justify-center"
-                    title="Return to my location"
+                    title="Return to my location (1 km width)"
                     data-testid="return-to-location-btn"
                     style={{ 
                         background: 'white',
@@ -351,7 +383,6 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
             key={item.id}
             position={{ lat: item.lat, lng: item.lng }}
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-            getPixelPositionOffset={getPixelPositionOffset}
         >
             <div
                 className="flex flex-col items-center cursor-pointer"
