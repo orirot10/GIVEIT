@@ -7,11 +7,12 @@ import { Buffer } from 'buffer';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// SVG content from givit.svg
-const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" fill="#3b82f6"/>
-  <text x="16" y="21" font-size="16" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif">G</text>
-</svg>`;
+// Load SVG content from resources/givit.svg so the app icon matches the provided asset
+const svgPath = path.join(__dirname, 'resources', 'givit.svg');
+if (!fs.existsSync(svgPath)) {
+  throw new Error(`SVG not found at: ${svgPath}`);
+}
+const svgContent = fs.readFileSync(svgPath, 'utf8');
 
 // Android icon sizes for different densities
 const iconSizes = {
@@ -55,24 +56,7 @@ async function generateIcons() {
     console.log(`Generated icons for ${folder} (${size}x${size})`);
   }
   
-  // Also generate for mipmap-anydpi-v26 (adaptive icons)
-  const anydpiPath = path.join(androidResPath, 'mipmap-anydpi-v26');
-  if (!fs.existsSync(anydpiPath)) {
-    fs.mkdirSync(anydpiPath, { recursive: true });
-  }
-  
-  // Generate adaptive icon files
-  await sharp(Buffer.from(svgContent))
-    .resize(108, 108)
-    .png()
-    .toFile(path.join(anydpiPath, 'ic_launcher.png'));
-  
-  await sharp(Buffer.from(svgContent))
-    .resize(108, 108)
-    .png()
-    .toFile(path.join(anydpiPath, 'ic_launcher_round.png'));
-  
-  console.log('Generated adaptive icons for mipmap-anydpi-v26');
+  // Do NOT write PNGs into mipmap-anydpi-v26 to avoid conflicts with adaptive icon XML
   
   console.log('All Android app icons generated successfully!');
 }
