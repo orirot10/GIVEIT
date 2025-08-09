@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const compression = require('compression');
 const connectDB = require('./config/db');
 const rentalRoutes = require('./routes/rentalRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -21,6 +22,7 @@ require('./config/firebase');
 
 const app = express();
 const server = http.createServer(app);
+app.use(compression());
 
 // Define allowed origins for CORS
 const allowedOrigins = [
@@ -52,6 +54,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded files statically with proper MIME types
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '1d',
   setHeaders: (res, path) => {
     if (path.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
