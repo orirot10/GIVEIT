@@ -171,9 +171,17 @@ const rateService = async (req, res) => {
     try {
         const service = await Service.findById(id);
         if (!service) return res.status(404).json({ error: 'Service not found' });
+
+        const userId = req.user?.uid;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+        if (service.ratedBy.includes(userId)) {
+            return res.status(400).json({ error: 'You have already rated this service' });
+        }
         const value = Math.max(1, Math.min(5, parseFloat(rating)));
         service.rating = ((service.rating || 0) * (service.ratingCount || 0) + value) / ((service.ratingCount || 0) + 1);
         service.ratingCount = (service.ratingCount || 0) + 1;
+        service.ratedBy.push(userId);
+
         await service.save();
         res.status(200).json({ rating: service.rating, ratingCount: service.ratingCount });
     } catch (err) {

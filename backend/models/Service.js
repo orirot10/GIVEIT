@@ -21,6 +21,8 @@ const serviceSchema = new mongoose.Schema({
     lng: { type: Number },
     rating: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
+    ratedBy: { type: [String], default: [] },
+
     createdAt: { type: Date, default: Date.now },
 });
 

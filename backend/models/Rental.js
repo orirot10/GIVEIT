@@ -21,6 +21,8 @@ const rentalSchema = new mongoose.Schema({
     firebaseUid: { type: String, required: true },
     rating: { type: Number, default: 0 },
     ratingCount: { type: Number, default: 0 },
+    ratedBy: { type: [String], default: [] },
+
 }, { timestamps: true });
 
 // Add compound index for spatial queries

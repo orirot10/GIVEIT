@@ -150,12 +150,6 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
     </div>
 ));
 
-// Error Boundary Component
-const ErrorFallback = React.memo(({ error, onRetry }) => {
-    // Do nothing - just return null to prevent app crash
-    return null;
-});
-
 // Empty State Component
 const EmptyState = React.memo(({ contentType, searchQuery }) => {
     const { t } = useTranslation();
@@ -746,14 +740,6 @@ const GenericMapPage = ({ apiUrl }) => {
             })
             .finally(() => setLoading(false));
     }, [getApiUrl, userLocation, mapItemsToCoords]);
-
-    // Retry handler
-    const handleRetry = useCallback(() => {
-        setError(null);
-        if (mapBounds) {
-            fetchItemsWithinBounds(mapBounds);
-        }
-    }, [mapBounds, fetchItemsWithinBounds]);
 
     // Add listing handler
     const handleAddListing = useCallback(() => {
