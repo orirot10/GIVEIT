@@ -150,12 +150,6 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
     </div>
 ));
 
-// Error Boundary Component
-const ErrorFallback = React.memo(({ error, onRetry }) => {
-    // Do nothing - just return null to prevent app crash
-    return null;
-});
-
 // Empty State Component
 const EmptyState = React.memo(({ contentType, searchQuery }) => {
     const { t } = useTranslation();
@@ -747,14 +741,6 @@ const GenericMapPage = ({ apiUrl }) => {
             .finally(() => setLoading(false));
     }, [getApiUrl, userLocation, mapItemsToCoords]);
 
-    // Retry handler
-    const handleRetry = useCallback(() => {
-        setError(null);
-        if (mapBounds) {
-            fetchItemsWithinBounds(mapBounds);
-        }
-    }, [mapBounds, fetchItemsWithinBounds]);
-
     // Add listing handler
     const handleAddListing = useCallback(() => {
         const routeMap = {
@@ -1008,6 +994,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             locations={locations}
                             mapHeight={"100%"}
                             onBoundsChanged={setMapBounds}
+                            contentType={contentType}
                         />
                         {/* Overlay controls and labels at the top of the map */}
                         <div style={{
@@ -1086,7 +1073,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             overflowY: 'auto',
                             position: 'relative'
                         }}>
-                            <ListView rentals={allItems} />
+                            <ListView rentals={allItems} contentType={contentType} />
                         </div>
                     </div>
                 </div>

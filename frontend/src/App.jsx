@@ -23,6 +23,7 @@ import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 import splashLogo from '../images/logogood.png';
 
 function App() {
+  const { user } = useAuthContext();
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -37,7 +38,6 @@ function App() {
       </div>
     );
   }
-  const { user } = useAuthContext();
   return (
     <GoogleMapsLoader>
       <Router>

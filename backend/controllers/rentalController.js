@@ -72,7 +72,7 @@ const getRentals = async (req, res) => {
         let query = {};
         let rentals = [];
         // Only select fields needed for the map/popup
-        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
+        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount';
         // Bounding box filter (fast, uses index)
         if (
             minLat !== undefined && maxLat !== undefined &&
@@ -202,6 +202,28 @@ const deleteRental = async (req, res) => {
     }
 };
 
+const rateRental = async (req, res) => {
+    const { id } = req.params;
+    const { rating } = req.body;
+    try {
+        const rental = await Rental.findById(id);
+        if (!rental) return res.status(404).json({ error: 'Rental not found' });
+        const userId = req.user?.uid;
+        if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+        if (rental.ratedBy.includes(userId)) {
+            return res.status(400).json({ error: 'You have already rated this rental' });
+        }
+        const value = Math.max(1, Math.min(5, parseFloat(rating)));
+        rental.rating = ((rental.rating || 0) * (rental.ratingCount || 0) + value) / ((rental.ratingCount || 0) + 1);
+        rental.ratingCount = (rental.ratingCount || 0) + 1;
+        rental.ratedBy.push(userId);
+        await rental.save();
+        res.status(200).json({ rating: rental.rating, ratingCount: rental.ratingCount });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to rate rental' });
+    }
+};
+
 const searchRentals = async (req, res) => {
     try {
     const { query } = req.query;
@@ -261,6 +283,7 @@ module.exports = {
     getUserRentals,
     editRental,
     deleteRental,
+    rateRental,
     searchRentals,
     filterRentals,
 };
