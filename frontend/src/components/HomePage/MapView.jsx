@@ -77,7 +77,7 @@ const defaultCenter = {
 
 
 
-const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
+const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const mapRef = useRef(null);
@@ -371,7 +371,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children }) => {
                 </button>
             )}
 
-            <Popup item={selectedItem} onClose={handlePopupClose} />
+            <Popup item={selectedItem} onClose={handlePopupClose} contentType={contentType} />
         </div>
     );
 };

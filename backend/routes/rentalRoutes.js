@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadNewRental, getRentals, getUserRentals, editRental, deleteRental, searchRentals, filterRentals } = require('../controllers/rentalController.js');
+const { uploadNewRental, getRentals, getUserRentals, editRental, deleteRental, searchRentals, filterRentals, rateRental } = require('../controllers/rentalController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/upload');
 
@@ -14,6 +14,7 @@ router.get('/', getRentals);
 router.get('/user', protect, getUserRentals);
 router.put('/:id', protect, editRental);
 router.delete('/:id', protect, deleteRental);
+router.post('/:id/rate', protect, rateRental);
 router.get("/search", searchRentals);
 router.get('/filter', filterRentals);
 

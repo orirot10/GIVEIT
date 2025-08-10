@@ -19,6 +19,8 @@ const serviceSchema = new mongoose.Schema({
     street: { type: String },
     lat: { type: Number },
     lng: { type: Number },
+    rating: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
 });
 

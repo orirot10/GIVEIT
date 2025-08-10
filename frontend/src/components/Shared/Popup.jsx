@@ -9,7 +9,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/solid';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import '../../styles/components/PopupAnimation.css';
@@ -101,7 +101,7 @@ const DESIGN_TOKENS = {
     }
 };
 
-const Popup = ({ item, onClose }) => {
+const Popup = ({ item, onClose, contentType }) => {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const popupRef = useRef(null);
@@ -109,6 +109,37 @@ const Popup = ({ item, onClose }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { translatePricePeriod } = usePricePeriodTranslation();
+  const [currentRating, setCurrentRating] = useState(item?.rating || 0);
+  const [ratingCount, setRatingCount] = useState(item?.ratingCount || 0);
+  const isRateable = contentType === 'rentals' || contentType === 'services';
+
+  useEffect(() => {
+    setCurrentRating(item?.rating || 0);
+    setRatingCount(item?.ratingCount || 0);
+  }, [item]);
+
+  const handleRate = async (value) => {
+    if (!isRateable) return;
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
+      const endpoint = contentType === 'services' ? 'services' : 'rentals';
+      const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}/rate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(user && user.token ? { Authorization: `Bearer ${user.token}` } : {})
+        },
+        body: JSON.stringify({ rating: value })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setCurrentRating(data.rating);
+        setRatingCount(data.ratingCount);
+      }
+    } catch (err) {
+      console.error('Failed to rate', err);
+    }
+  };
   
   useEffect(() => {
     const handleEscKey = (event) => {
@@ -405,6 +436,33 @@ const Popup = ({ item, onClose }) => {
 
                 {/* Info Rows */}
         <div className="px-3 space-y-0" dir="rtl">
+            {isRateable && (
+              <div className="info-section">
+                <div
+                  className="info-row flex items-center py-1.5"
+                  style={{ paddingTop: DESIGN_TOKENS.spacing.xs, paddingBottom: DESIGN_TOKENS.spacing.xs }}
+                >
+                  <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
+                    <FaStar className="h-3 w-3" style={{ color: DESIGN_TOKENS.colors.primary[500] }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center">
+                      {[1,2,3,4,5].map(star => (
+                        <FaStar
+                          key={star}
+                          className="h-3 w-3 cursor-pointer"
+                          style={{ color: star <= Math.round(currentRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
+                          onClick={() => handleRate(star)}
+                        />
+                      ))}
+                      <span style={{ marginLeft: 4, fontSize: DESIGN_TOKENS.typography.fontSize.sm }}>
+                        {currentRating.toFixed(1)} ({ratingCount})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           {/* Price Section */}
           {price !== null && (
             <div className="info-section">

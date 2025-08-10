@@ -1008,6 +1008,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             locations={locations}
                             mapHeight={"100%"}
                             onBoundsChanged={setMapBounds}
+                            contentType={contentType}
                         />
                         {/* Overlay controls and labels at the top of the map */}
                         <div style={{
@@ -1086,7 +1087,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             overflowY: 'auto',
                             position: 'relative'
                         }}>
-                            <ListView rentals={allItems} />
+                            <ListView rentals={allItems} contentType={contentType} />
                         </div>
                     </div>
                 </div>

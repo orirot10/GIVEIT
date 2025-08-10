@@ -4,7 +4,7 @@ import Popup from "../Shared/Popup"; // Import the correct Popup component
 import '../../styles/HomePage/ListView.css';
 import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
-const ListView = ({ rentals }) => {
+const ListView = ({ rentals, contentType }) => {
   // Rename state for clarity (optional but good practice)
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadedImages, setLoadedImages] = useState({});
@@ -53,6 +53,7 @@ const ListView = ({ rentals }) => {
               <p className="rental-info">Category: {rental.category}</p>
               <p className="rental-info">Price: {rental.price} {translatePricePeriod(rental.pricePeriod)}</p>
               <p className="rental-info">Location: {rental.city}</p>
+              <p className="rental-info">Rating: {rental.rating ? rental.rating.toFixed(1) : 'N/A'}</p>
             </div>
           </div>
         ))}
@@ -60,7 +61,7 @@ const ListView = ({ rentals }) => {
 
       {/* Use the Popup component */}
       {selectedItem && (
-        <Popup item={selectedItem} onClose={handleClosePopup} />
+        <Popup item={selectedItem} onClose={handleClosePopup} contentType={contentType} />
       )}
     </div>
   );
