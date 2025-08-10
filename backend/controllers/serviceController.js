@@ -52,7 +52,7 @@ const getServices = async (req, res) => {
         let query = {};
         let services = [];
         // Only select fields needed for the map/popup
-        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
+        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount';
         // Bounding box filter (fast, uses index)
         if (
             minLat !== undefined && maxLat !== undefined &&
@@ -165,6 +165,22 @@ const deleteService = async (req, res) => {
     }
 };
 
+const rateService = async (req, res) => {
+    const { id } = req.params;
+    const { rating } = req.body;
+    try {
+        const service = await Service.findById(id);
+        if (!service) return res.status(404).json({ error: 'Service not found' });
+        const value = Math.max(1, Math.min(5, parseFloat(rating)));
+        service.rating = ((service.rating || 0) * (service.ratingCount || 0) + value) / ((service.ratingCount || 0) + 1);
+        service.ratingCount = (service.ratingCount || 0) + 1;
+        await service.save();
+        res.status(200).json({ rating: service.rating, ratingCount: service.ratingCount });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to rate service' });
+    }
+};
+
 const searchServices = async (req, res) => {
     try {
     const query = req.query.query;
@@ -205,7 +221,7 @@ const filterServices = async (req, res) => {
         if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
-    const services = await Service.find(query).select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng');
+    const services = await Service.find(query).select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount');
     res.status(200).json(services);
     } catch (err) {
     res.status(500).json({ error: "Failed to filter services", details: err.message });
@@ -218,6 +234,7 @@ module.exports = {
     getUserServices,
     editService,
     deleteService,
+    rateService,
     searchServices,
     filterServices,
 };
