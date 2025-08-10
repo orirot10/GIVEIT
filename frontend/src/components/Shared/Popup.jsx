@@ -115,6 +115,7 @@ const Popup = ({ item, onClose, contentType }) => {
   const [selectedRating, setSelectedRating] = useState(0);
   const [hasRated, setHasRated] = useState(false);
 
+
   useEffect(() => {
     setCurrentRating(item?.rating || 0);
     setRatingCount(item?.ratingCount || 0);
@@ -124,6 +125,7 @@ const Popup = ({ item, onClose, contentType }) => {
 
   const handleRate = async () => {
     if (!isRateable || hasRated || selectedRating === 0) return;
+
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
       const endpoint = contentType === 'services' ? 'services' : 'rentals';
@@ -134,6 +136,7 @@ const Popup = ({ item, onClose, contentType }) => {
           ...(user && user.token ? { Authorization: `Bearer ${user.token}` } : {})
         },
         body: JSON.stringify({ rating: selectedRating })
+
       });
       const data = await res.json();
       if (res.ok) {
@@ -142,6 +145,7 @@ const Popup = ({ item, onClose, contentType }) => {
         setHasRated(true);
       } else if (data?.error) {
         setHasRated(true);
+
       }
     } catch (err) {
       console.error('Failed to rate', err);
@@ -457,6 +461,7 @@ const Popup = ({ item, onClose, contentType }) => {
                       {[1,2,3,4,5].map(star => (
                         <FaStar
                           key={star}
+
                           className={`h-3 w-3 ${hasRated ? '' : 'cursor-pointer'}`}
                           style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
                           onClick={() => { if (!hasRated) setSelectedRating(star); }}
@@ -471,6 +476,7 @@ const Popup = ({ item, onClose, contentType }) => {
                           Rate
                         </button>
                       )}
+
                       <span style={{ marginLeft: 4, fontSize: DESIGN_TOKENS.typography.fontSize.sm }}>
                         {currentRating.toFixed(1)} ({ratingCount})
                       </span>
