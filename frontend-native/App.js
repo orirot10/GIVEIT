@@ -7,6 +7,8 @@ import ServicesMapPage from './src/screens/ServicesMapPage';
 import Account from './src/screens/Account';
 import Dashboard from './src/screens/Dashboard';
 import EditProfile from './src/screens/EditProfile';
+import Home from './src/screens/Home';
+import Messages from './src/screens/Messages';
 
 const Stack = createNativeStackNavigator();
 
@@ -14,7 +16,9 @@ export default function App() {
   return (
     <AuthProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Rentals">
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Messages" component={Messages} />
           <Stack.Screen name="Rentals" component={RentalsMapPage} />
           <Stack.Screen name="Services" component={ServicesMapPage} />
           <Stack.Screen name="Account" component={Account} />
