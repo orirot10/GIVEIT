@@ -46,8 +46,9 @@ function App() {
         <div className="app-container">
           <Routes>
             <Route element={<Layout />}>
-                <Route path="/" element={<RentalsMapPage />} />
+                <Route path="/" element={<ServicesMapPage />} />
                 <Route path="/services" element={<ServicesMapPage />} />
+                <Route path="/rentals" element={<RentalsMapPage />} />
                 <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
