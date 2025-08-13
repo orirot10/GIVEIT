@@ -4,4 +4,5 @@
     <string name="title_activity_main">Givit</string>
     <string name="package_name">com.orirot.givit</string>
     <string name="custom_url_scheme">com.orirot.givit</string>
+    <string name="google_maps_key">YOUR_API_KEY_HERE</string>
 </resources>
