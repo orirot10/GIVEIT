@@ -723,8 +723,11 @@ const GenericMapPage = ({ apiUrl }) => {
         setSelectedCategory(null);
     }, [contentType]);
 
-    // Memoized base URL
-    const baseUrl = useMemo(() => import.meta.env.VITE_API_URL, []);
+    // Memoized base URL with fallback to deployed backend
+    const baseUrl = useMemo(
+        () => import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com',
+        []
+    );
 
     // Define tabs based on contentType and language
     const tabs = useMemo(() => {

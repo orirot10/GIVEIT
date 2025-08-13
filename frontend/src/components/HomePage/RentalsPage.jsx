@@ -6,7 +6,7 @@ const RentalsPage = () => {
     const { t } = useTranslation();
     return (
         <GenericMapPage
-            apiUrl={`${import.meta.env.VITE_API_URL}/api/rentals`}
+            apiUrl={`${import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com'}/api/rentals`}
             title={t("Rentals")}
         />
     );

@@ -38,7 +38,7 @@ const ListView = ({ rentals, contentType }) => {
             <div className="rental-image-container">
               {rental.images && rental.images[0] ? (
                 <img
-                  src={`${import.meta.env.VITE_API_URL}${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
+                  src={`${import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com'}${rental.images[0]}`} // Use the first image from the array, prepended with backend URL
                   alt={rental.title}
                   className={`rental-image ${loadedImages[rental._id] ? 'loaded' : 'loading'}`}
                   onLoad={() => handleImageLoad(rental._id)}
