@@ -57,7 +57,7 @@ function Dashboard() {
             </div>
             <div className="dashboard-sections">
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">{t('dashboard.rentals_section')}</h3>
+                    <h3 className="dashboard-section-title" style={isRTL ? { textAlign: 'right' } : undefined}>{t('dashboard.rentals_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="primary-btn dashboard-btn" onClick={() => handleOfferRental(true)}>
                             {t('dashboard.offer_rental')}
@@ -68,7 +68,7 @@ function Dashboard() {
                     </div>
                 </div>
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">{t('dashboard.services_section')}</h3>
+                    <h3 className="dashboard-section-title" style={isRTL ? { textAlign: 'right' } : undefined}>{t('dashboard.services_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="primary-btn dashboard-btn" onClick={() => handleOfferService(true)}>
                             {t('dashboard.offer_service')}
@@ -79,7 +79,7 @@ function Dashboard() {
                     </div>
                 </div>
                 <div className="dashboard-section">
-                    <h3 className="dashboard-section-title">{t('dashboard.account_section')}</h3>
+                    <h3 className="dashboard-section-title" style={isRTL ? { textAlign: 'right' } : undefined}>{t('dashboard.account_section')}</h3>
                     <div className="dashboard-section-buttons">
                         <button className="outlined-btn dashboard-btn" onClick={handleEditProfile}>
                             {t('dashboard.edit_profile')}

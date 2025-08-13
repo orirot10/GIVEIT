@@ -113,7 +113,7 @@
 /* Individual card */
 .myitems-card {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
   background: var(--bg-card);
   border-radius: var(--border-radius);
@@ -121,7 +121,7 @@
   padding: 18px 20px;
   min-height: 96px;
   gap: 20px;
-  direction: rtl;
+  direction: ltr;
   transition: box-shadow 0.3s ease;
 }
 

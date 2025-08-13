@@ -17,7 +17,7 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
         imageUrl = item.images[0].startsWith('http') ? item.images[0] : `https://giveit-backend.onrender.com${item.images[0]}`;
     }
     return (
-        <div className="myitems-card" key={item._id} dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="myitems-card" key={item._id} dir="ltr">
             <div className="myitems-card-imgwrap">
                 {imageUrl && !imgError ? (
                     <img
@@ -30,16 +30,16 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                     <span dangerouslySetInnerHTML={{ __html: placeholderSVG }} />
                 )}
             </div>
-            <div className="myitems-card-content">
-                <div className="myitems-card-title" dir={isRTL ? 'rtl' : 'ltr'}>{item.title}</div>
-                <div className="myitems-card-meta" dir={isRTL ? 'rtl' : 'ltr'}>
+            <div className="myitems-card-content" style={isRTL ? { textAlign: 'right' } : undefined} dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="myitems-card-title">{item.title}</div>
+                <div className="myitems-card-meta" style={isRTL ? { textAlign: 'right' } : undefined}>
                     {item.status && (
                         <span >
                             ● {t(`common.${item.status}`)}
                         </span>
                     )}
                     {item.createdAt && <span>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}</div>
-                <div className="myitems-card-actions">
+                <div className="myitems-card-actions" style={isRTL ? { display: 'flex', justifyContent: 'flex-end' } : undefined}>
 
                 <button className="myitems-edit-btn" onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
                     <span role="img" aria-label="edit">✏️</span>
