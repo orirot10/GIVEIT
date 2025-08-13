@@ -1,5 +1,6 @@
 # GiveIt React Native
 
-This directory contains an experimental React Native port of the GiveIt frontend.
-It uses Expo and React Navigation. Only minimal placeholder screens are included
-and most web specific functionality has not been implemented yet.
+This directory contains a React Native port of the GiveIt frontend.
+It uses Expo and React Navigation. A basic **Home** screen fetches and displays
+rentable items and placeholder screens are provided for other sections of the
+app. Further work is needed to reach feature parity with the web frontend.
