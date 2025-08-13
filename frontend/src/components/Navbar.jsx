@@ -17,8 +17,8 @@ function Navbar() {
   const { t } = useTranslation();
 
   const tabs = [
-    { icon: <FiPackage  />, path: '/', label: t('navigation.home') },
-    { icon: <RiUserSettingsLine  />, path: '/services', label: t('navigation.services') },
+    { icon: <RiUserSettingsLine />, path: '/', label: t('navigation.services') },
+    { icon: <FiPackage />, path: '/rentals', label: t('navigation.rentals') },
     //{ icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
     { icon: <BsViewList />, path: '/my-items', label: t('navigation.my_items') },
     { icon: <VscAccount />, path: user ? '/dashboard' : '/account', label: t('navigation.account') },
