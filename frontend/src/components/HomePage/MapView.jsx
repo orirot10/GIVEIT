@@ -82,6 +82,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     const [userLocation, setUserLocation] = useState(null);
     const mapRef = useRef(null);
     const hasSetInitialLocation = useRef(false);
+    const [mapKey, setMapKey] = useState(0); // Force map re-render when needed
 
     // Fit the map so that its visible WIDTH is exactly `widthKm` around `center`
     const fitMapToWidthInKm = (center, widthKm = 1) => {
@@ -138,6 +139,57 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
             }
         );
     }, []);
+
+    // Enhanced map refresh for Android
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && mapRef.current) {
+                console.log('MapView: Page became visible, refreshing map...');
+                // Force map refresh by triggering a resize event
+                setTimeout(() => {
+                    if (mapRef.current) {
+                        window.google.maps.event.trigger(mapRef.current, 'resize');
+                        console.log('MapView: Map resize triggered');
+                    }
+                }, 100);
+            }
+        };
+
+        const handleFocus = () => {
+            if (mapRef.current) {
+                console.log('MapView: Window gained focus, refreshing map...');
+                // Force map refresh
+                setTimeout(() => {
+                    if (mapRef.current) {
+                        window.google.maps.event.trigger(mapRef.current, 'resize');
+                        console.log('MapView: Map resize triggered on focus');
+                    }
+                }, 100);
+            }
+        };
+
+        // Listen for visibility and focus changes
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, []);
+
+    // Force map refresh when locations change significantly
+    useEffect(() => {
+        if (mapRef.current && locations && locations.length > 0) {
+            // Trigger map refresh when locations change
+            setTimeout(() => {
+                if (mapRef.current) {
+                    window.google.maps.event.trigger(mapRef.current, 'resize');
+                    console.log('MapView: Map refreshed due to location changes');
+                }
+            }, 50);
+        }
+    }, [locations?.length]);
 
     const handleMarkerClick = (item) => {
         console.log('[MapView] Item passed to handleMarkerClick:', item);

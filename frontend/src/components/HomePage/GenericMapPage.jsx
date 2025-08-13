@@ -521,12 +521,202 @@ const GenericMapPage = ({ apiUrl }) => {
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showGentleLoading, setShowGentleLoading] = useState(false);
+    const [pullToRefresh, setPullToRefresh] = useState({ isRefreshing: false, startY: 0 });
+    const [showRefreshNotification, setShowRefreshNotification] = useState(false);
 
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const cacheRef = useRef(new Map());
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+
+    // Pull-to-refresh functionality for mobile
+    useEffect(() => {
+        let startY = 0;
+        let currentY = 0;
+        let isRefreshing = false;
+
+        const handleTouchStart = (e) => {
+            if (view === "map" && window.scrollY === 0) {
+                startY = e.touches[0].clientY;
+            }
+        };
+
+        const handleTouchMove = (e) => {
+            if (view === "map" && window.scrollY === 0 && startY > 0) {
+                currentY = e.touches[0].clientY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 50 && !isRefreshing) {
+                    setPullToRefresh({ isRefreshing: true, startY: startY });
+                    isRefreshing = true;
+                    
+                    // Show pull-to-refresh notification
+                    console.log('Pull-to-refresh triggered');
+                    
+                    // Trigger refresh
+                    refreshMapData();
+                    
+                    // Reset after refresh
+                    setTimeout(() => {
+                        setPullToRefresh({ isRefreshing: false, startY: 0 });
+                        isRefreshing = false;
+                    }, 2000);
+                }
+            }
+        };
+
+        const handleTouchEnd = () => {
+            startY = 0;
+            currentY = 0;
+        };
+
+        // Add touch event listeners
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchmove', handleTouchMove, { passive: true });
+        document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        return () => {
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [view]);
+
+    // Android app lifecycle handling
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('Page became visible, refreshing map data...');
+                refreshMapData();
+            }
+        };
+
+        const handleFocus = () => {
+            console.log('Window gained focus, refreshing map data...');
+            refreshMapData();
+        };
+
+        // Listen for app state changes (React Native/Android)
+        if (window.Capacitor) {
+            // For Capacitor apps, we can use document events
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('focus', handleFocus);
+        }
+
+        // For web apps, use the Page Visibility API
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+        }
+
+        // For Android WebView, listen for focus events
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, []);
+
+    // Function to refresh map data
+    const refreshMapData = useCallback(() => {
+        console.log('Refreshing map data...');
+        
+        // Clear cache to force fresh data
+        cacheRef.current.clear();
+        lastFetchedBounds.current = null;
+        
+        // If we have current map bounds, fetch fresh data
+        if (mapBounds) {
+            setLoading(true);
+            setError(null);
+            
+            // Force refresh by clearing the bounds
+            lastFetchedBounds.current = null;
+            
+            if (selectedCategory) {
+                // Refresh with category filter
+                const currentApiUrl = getApiUrl();
+                const { northEast, southWest } = mapBounds;
+                const params = new URLSearchParams();
+                params.append('category', selectedCategory);
+                params.append('minLat', southWest.lat);
+                params.append('maxLat', northEast.lat);
+                params.append('minLng', southWest.lng);
+                params.append('maxLng', northEast.lng);
+                const url = `${currentApiUrl}/filter?${params.toString()}`;
+                
+                fetch(url)
+                    .then((res) => {
+                        if (!res.ok) throw new Error('Failed to apply filters');
+                        return res.json();
+                    })
+                    .then((data) => {
+                        setAllItems(data);
+                        const withCoords = mapItemsToCoords(data);
+                        setLocations(withCoords);
+                        setError(null);
+                        showRefreshSuccess();
+                    })
+                    .catch((err) => {
+                        console.error('Filter refresh error:', err);
+                        setError('Failed to refresh data');
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            } else {
+                // Refresh without category filter
+                fetchItemsWithinBounds(mapBounds)
+                    .then(() => {
+                        showRefreshSuccess();
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            }
+        } else if (userLocation) {
+            // If no map bounds but we have user location, refresh with default radius
+            setLoading(true);
+            setError(null);
+            
+            const currentApiUrl = getApiUrl();
+            const params = new URLSearchParams();
+            params.append('lat', userLocation.lat);
+            params.append('lng', userLocation.lng);
+            params.append('radius', DEFAULT_RADIUS);
+            
+            const url = `${currentApiUrl}?${params.toString()}`;
+            
+            fetch(url)
+                .then((res) => {
+                    if (!res.ok) throw new Error('Failed to refresh data');
+                    return res.json();
+                })
+                .then((data) => {
+                    setAllItems(data);
+                    const withCoords = mapItemsToCoords(data);
+                    setLocations(withCoords);
+                    setError(null);
+                    showRefreshSuccess();
+                })
+                .catch((err) => {
+                    console.error('Refresh error:', err);
+                    setError('Failed to refresh data');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [mapBounds, contentType, selectedCategory, userLocation, getApiUrl, mapItemsToCoords, fetchItemsWithinBounds]);
+
+    // Show refresh success notification
+    const showRefreshSuccess = useCallback(() => {
+        setShowRefreshNotification(true);
+        setTimeout(() => {
+            setShowRefreshNotification(false);
+        }, 3000);
+    }, []);
 
     // Reset selected category whenever content type changes
     useEffect(() => {
@@ -928,6 +1118,17 @@ const GenericMapPage = ({ apiUrl }) => {
                 .search-button:active, .add-listing-button:active, .messages-button:active, .back-button:active {
                     transform: scale(0.95);
                 }
+                
+                @keyframes slideDown {
+                    from {
+                        transform: translateY(-100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
             `}</style>
 
             {/* Map update spinner */}
@@ -990,6 +1191,60 @@ const GenericMapPage = ({ apiUrl }) => {
             {view === "map" ? (
                 <>
                     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                        {/* Pull-to-refresh indicator */}
+                        {pullToRefresh.isRefreshing && (
+                            <div style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                zIndex: 1000,
+                                background: DESIGN_TOKENS.colors.primary[500],
+                                color: 'white',
+                                padding: '12px',
+                                textAlign: 'center',
+                                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                animation: 'slideDown 0.3s ease-out'
+                            }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    <div className="spinner" style={{
+                                        width: 16,
+                                        height: 16,
+                                        border: `2px solid rgba(255,255,255,0.3)`,
+                                        borderTop: `2px solid white`,
+                                        borderRadius: '50%',
+                                        animation: 'spin 1s linear infinite'
+                                    }}></div>
+                                    Refreshing map data...
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Refresh success notification */}
+                        {showRefreshNotification && (
+                            <div style={{
+                                position: 'absolute',
+                                top: 60,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 1000,
+                                background: DESIGN_TOKENS.colors.success[500] || '#10B981',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: DESIGN_TOKENS.borderRadius.lg,
+                                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                animation: 'slideDown 0.3s ease-out'
+                            }}>
+                                ✓ Map data refreshed successfully
+                            </div>
+                        )}
+                        
                         <MapView
                             locations={locations}
                             mapHeight={"100%"}
@@ -1031,6 +1286,52 @@ const GenericMapPage = ({ apiUrl }) => {
                                         ))}
                                     </div>
                                 </div>
+                            </div>
+                            
+                            {/* Refresh button for Android */}
+                            <div style={{
+                                position: 'absolute',
+                                top: 120,
+                                right: 16,
+                                zIndex: 30,
+                                pointerEvents: 'auto'
+                            }}>
+                                <button
+                                    onClick={refreshMapData}
+                                    disabled={loading}
+                                    style={{
+                                        background: DESIGN_TOKENS.colors.primary[500],
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: 48,
+                                        height: 48,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: loading ? 'not-allowed' : 'pointer',
+                                        opacity: loading ? 0.6 : 1,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        transition: 'all 0.2s ease',
+                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!loading) {
+                                            e.target.style.transform = 'scale(1.1)';
+                                            e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'scale(1)';
+                                        e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                    }}
+                                    title="Refresh map data"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M1 4v6h6M23 20v-6h-6"/>
+                                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                     </div>
