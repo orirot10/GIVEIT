@@ -370,6 +370,7 @@ const Controls = React.memo(({
                     setSearchQuery={setSearchQuery}
                     onSearch={onSearch}
                     onClose={handleCloseSearch}
+                    onClear={onClearFilters}
                 />
             </div>
             <TabBar
@@ -1038,16 +1039,16 @@ const GenericMapPage = ({ apiUrl }) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [view, contentType]);
 
-    // Show loading spinner only if loading lasts > 300ms
+    // Show loading spinner only if loading lasts > 300ms and initial load is complete
     useEffect(() => {
         let timer;
-        if (loading) {
+        if (loading && hasInitialLoad) {
             timer = setTimeout(() => setShowGentleLoading(true), 300);
         } else {
             setShowGentleLoading(false);
         }
         return () => clearTimeout(timer);
-    }, [loading]);
+    }, [loading, hasInitialLoad]);
 
     return (
         <div className="map-wrapper" style={{
@@ -1113,7 +1114,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 }
             `}</style>
 
-            {/* Additional CSS for search toggle animation */}
+            {/* Search bar animation styles */}
             <style>{`
                 .search-toggle-container {
                     transition: all 0.3s ease;
@@ -1128,6 +1129,21 @@ const GenericMapPage = ({ apiUrl }) => {
                     transform: scale(0.95);
                 }
                 
+                .search-bar-wrapper {
+                    width: 100%;
+                    max-height: 0;
+                    overflow: hidden;
+                    opacity: 0;
+                    transform: translateY(-20px);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                
+                .search-bar-wrapper.open {
+                    max-height: 80px;
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+                
                 @keyframes slideDown {
                     from {
                         transform: translateY(-100%);
@@ -1136,6 +1152,12 @@ const GenericMapPage = ({ apiUrl }) => {
                     to {
                         transform: translateY(0);
                         opacity: 1;
+                    }
+                }
+                
+                @media (max-width: 768px) {
+                    .search-bar-wrapper.open {
+                        max-height: 100px;
                     }
                 }
             `}</style>
@@ -1152,13 +1174,10 @@ const GenericMapPage = ({ apiUrl }) => {
                     pointer-events: none;
                     z-index: 2000;
                 }
-                .gentle-loading-fade.hide {
-                    opacity: 0;
-                }
             `}</style>
             
-            {/* Initial loading state */}
-            {loading && !hasInitialLoad && (
+            {/* Single loading state - prioritize initial load */}
+            {loading && !hasInitialLoad ? (
                 <div style={{
                     position: 'absolute',
                     top: '50%',
@@ -1193,12 +1212,9 @@ const GenericMapPage = ({ apiUrl }) => {
                         Loading map data...
                     </p>
                 </div>
-            )}
-            
-            {/* Map update spinner for subsequent updates */}
-            {
-                <div className={`gentle-loading-fade${showGentleLoading ? '' : ' hide'}`}>
-                    {showGentleLoading && (
+            ) : (
+                showGentleLoading && hasInitialLoad && (
+                    <div className="gentle-loading-fade">
                         <div
                             className="spinner"
                             style={{
@@ -1210,9 +1226,9 @@ const GenericMapPage = ({ apiUrl }) => {
                                 animation: 'spin 1s linear infinite'
                             }}
                         />
-                    )}
-                </div>
-            }
+                    </div>
+                )
+            )}
 
             {/* Error State */}
             {error && (
