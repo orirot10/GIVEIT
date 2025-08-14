@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/Dashboard.css';
 import { useAuthContext } from '../context/AuthContext';
@@ -95,6 +95,9 @@ function Dashboard() {
                         </button>
                     </div>
                 </div>
+            </div>
+            <div className="dashboard-footer">
+                <Link to="/terms" className="dashboard-terms-link">{t('terms.title')}</Link>
             </div>
 
             {showRentalForm && (
