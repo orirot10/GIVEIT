@@ -313,7 +313,7 @@ const Controls = React.memo(({
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         onSearch={onSearch}
-                        onClearFilters={onClearFilters}
+                        onClose={toggleSearchBar}
                     />
                 </div>
             ) : (

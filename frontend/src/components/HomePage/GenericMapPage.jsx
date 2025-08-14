@@ -244,24 +244,17 @@ const Controls = React.memo(({
 }) => {
     const [showSearchBar, setShowSearchBar] = useState(false);
 
-    const toggleSearchBar = () => {
-        setShowSearchBar(!showSearchBar);
-        if (showSearchBar) {
-            // Clear search when hiding
-            setSearchQuery("");
-            onClearFilters();
-        }
-    };
+    const openSearchBar = () => setShowSearchBar(true);
 
-    const handleBackButton = () => {
-        // Clear search and hide search bar
+    const handleCloseSearch = () => {
+        setShowSearchBar(false);
         setSearchQuery("");
         onClearFilters();
-        setShowSearchBar(false);
     };
 
     return (
         <div className="controls-container" style={{
+            position: 'relative',
             padding: `${DESIGN_TOKENS.spacing.md} ${DESIGN_TOKENS.spacing.sm} 0px`,
             display: 'flex',
             flexDirection: 'column',
@@ -269,63 +262,16 @@ const Controls = React.memo(({
             alignItems: 'flex-start',
             fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
         }}>
-            {showSearchBar ? (
-                <div style={{
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    height: '48px'
-                }}>
+            <div className="search-toggle-container" style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '0 8px'
+            }}>
+                {!showSearchBar && (
                     <button
-                        onClick={handleBackButton}
-                        className="back-button"
-                        style={{
-                            background: 'transparent',
-                            color: '#000000',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '32px',
-                            height: '32px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0
-                        }}
-                        onMouseOver={e => e.currentTarget.style.color = '#000000'}
-                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
-                        aria-label="Back"
-                    >
-                        <svg 
-                            width="16" 
-                            height="16" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2"
-                        >
-                            <polyline points="15,18 9,12 15,6"></polyline>
-                        </svg>
-                    </button>
-                    <SearchBar
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        onSearch={onSearch}
-                        onClearFilters={onClearFilters}
-                    />
-                </div>
-            ) : (
-                <div className="search-toggle-container" style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '0 8px'
-                }}>
-                    <button
-                        onClick={toggleSearchBar}
+                        onClick={openSearchBar}
                         className="search-button"
                         style={{
                             background: 'transparent',
@@ -343,81 +289,89 @@ const Controls = React.memo(({
                         onMouseOut={e => e.currentTarget.style.color = '#000000'}
                         aria-label="Search"
                     >
-                        <svg 
-                            width="20" 
-                            height="20" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
                             strokeWidth="2"
                         >
                             <circle cx="11" cy="11" r="8"></circle>
                             <path d="m21 21-4.35-4.35"></path>
                         </svg>
                     </button>
-                    <button
-                        onClick={onAddListing}
-                        className="add-listing-button"
-                        style={{
-                            background: 'transparent',
-                            color: '#000000',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                        onMouseOver={e => e.currentTarget.style.color = '#333333'}
-                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
-                        aria-label="Add Listing"
+                )}
+                <button
+                    onClick={onAddListing}
+                    className="add-listing-button"
+                    style={{
+                        background: 'transparent',
+                        color: '#000000',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.color = '#333333'}
+                    onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                    aria-label="Add Listing"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                     >
-                        <svg 
-                            width="20" 
-                            height="20" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2"
-                        >
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                    </button>
-                    <button
-                        onClick={onMessages}
-                        className="messages-button"
-                        style={{
-                            background: 'transparent',
-                            color: '#000000',
-                            border: 'none',
-                            borderRadius: '50%',
-                            width: '40px',
-                            height: '40px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                        }}
-                        onMouseOver={e => e.currentTarget.style.color = '#333333'}
-                        onMouseOut={e => e.currentTarget.style.color = '#000000'}
-                        aria-label="Messages"
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                </button>
+                <button
+                    onClick={onMessages}
+                    className="messages-button"
+                    style={{
+                        background: 'transparent',
+                        color: '#000000',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '40px',
+                        height: '40px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.color = '#333333'}
+                    onMouseOut={e => e.currentTarget.style.color = '#000000'}
+                    aria-label="Messages"
+                >
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                     >
-                        <svg 
-                            width="20" 
-                            height="20" 
-                            viewBox="0 0 24 24" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            strokeWidth="2"
-                        >
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                    </button>
-                </div>
-            )}
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div className={`search-bar-wrapper ${showSearchBar ? 'open' : ''}`}>
+                <SearchBar
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    onSearch={onSearch}
+                    onClose={handleCloseSearch}
+                />
+            </div>
             <TabBar
                 activeTab={contentType}
                 onTabChange={setContentType}
