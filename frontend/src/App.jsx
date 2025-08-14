@@ -20,6 +20,7 @@ import MessagesPage from './pages/Messages';
 import ServiceForm from './components/UploadForm/ServiceForm';
 import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
+import Terms from "./pages/Terms";
 import splashLogo from '../images/logogood.png';
 
 function App() {
@@ -60,6 +61,8 @@ function App() {
                 <Route path="/messages" element={<MessagesPage />} />
                 <Route path="/offer-service" element={<ServiceForm />} />
                 <Route path="/request-service" element={<RequestServiceForm />} />
+                <Route path="/terms" element={<Terms />} />
+
                 <Route path="/auth-handler" element={<MobileAuthHandler />} />
              </Route>
             </Routes>
