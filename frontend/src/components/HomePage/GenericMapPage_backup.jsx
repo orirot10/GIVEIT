@@ -522,182 +522,13 @@ const GenericMapPage = ({ apiUrl }) => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [showGentleLoading, setShowGentleLoading] = useState(false);
     const [pullToRefresh, setPullToRefresh] = useState({ isRefreshing: false, startY: 0 });
-
+    const [showRefreshNotification, setShowRefreshNotification] = useState(false);
 
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const cacheRef = useRef(new Map());
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
-
-    // Memoized base URL with fallback to deployed backend
-    const baseUrl = useMemo(
-        () => import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com',
-        []
-    );
-
-    // Memoized API URL function
-    const getApiUrl = useCallback(() => {
-        const urlMap = {
-            rentals: `${baseUrl}/api/rentals`,
-            services: `${baseUrl}/api/services`,
-            rental_requests: `${baseUrl}/api/rental_requests`,
-            service_requests: `${baseUrl}/api/service_requests`
-        };
-        return urlMap[contentType] || `${baseUrl}/api/rentals`;
-    }, [contentType, baseUrl]);
-
-    // Memoized item mapping function
-    const mapItemsToCoords = useCallback((items) => {
-        return items
-            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
-            .map(item => ({
-                ...item,
-                id: item._id || item.id,
-                type: contentType
-            }));
-    }, [contentType]);
-
-    // Define tabs based on contentType and language
-    const tabs = useMemo(() => {
-        const tabConfigs = {
-            rental: [
-                { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' },
-
-                { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' }
-            ],
-            service: [
-            
-                { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' },
-                    { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' }
-            ]
-        };
-        return tabConfigs[contentType.includes('rental') ? 'rental' : 'service'];
-    }, [contentType, i18n.language, t]);
-
-    // Fetch items within bounds with error handling (with cache)
-    const fetchItemsWithinBounds = useCallback(async (bounds) => {
-        try {
-            const currentApiUrl = getApiUrl();
-            const { northEast, southWest } = bounds;
-            const boundsKey = JSON.stringify(bounds) + contentType + (selectedCategory || '');
-            // Check cache first
-            if (cacheRef.current.has(boundsKey)) {
-                const cached = cacheRef.current.get(boundsKey);
-                setAllItems(cached);
-                const withCoords = mapItemsToCoords(cached);
-                setLocations(withCoords);
-                setError(null);
-                return;
-            }
-            const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
-            
-            const res = await fetch(url);
-            if (!res.ok) {
-                throw new Error(`Failed to fetch items: ${res.status}`);
-            }
-            
-            const items = await res.json();
-            // Store in cache
-            cacheRef.current.set(boundsKey, items);
-            setAllItems(items);
-            const withCoords = mapItemsToCoords(items);
-            setLocations(withCoords);
-            setError(null);
-        } catch (err) {
-            console.error('Error fetching items:', err);
-            setError(err.message);
-            setAllItems([]);
-            setLocations([]);
-        }
-    }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory]);
-
-
-
-    // Function to refresh map data
-    const refreshMapData = useCallback(() => {
-        // Clear cache to force fresh data
-        cacheRef.current.clear();
-        lastFetchedBounds.current = null;
-        
-        // If we have current map bounds, fetch fresh data
-        if (mapBounds) {
-            setLoading(true);
-            setError(null);
-            
-            // Force refresh by clearing the bounds
-            lastFetchedBounds.current = null;
-            
-            if (selectedCategory) {
-                // Refresh with category filter
-                const currentApiUrl = getApiUrl();
-                const { northEast, southWest } = mapBounds;
-                const params = new URLSearchParams();
-                params.append('category', selectedCategory);
-                params.append('minLat', southWest.lat);
-                params.append('maxLat', northEast.lat);
-                params.append('minLng', southWest.lng);
-                params.append('maxLng', northEast.lng);
-                const url = `${currentApiUrl}/filter?${params.toString()}`;
-                
-                fetch(url)
-                    .then((res) => {
-                        if (!res.ok) throw new Error('Failed to apply filters');
-                        return res.json();
-                    })
-                    .then((data) => {
-                        setAllItems(data);
-                        const withCoords = mapItemsToCoords(data);
-                        setLocations(withCoords);
-                        setError(null);
-                    })
-                    .catch((err) => {
-                        console.error('Filter refresh error:', err);
-                        setError('Failed to refresh data');
-                    })
-                    .finally(() => {
-                        setLoading(false);
-                    });
-            } else {
-                // Refresh without category filter
-                fetchItemsWithinBounds(mapBounds)
-                    .finally(() => {
-                        setLoading(false);
-                    });
-            }
-        } else if (userLocation) {
-            // If no map bounds but we have user location, refresh with default radius
-            setLoading(true);
-            setError(null);
-            
-            const currentApiUrl = getApiUrl();
-            const params = new URLSearchParams();
-            params.append('lat', userLocation.lat);
-            params.append('lng', userLocation.lng);
-            params.append('radius', DEFAULT_RADIUS);
-            
-            const url = `${currentApiUrl}?${params.toString()}`;
-            
-            fetch(url)
-                .then((res) => {
-                    if (!res.ok) throw new Error('Failed to refresh data');
-                    return res.json();
-                })
-                .then((data) => {
-                    setAllItems(data);
-                    const withCoords = mapItemsToCoords(data);
-                    setLocations(withCoords);
-                    setError(null);
-                })
-                .catch((err) => {
-                    console.error('Refresh error:', err);
-                    setError('Failed to refresh data');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }
-    }, [mapBounds, contentType, selectedCategory, userLocation, getApiUrl, mapItemsToCoords, fetchItemsWithinBounds]);
 
     // Pull-to-refresh functionality for mobile
     useEffect(() => {
@@ -720,10 +551,11 @@ const GenericMapPage = ({ apiUrl }) => {
                     setPullToRefresh({ isRefreshing: true, startY: startY });
                     isRefreshing = true;
                     
-
+                    // Show pull-to-refresh notification
+                    console.log('Pull-to-refresh triggered');
                     
                     // Trigger refresh
-                    refreshMapData();
+                    if (refreshMapData) refreshMapData();
                     
                     // Reset after refresh
                     setTimeout(() => {
@@ -755,12 +587,14 @@ const GenericMapPage = ({ apiUrl }) => {
     useEffect(() => {
         const handleVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
-                refreshMapData();
+                console.log('Page became visible, refreshing map data...');
+                if (refreshMapData) refreshMapData();
             }
         };
 
         const handleFocus = () => {
-            refreshMapData();
+            console.log('Window gained focus, refreshing map data...');
+            if (refreshMapData) refreshMapData();
         };
 
         // Listen for app state changes (React Native/Android)
@@ -784,9 +618,64 @@ const GenericMapPage = ({ apiUrl }) => {
         };
     }, [refreshMapData]);
 
+
+
+    // Show refresh success notification
+    const showRefreshSuccess = useCallback(() => {
+        setShowRefreshNotification(true);
+        setTimeout(() => {
+            setShowRefreshNotification(false);
+        }, 3000);
+    }, []);
+
     // Reset selected category whenever content type changes
     useEffect(() => {
         setSelectedCategory(null);
+    }, [contentType]);
+
+    // Memoized base URL with fallback to deployed backend
+    const baseUrl = useMemo(
+        () => import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com',
+        []
+    );
+
+    // Memoized API URL function
+    const getApiUrl = useCallback(() => {
+        const urlMap = {
+            rentals: `${baseUrl}/api/rentals`,
+            services: `${baseUrl}/api/services`,
+            rental_requests: `${baseUrl}/api/rental_requests`,
+            service_requests: `${baseUrl}/api/service_requests`
+        };
+        return urlMap[contentType] || `${baseUrl}/api/rentals`;
+    }, [contentType, baseUrl]);
+
+    // Define tabs based on contentType and language
+    const tabs = useMemo(() => {
+        const tabConfigs = {
+            rental: [
+                { id: 'rental_requests', label: i18n.language === 'he' ? t('Wanted Products') : 'Wanted Products' },
+
+                { id: 'rentals', label: i18n.language === 'he' ? t('Available Products') : 'Available Products' }
+            ],
+            service: [
+            
+                { id: 'service_requests', label: i18n.language === 'he' ? t('Wanted Services') : 'Wanted Services' },
+                    { id: 'services', label: i18n.language === 'he' ? t('Available Services') : 'Available Services' }
+            ]
+        };
+        return tabConfigs[contentType.includes('rental') ? 'rental' : 'service'];
+    }, [contentType, i18n.language, t]);
+
+    // Memoized item mapping function
+    const mapItemsToCoords = useCallback((items) => {
+        return items
+            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
+            .map(item => ({
+                ...item,
+                id: item._id || item.id,
+                type: contentType
+            }));
     }, [contentType]);
 
     // Get user location on mount
@@ -836,16 +725,23 @@ const GenericMapPage = ({ apiUrl }) => {
                     url = `${currentApiUrl}?${params.toString()}`;
                 }
                 
+                console.log('Fetching initial data from:', url);
+                
                 const res = await fetch(url);
+                console.log('API response status:', res.status, res.statusText);
+                console.log('API response headers:', Object.fromEntries(res.headers.entries()));
                 
                 if (!res.ok) {
                     throw new Error(`Failed to fetch initial data: ${res.status}`);
                 }
                 
                 const items = await res.json();
+                console.log('Initial data received:', items);
+                console.log('Items with coordinates:', items.filter(item => typeof item.lat === 'number' && typeof item.lng === 'number'));
                 
                 setAllItems(items);
                 const withCoords = mapItemsToCoords(items);
+                console.log('Mapped coordinates:', withCoords);
                 setLocations(withCoords);
                 setError(null);
                 setHasInitialLoad(true);
@@ -873,6 +769,135 @@ const GenericMapPage = ({ apiUrl }) => {
         // Fetch initial data when component mounts or contentType changes
         fetchInitialData();
     }, [contentType, userLocation, getApiUrl, mapItemsToCoords]);
+
+    // Fetch items within bounds with error handling (with cache)
+    const fetchItemsWithinBounds = useCallback(async (bounds) => {
+        try {
+            const currentApiUrl = getApiUrl();
+            const { northEast, southWest } = bounds;
+            const boundsKey = JSON.stringify(bounds) + contentType + (selectedCategory || '');
+            // Check cache first
+            if (cacheRef.current.has(boundsKey)) {
+                const cached = cacheRef.current.get(boundsKey);
+                setAllItems(cached);
+                const withCoords = mapItemsToCoords(cached);
+                setLocations(withCoords);
+                setError(null);
+                return;
+            }
+            const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
+            
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error(`Failed to fetch items: ${res.status}`);
+            }
+            
+            const items = await res.json();
+            // Store in cache
+            cacheRef.current.set(boundsKey, items);
+            setAllItems(items);
+            const withCoords = mapItemsToCoords(items);
+            setLocations(withCoords);
+            setError(null);
+        } catch (err) {
+            console.error('Error fetching items:', err);
+            setError(err.message);
+            setAllItems([]);
+            setLocations([]);
+        }
+    }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory]);
+
+    // Function to refresh map data
+    const refreshMapData = useCallback(() => {
+        console.log('Refreshing map data...');
+        
+        // Clear cache to force fresh data
+        cacheRef.current.clear();
+        lastFetchedBounds.current = null;
+        
+        // If we have current map bounds, fetch fresh data
+        if (mapBounds) {
+            setLoading(true);
+            setError(null);
+            
+            // Force refresh by clearing the bounds
+            lastFetchedBounds.current = null;
+            
+            if (selectedCategory) {
+                // Refresh with category filter
+                const currentApiUrl = getApiUrl();
+                const { northEast, southWest } = mapBounds;
+                const params = new URLSearchParams();
+                params.append('category', selectedCategory);
+                params.append('minLat', southWest.lat);
+                params.append('maxLat', northEast.lat);
+                params.append('minLng', southWest.lng);
+                params.append('maxLng', northEast.lng);
+                const url = `${currentApiUrl}/filter?${params.toString()}`;
+                
+                fetch(url)
+                    .then((res) => {
+                        if (!res.ok) throw new Error('Failed to apply filters');
+                        return res.json();
+                    })
+                    .then((data) => {
+                        setAllItems(data);
+                        const withCoords = mapItemsToCoords(data);
+                        setLocations(withCoords);
+                        setError(null);
+                        showRefreshSuccess();
+                    })
+                    .catch((err) => {
+                        console.error('Filter refresh error:', err);
+                        setError('Failed to refresh data');
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            } else {
+                // Refresh without category filter
+                fetchItemsWithinBounds(mapBounds)
+                    .then(() => {
+                        showRefreshSuccess();
+                    })
+                    .finally(() => {
+                        setLoading(false);
+                    });
+            }
+        } else if (userLocation) {
+            // If no map bounds but we have user location, refresh with default radius
+            setLoading(true);
+            setError(null);
+            
+            const currentApiUrl = getApiUrl();
+            const params = new URLSearchParams();
+            params.append('lat', userLocation.lat);
+            params.append('lng', userLocation.lng);
+            params.append('radius', DEFAULT_RADIUS);
+            
+            const url = `${currentApiUrl}?${params.toString()}`;
+            
+            fetch(url)
+                .then((res) => {
+                    if (!res.ok) throw new Error('Failed to refresh data');
+                    return res.json();
+                })
+                .then((data) => {
+                    setAllItems(data);
+                    const withCoords = mapItemsToCoords(data);
+                    setLocations(withCoords);
+                    setError(null);
+                    showRefreshSuccess();
+                })
+                .catch((err) => {
+                    console.error('Refresh error:', err);
+                    setError('Failed to refresh data');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }, [mapBounds, contentType, selectedCategory, userLocation, getApiUrl, mapItemsToCoords, fetchItemsWithinBounds]);
 
     // Debounced fetch for items within bounds
     useEffect(() => {
@@ -1006,7 +1031,20 @@ const GenericMapPage = ({ apiUrl }) => {
     // Show empty state when appropriate
     const shouldShowEmptyState = hasInitialLoad && !loading && allItems.length === 0 && !error;
 
-
+    // Debug logging
+    useEffect(() => {
+        console.log('GenericMapPage state:', {
+            allItems: allItems.length,
+            locations: locations.length,
+            loading,
+            error,
+            hasInitialLoad,
+            mapBounds: !!mapBounds,
+            userLocation: !!userLocation,
+            contentType,
+            searchQuery
+        });
+    }, [allItems.length, locations.length, loading, error, hasInitialLoad, mapBounds, userLocation, contentType, searchQuery]);
 
     // Get available categories based on contentType
     const availableCategories = useMemo(() => {
@@ -1280,7 +1318,7 @@ const GenericMapPage = ({ apiUrl }) => {
                         fontSize: 48,
                         marginBottom: '16px',
                         opacity: 0.6,
-                        color: DESIGN_TOKENS.colors.semantic.error
+                        color: DESIGN_TOKENS.colors.error[500] || '#EF4444'
                     }}>
                         ⚠️
                     </div>
@@ -1314,6 +1352,22 @@ const GenericMapPage = ({ apiUrl }) => {
             {shouldShowEmptyState && (
                 <EmptyState contentType={contentType} searchQuery={searchQuery} />
             )}
+
+            {/* Filter Button */}
+            {/*
+            <div style={{
+                position: 'fixed',
+                top: 250,
+                right: 16,
+                zIndex: 1300,
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
+            }}>
+                <FilterButton 
+                    onApplyFilters={handleFilter} 
+                    categoryType={getCategoryType()} 
+                />
+            </div>
+            */}
 
             {view === "map" ? (
                 <>
@@ -1350,7 +1404,27 @@ const GenericMapPage = ({ apiUrl }) => {
                             </div>
                         )}
                         
-
+                        {/* Refresh success notification */}
+                        {showRefreshNotification && (
+                            <div style={{
+                                position: 'absolute',
+                                top: 60,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                zIndex: 1000,
+                                background: DESIGN_TOKENS.colors.success[500] || '#10B981',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: DESIGN_TOKENS.borderRadius.lg,
+                                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                animation: 'slideDown 0.3s ease-out'
+                            }}>
+                                ✓ Map data refreshed successfully
+                            </div>
+                        )}
                         
                         <MapView
                             locations={locations}
@@ -1394,7 +1468,52 @@ const GenericMapPage = ({ apiUrl }) => {
                                     </div>
                                 </div>
                             </div>
-
+                            
+                            {/* Refresh button for Android */}
+                            <div style={{
+                                position: 'absolute',
+                                top: 120,
+                                right: 16,
+                                zIndex: 30,
+                                pointerEvents: 'auto'
+                            }}>
+                                <button
+                                    onClick={refreshMapData}
+                                    disabled={loading}
+                                    style={{
+                                        background: DESIGN_TOKENS.colors.primary[500],
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '50%',
+                                        width: 48,
+                                        height: 48,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        cursor: loading ? 'not-allowed' : 'pointer',
+                                        opacity: loading ? 0.6 : 1,
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                        transition: 'all 0.2s ease',
+                                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        if (!loading) {
+                                            e.target.style.transform = 'scale(1.1)';
+                                            e.target.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
+                                        }
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.target.style.transform = 'scale(1)';
+                                        e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                                    }}
+                                    title="Refresh map data"
+                                >
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M1 4v6h6M23 20v-6h-6"/>
+                                        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </>

@@ -8,13 +8,25 @@
       "*.google.com",
       "*.googleapis.com",
       "*.firebaseapp.com",
-      "*.firebase.com"
+      "*.firebase.com",
+      "*.gstatic.com",
+      "*.googleusercontent.com"
     ]
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
       "backgroundColor": "#ffffff"
+    },
+    "GoogleMaps": {
+      "apiKey": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
     }
+  },
+  "android": {
+    "webContentsDebuggingEnabled": true,
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsOpaque": false,
+    "backgroundColor": "#ffffff"
   }
 }

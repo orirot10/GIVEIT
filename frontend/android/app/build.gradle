@@ -40,7 +40,14 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    
+    // Google Maps and Location Services
     implementation "com.google.android.gms:play-services-maps:18.2.0"
+    implementation "com.google.android.gms:play-services-location:21.2.0"
+    implementation "com.google.android.gms:play-services-base:18.3.0"
+    
+    // WebView improvements for maps
+    implementation "androidx.webkit:webkit:1.8.0"
 }
 
 apply from: 'capacitor.build.gradle'

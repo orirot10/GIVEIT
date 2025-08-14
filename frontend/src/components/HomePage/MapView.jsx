@@ -80,9 +80,11 @@ const defaultCenter = {
 const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
+    const [mapLoadError, setMapLoadError] = useState(false);
+    const [isAndroid, setIsAndroid] = useState(false);
     const mapRef = useRef(null);
     const hasSetInitialLocation = useRef(false);
-    const [mapKey, setMapKey] = useState(0); // Force map re-render when needed
+
 
     // Fit the map so that its visible WIDTH is exactly `widthKm` around `center`
     const fitMapToWidthInKm = (center, widthKm = 1) => {
@@ -140,6 +142,15 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
         );
     }, []);
 
+    // Check if running on Android
+    useEffect(() => {
+        if (window.Capacitor) {
+            const platform = window.Capacitor.getPlatform();
+            setIsAndroid(platform === 'android');
+            console.log('MapView: Platform detected:', platform);
+        }
+    }, []);
+
     // Enhanced map refresh for Android
     useEffect(() => {
         const handleVisibilityChange = () => {
@@ -147,9 +158,26 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 console.log('MapView: Page became visible, refreshing map...');
                 // Force map refresh by triggering a resize event
                 setTimeout(() => {
-                    if (mapRef.current) {
-                        window.google.maps.event.trigger(mapRef.current, 'resize');
-                        console.log('MapView: Map resize triggered');
+                    if (mapRef.current && window.google && window.google.maps) {
+                        try {
+                            window.google.maps.event.trigger(mapRef.current, 'resize');
+                            console.log('MapView: Map resize triggered');
+                            
+                            // Additional Android WebView fixes
+                            if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+                                // Force map to redraw
+                                setTimeout(() => {
+                                    if (mapRef.current) {
+                                        const center = mapRef.current.getCenter();
+                                        if (center) {
+                                            mapRef.current.setCenter(center);
+                                        }
+                                    }
+                                }, 200);
+                            }
+                        } catch (error) {
+                            console.error('MapView: Error refreshing map:', error);
+                        }
                     }
                 }, 100);
             }
@@ -160,9 +188,25 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 console.log('MapView: Window gained focus, refreshing map...');
                 // Force map refresh
                 setTimeout(() => {
-                    if (mapRef.current) {
-                        window.google.maps.event.trigger(mapRef.current, 'resize');
-                        console.log('MapView: Map resize triggered on focus');
+                    if (mapRef.current && window.google && window.google.maps) {
+                        try {
+                            window.google.maps.event.trigger(mapRef.current, 'resize');
+                            console.log('MapView: Map resize triggered on focus');
+                            
+                            // Android-specific focus handling
+                            if (window.Capacitor && window.Capacitor.getPlatform() === 'android') {
+                                setTimeout(() => {
+                                    if (mapRef.current) {
+                                        const center = mapRef.current.getCenter();
+                                        if (center) {
+                                            mapRef.current.setCenter(center);
+                                        }
+                                    }
+                                }, 200);
+                            }
+                        } catch (error) {
+                            console.error('MapView: Error refreshing map on focus:', error);
+                        }
                     }
                 }, 100);
             }
@@ -295,11 +339,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
         return DESIGN_TOKENS.colors.semantic.success; // Green for available items
     };
 
-    console.log('MapView rendering with:', { 
-        mapHeight, 
-        calculatedHeight: getMapHeight(), 
-        locationsCount: locations?.length || 0 
-    });
+
       
     return (
         <div
@@ -311,7 +351,74 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
             }}
         >
+
+            
             {children}
+            
+            {/* Fallback UI when map fails to load */}
+            {mapLoadError && (
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    padding: '20px',
+                    borderRadius: '12px',
+                    textAlign: 'center',
+                    zIndex: 1000,
+                    maxWidth: '300px',
+                    fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                }}>
+                    <div style={{
+                        fontSize: 48,
+                        marginBottom: '16px',
+                        opacity: 0.6,
+                        color: DESIGN_TOKENS.colors.semantic.error
+                    }}>
+                        🗺️
+                    </div>
+                    <p style={{
+                        color: DESIGN_TOKENS.colors.neutral[700],
+                        fontSize: DESIGN_TOKENS.typography.fontSize.base,
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                        margin: '0 0 16px 0'
+                    }}>
+                        {isAndroid ? 'Map loading issue detected' : 'Map failed to load'}
+                    </p>
+                    <p style={{
+                        color: DESIGN_TOKENS.colors.neutral[500],
+                        fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                        margin: '0 0 16px 0'
+                    }}>
+                        {isAndroid ? 'This is a known issue with Android WebView. Please try refreshing the app.' : 'Please check your internet connection and try again.'}
+                    </p>
+                    <button
+                        onClick={() => {
+                            setMapLoadError(false);
+                            if (mapRef.current && window.google && window.google.maps) {
+                                try {
+                                    window.google.maps.event.trigger(mapRef.current, 'resize');
+                                } catch (error) {
+                                    console.error('Error retrying map:', error);
+                                }
+                            }
+                        }}
+                        style={{
+                            background: DESIGN_TOKENS.colors.primary[500],
+                            color: 'white',
+                            border: 'none',
+                            padding: '8px 16px',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                            fontWeight: DESIGN_TOKENS.typography.fontWeight.medium
+                        }}
+                    >
+                        Retry Map
+                    </button>
+                </div>
+            )}
             
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
@@ -319,12 +426,62 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 onLoad={(map) => {
                     mapRef.current = map;
                     console.log('Google Map loaded successfully');
+                    console.log('Map container style:', mapContainerStyle);
+                    console.log('Map center:', userLocation || defaultCenter);
+                    
+                    // Android WebView specific initialization
+                    if (isAndroid) {
+                        console.log('MapView: Android platform detected, applying WebView fixes');
+                        
+                        // Force map to initialize properly in WebView
+                        setTimeout(() => {
+                            try {
+                                if (map && window.google && window.google.maps) {
+                                    // Trigger resize to ensure proper rendering
+                                    window.google.maps.event.trigger(map, 'resize');
+                                    
+                                    // Set a small zoom level to force map tiles to load
+                                    const currentZoom = map.getZoom();
+                                    map.setZoom(currentZoom + 0.1);
+                                    setTimeout(() => {
+                                        map.setZoom(currentZoom);
+                                    }, 100);
+                                    
+                                    console.log('MapView: Android WebView initialization complete');
+                                }
+                            } catch (error) {
+                                console.error('MapView: Android WebView initialization error:', error);
+                            }
+                        }, 500);
+                    }
                     
                     // Set initial bounds if user location is already available
                     if (userLocation) {
                         setTimeout(() => {
                             setMapToUserLocation(userLocation);
                         }, 100);
+                    }
+                }}
+                onError={(error) => {
+                    console.error('Google Map error:', error);
+                    setMapLoadError(true);
+                    
+                    // Android-specific error handling
+                    if (isAndroid) {
+                        console.error('MapView: Android WebView map error detected');
+                        
+                        // Try to recover from common WebView issues
+                        setTimeout(() => {
+                            if (mapRef.current) {
+                                try {
+                                    window.google.maps.event.trigger(mapRef.current, 'resize');
+                                    setMapLoadError(false);
+                                    console.log('MapView: Attempting to recover from error');
+                                } catch (recoveryError) {
+                                    console.error('MapView: Recovery failed:', recoveryError);
+                                }
+                            }
+                        }, 1000);
                     }
                 }}
                 onIdle={handleMapIdle}
@@ -339,6 +496,16 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                     streetViewControl: false,
                     fullscreenControl: false,
                     keyboardShortcuts: false,
+                    
+                    // Android WebView specific options
+                    ...(isAndroid ? {
+                        backgroundColor: '#f0f0f0',
+                        clickableIcons: false,
+                        disableDoubleClickZoom: false,
+                        draggable: true,
+                        draggableCursor: 'grab',
+                        draggingCursor: 'grabbing'
+                    } : {})
                 }}
             >
                 {locations && locations.map((item, index) => (
