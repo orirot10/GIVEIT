@@ -81,6 +81,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapLoadError, setMapLoadError] = useState(false);
+    const [isMapLoaded, setIsMapLoaded] = useState(false);
     const [isAndroid, setIsAndroid] = useState(false);
     const mapRef = useRef(null);
     const hasSetInitialLocation = useRef(false);
@@ -354,7 +355,35 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
 
             
             {children}
-            
+
+            {!isMapLoaded && !mapLoadError && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        background: 'rgba(255, 255, 255, 0.9)',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        textAlign: 'center',
+                        zIndex: 1000,
+                        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                    }}
+                >
+                    <p
+                        style={{
+                            color: DESIGN_TOKENS.colors.neutral[700],
+                            fontSize: DESIGN_TOKENS.typography.fontSize.base,
+                            fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                            margin: 0,
+                        }}
+                    >
+                        Loading map...
+                    </p>
+                </div>
+            )}
+
             {/* Fallback UI when map fails to load */}
             {mapLoadError && (
                 <div style={{
@@ -424,6 +453,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 mapContainerStyle={mapContainerStyle}
                 center={userLocation || defaultCenter}
                 onLoad={(map) => {
+                    setIsMapLoaded(true);
                     mapRef.current = map;
                     console.log('Google Map loaded successfully');
                     console.log('Map container style:', mapContainerStyle);
