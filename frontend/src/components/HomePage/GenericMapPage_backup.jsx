@@ -151,21 +151,15 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
 ));
 
 // Empty State Component
-const EmptyState = React.memo(({ contentType, searchQuery }) => {
+const EmptyState = React.memo(({ searchQuery }) => {
     const { t } = useTranslation();
-    
+
     const message = useMemo(() => {
         if (searchQuery) {
             return `No results found for "${searchQuery}"`;
         }
-        const messageMap = {
-            rentals: t('נסה להגדיל את האזור'),
-            services: t('נסה להגדיל את האזור'),
-            rental_requests: t('נסה להגדיל את האזור'),
-            service_requests: t('נסה להגדיל את האזור')
-        };
-        return messageMap[contentType] || t('No items available in this area');
-    }, [contentType, searchQuery, t]);
+        return t('No items available in this area');
+    }, [searchQuery, t]);
 
     return (
         <div className="empty-state" style={{
@@ -1350,7 +1344,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
             {/* Empty State */}
             {shouldShowEmptyState && (
-                <EmptyState contentType={contentType} searchQuery={searchQuery} />
+                <EmptyState searchQuery={searchQuery} />
             )}
 
             {/* Filter Button */}
