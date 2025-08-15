@@ -210,6 +210,28 @@
   margin-top: 6px;
 }
 
+.myitems-status-btn {
+  background: transparent;
+  color: var(--primary-color);
+  border: 2.5px solid var(--primary-color);
+  border-radius: 24px;
+  padding: 6px 20px;
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.myitems-status-btn:hover {
+  background: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(38, 166, 154, 0.6);
+}
+
 /* Edit button */
 .myitems-edit-btn {
   background: var(--primary-color);

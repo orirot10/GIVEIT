@@ -1,7 +1,7 @@
 const Service = require('../models/Service.js');
 
 const uploadNewService = async (req, res) => {
-    const { title, description, category, price, pricePeriod, phone, city, street, images, lat, lng } = req.body;
+    const { title, description, category, price, pricePeriod, phone, city, street, images, lat, lng, status } = req.body;
 
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
@@ -37,7 +37,8 @@ const uploadNewService = async (req, res) => {
             street,
             images: imagePaths,
             lat: lat ? parseFloat(lat) : undefined,
-            lng: lng ? parseFloat(lng) : undefined
+            lng: lng ? parseFloat(lng) : undefined,
+            status: status || 'available'
         });
 
         res.status(201).json(newService);
@@ -49,7 +50,7 @@ const uploadNewService = async (req, res) => {
 const getServices = async (req, res) => {
     try {
         const { lat, lng, radius, minLat, maxLat, minLng, maxLng, limit = 200 } = req.query;
-        let query = {};
+        let query = { status: 'available' };
         let services = [];
         // Only select fields needed for the map/popup
         let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount';
@@ -59,6 +60,7 @@ const getServices = async (req, res) => {
             minLng !== undefined && maxLng !== undefined
         ) {
             query = {
+                status: 'available',
                 lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
                 lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
             };
@@ -79,6 +81,7 @@ const getServices = async (req, res) => {
             const minLngBox = userLng - degLng;
             const maxLngBox = userLng + degLng;
             query = {
+                status: 'available',
                 lat: { $gte: minLatBox, $lte: maxLatBox },
                 lng: { $gte: minLngBox, $lte: maxLngBox }
             };
@@ -103,7 +106,7 @@ const getServices = async (req, res) => {
             ).slice(0, Number(limit));
         } else {
             // Default: return most recent services (limit)
-            services = await Service.find({})
+            services = await Service.find({ status: 'available' })
                 .select(selectFields)
                 .limit(Number(limit))
                 .sort({ createdAt: -1 });
@@ -135,12 +138,24 @@ const getUserServices = async (req, res) => {
 
 const editService = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, phone, city, street, lat, lng } = req.body;
+    const { title, description, category, price, phone, city, street, lat, lng, status } = req.body;
 
     try {
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (description !== undefined) updateData.description = description;
+        if (category !== undefined) updateData.category = category;
+        if (price !== undefined) updateData.price = price;
+        if (phone !== undefined) updateData.phone = phone;
+        if (city !== undefined) updateData.city = city;
+        if (street !== undefined) updateData.street = street;
+        if (lat !== undefined) updateData.lat = lat;
+        if (lng !== undefined) updateData.lng = lng;
+        if (status !== undefined) updateData.status = status;
+
         const updated = await Service.findByIdAndUpdate(
             id,
-            { title, description, category, price, phone, city, street, lat, lng },
+            updateData,
             { new: true }
         );
 
@@ -200,7 +215,7 @@ const searchServices = async (req, res) => {
     // Use a case-insensitive and diacritic-insensitive regex for partial match (works for Hebrew/English)
     const regex = new RegExp(query, "i");
 
-    const services = await Service.find({ title: { $regex: regex } });
+    const services = await Service.find({ title: { $regex: regex }, status: 'available' });
 
     res.json(services);
     } catch (err) {
@@ -213,7 +228,7 @@ const filterServices = async (req, res) => {
     try {
     const { category, minPrice, maxPrice } = req.query;
 
-    const query = {};
+    const query = { status: 'available' };
 
     if (category) {
         const categoriesArray = Array.isArray(category)
