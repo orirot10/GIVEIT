@@ -33,8 +33,8 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
             <div className="myitems-card-content" style={isRTL ? { textAlign: 'right' } : undefined} dir={isRTL ? 'rtl' : 'ltr'}>
                 <div className="myitems-card-title">{item.title}</div>
                 <div className="myitems-card-meta" style={isRTL ? { textAlign: 'right' } : undefined}>
-                    {item.status && (
-                        <span >
+                    {item.status && (view === 'rentals' || view === 'services') && (
+                        <span style={{ color: (item.status === 'pending' || item.status === 'not_available') ? '#f59e0b' : undefined }}>
                             ● {t(`common.${item.status}`)}
                         </span>
                     )}

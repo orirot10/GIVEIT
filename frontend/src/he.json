@@ -29,6 +29,7 @@
         "status": "סטטוס",
         "available": "זמין",
         "not_available": "לא זמין",
+        "pending": "בהמתנה",
         "description": "תיאור",
         "category": "קטגוריה",
         "phone": "טלפון",
@@ -41,7 +42,9 @@
         "service": "שירות",
         "select_category": "בחר קטגוריה",
         "optional_information": "מידע נוסף (אופציונלי)",
-        "or": "או"
+        "or": "או",
+        "mark_available": "סמן כזמין",
+        "mark_unavailable": "סמן כלא זמין"
     },
     "navigation": {
         "home": "מוצרים",
@@ -168,8 +171,7 @@
         "delete_confirmation": "האם אתה בטוח שברצונך למחוק?",
         "add_listing": "הוסף פריט"
     },
-    "mark_available": "סמן כזמין",
-    "mark_unavailable": "סמן כלא זמין",
+
     "Available Products": " מוצרים זמינים",
     "Wanted Products": "מוצרים דרושים",
     "Available Services": "שירותים זמינים",
