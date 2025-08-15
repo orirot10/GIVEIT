@@ -151,53 +151,6 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
     </div>
 ));
 
-// Empty State Component
-const EmptyState = React.memo(({ searchQuery }) => {
-    const { t } = useTranslation();
-
-    const message = useMemo(() => {
-        if (searchQuery) {
-            return `No results found for "${searchQuery}"`;
-        }
-        return t('No items available in this area');
-    }, [searchQuery, t]);
-
-    return (
-        <div className="empty-state" style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            textAlign: 'center',
-            padding: DESIGN_TOKENS.spacing.xl,
-            zIndex: 1000,
-            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
-        }}>
-            <div style={{
-                fontSize: 56,
-                marginBottom: DESIGN_TOKENS.spacing.lg,
-                opacity: 0.4,
-                color: DESIGN_TOKENS.colors.neutral[400]
-            }}>
-                📍
-            </div>
-            <p style={{
-                color: DESIGN_TOKENS.colors.neutral[700],
-                fontSize: DESIGN_TOKENS.typography.fontSize.base,
-                marginBottom: DESIGN_TOKENS.spacing.sm,
-                fontWeight: DESIGN_TOKENS.typography.fontWeight.medium
-            }}>
-                {message}
-            </p>
-            <p style={{
-                color: DESIGN_TOKENS.colors.neutral[500],
-                fontSize: DESIGN_TOKENS.typography.fontSize.sm
-            }}>
-                Try adjusting your search or filters
-            </p>
-        </div>
-    );
-});
 
 // Header Component
 const Header = React.memo(({ user }) => (
@@ -536,11 +489,13 @@ const GenericMapPage = ({ apiUrl }) => {
 
     // Fetch items within bounds with error handling (with cache)
     const fetchItemsWithinBounds = useCallback(async (bounds) => {
+        await new Promise(resolve => setTimeout(resolve, 0));
         try {
             const currentApiUrl = getApiUrl();
             const { northEast, southWest } = bounds;
             const boundsKey = JSON.stringify(bounds) + contentType + (selectedCategory || '');
-            // Check cache first
+            const storageKey = `mapCache_${boundsKey}`;
+
             if (cacheRef.current.has(boundsKey)) {
                 const cached = cacheRef.current.get(boundsKey);
                 setAllItems(cached);
@@ -549,6 +504,18 @@ const GenericMapPage = ({ apiUrl }) => {
                 setError(null);
                 return;
             }
+
+            const sessionCached = sessionStorage.getItem(storageKey);
+            if (sessionCached) {
+                const parsed = JSON.parse(sessionCached);
+                cacheRef.current.set(boundsKey, parsed);
+                setAllItems(parsed);
+                const withCoords = mapItemsToCoords(parsed);
+                setLocations(withCoords);
+                setError(null);
+                return;
+            }
+
             const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
 
             if (abortControllerRef.current) {
@@ -559,10 +526,10 @@ const GenericMapPage = ({ apiUrl }) => {
             if (!res.ok) {
                 throw new Error(`Failed to fetch items: ${res.status}`);
             }
-            
+
             const items = await res.json();
-            // Store in cache
             cacheRef.current.set(boundsKey, items);
+            sessionStorage.setItem(storageKey, JSON.stringify(items));
             setAllItems(items);
             const withCoords = mapItemsToCoords(items);
             setLocations(withCoords);
@@ -584,6 +551,9 @@ const GenericMapPage = ({ apiUrl }) => {
     const refreshMapData = useCallback(() => {
         // Clear cache to force fresh data
         cacheRef.current.clear();
+        Object.keys(sessionStorage).forEach(key => {
+            if (key.startsWith('mapCache_')) sessionStorage.removeItem(key);
+        });
         lastFetchedBounds.current = null;
         
         // If we have current map bounds, fetch fresh data
@@ -969,8 +939,6 @@ const GenericMapPage = ({ apiUrl }) => {
         navigate('/messages');
     }, [navigate]);
 
-    // Show empty state when appropriate
-    const shouldShowEmptyState = hasInitialLoad && !loading && allItems.length === 0 && !error;
 
 
 
@@ -1291,10 +1259,6 @@ const GenericMapPage = ({ apiUrl }) => {
                 </div>
             )}
 
-            {/* Empty State */}
-            {shouldShowEmptyState && (
-                <EmptyState searchQuery={searchQuery} />
-            )}
 
             {view === "map" ? (
                 <>

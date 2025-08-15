@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import { GoogleMap, OverlayView } from "@react-google-maps/api";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import Popup from "../Shared/Popup";
+
+const GoogleMap = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.GoogleMap })));
+const OverlayView = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.OverlayView })));
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -449,6 +451,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 </div>
             )}
             
+            <Suspense fallback={<div className="p-4 text-center">Loading map...</div>}>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={userLocation || defaultCenter}
@@ -551,7 +554,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 {userLocation && (
                     <OverlayView
                         position={userLocation}
-                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        mapPaneName="overlayMouseTarget"
                     >
                         <div className="relative" style={{ width: '16px', height: '16px' }}>
                             <div 
@@ -569,6 +572,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                     </OverlayView>
                 )}
             </GoogleMap>
+            </Suspense>
 
             {/* Enhanced return to location button */}
             {userLocation && (
@@ -631,7 +635,7 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
         <OverlayView
             key={item.id}
             position={{ lat: item.lat, lng: item.lng }}
-            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            mapPaneName="overlayMouseTarget"
         >
             <div
                 className="flex flex-col items-center cursor-pointer"
