@@ -10,7 +10,7 @@ import EditModal from './EditModal';
 
 const placeholderSVG = `<svg width='16' height='16' xmlns='http://www.w3.org/2000/svg'><rect width='16' height='16' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='12' height='8' rx='4' fill='#CFD8DC'/><rect x='12' y='12' width='12' height='6' rx='2' fill='#B0BEC5'/></svg>`;
 
-const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, placeholderSVG }) => {
+const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, placeholderSVG, onToggleStatus }) => {
     const [imgError, setImgError] = useState(false);
     let imageUrl = '';
     if (Array.isArray(item.images) && item.images.length > 0 && item.images[0]) {
@@ -40,7 +40,11 @@ const MyItemCard = ({ item, isRTL, view, t, setEditTarget, setDeleteTarget, plac
                     )}
                     {item.createdAt && <span>{format(new Date(item.createdAt), 'dd/MM/yyyy HH:mm')}</span>}</div>
                 <div className="myitems-card-actions" style={isRTL ? { display: 'flex', justifyContent: 'flex-end' } : undefined}>
-
+                {(view === 'rentals' || view === 'services') && (
+                    <button className="myitems-status-btn" onClick={() => onToggleStatus(item, view)}>
+                        {item.status === 'available' ? t('common.mark_unavailable') : t('common.mark_available')}
+                    </button>
+                )}
                 <button className="myitems-edit-btn" onClick={() => setEditTarget({ item, type: view === 'rentals' ? 'rental' : view === 'services' ? 'service' : view === 'rental_requests' ? 'rental_request' : 'service_request' })}>
                     <span role="img" aria-label="edit">✏️</span>
                 </button>
@@ -186,6 +190,29 @@ const MyModals = () => {
         }
     };
 
+    const handleToggleStatus = async (item, viewType) => {
+        const type = viewType === 'rentals' ? 'rental' : 'service';
+        const endpoint = type === 'rental' ? 'rentals' : 'services';
+        const newStatus = item.status === 'available' ? 'not_available' : 'available';
+        try {
+            const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (type === 'rental') setRentals(rentals.map(r => r._id === item._id ? data : r));
+                else setServices(services.map(s => s._id === item._id ? data : s));
+            }
+        } catch (err) {
+            console.error('Status update failed:', err);
+        }
+    };
+
     // Show message if not logged in
     if (!user) {
         return (
@@ -249,6 +276,7 @@ const MyModals = () => {
                                     setEditTarget={setEditTarget}
                                     setDeleteTarget={setDeleteTarget}
                                     placeholderSVG={placeholderSVG}
+                                    onToggleStatus={handleToggleStatus}
                                 />
                             ))}
                         </div>

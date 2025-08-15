@@ -69,7 +69,7 @@ const uploadNewRental = async (req, res) => {
 const getRentals = async (req, res) => {
     try {
         const { lat, lng, radius, minLat, maxLat, minLng, maxLng, limit = 200 } = req.query;
-        let query = {};
+        let query = { status: 'available' };
         let rentals = [];
         // Only select fields needed for the map/popup
         let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount';
@@ -79,6 +79,7 @@ const getRentals = async (req, res) => {
             minLng !== undefined && maxLng !== undefined
         ) {
             query = {
+                status: 'available',
                 lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
                 lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
             };
@@ -99,6 +100,7 @@ const getRentals = async (req, res) => {
             const minLngBox = userLng - degLng;
             const maxLngBox = userLng + degLng;
             query = {
+                status: 'available',
                 lat: { $gte: minLatBox, $lte: maxLatBox },
                 lng: { $gte: minLngBox, $lte: maxLngBox }
             };
@@ -123,7 +125,7 @@ const getRentals = async (req, res) => {
             ).slice(0, Number(limit));
         } else {
             // Default: return most recent rentals (limit)
-            rentals = await Rental.find({})
+            rentals = await Rental.find({ status: 'available' })
                 .select(selectFields)
                 .limit(Number(limit))
                 .sort({ createdAt: -1 });
@@ -171,12 +173,25 @@ const getUserRentals = async (req, res) => {
 // Edit a rental
 const editRental = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, images, phone, city, street, lat, lng } = req.body;
+    const { title, description, category, price, images, phone, city, street, lat, lng, status } = req.body;
 
     try {
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (category !== undefined) updateData.category = category;
+    if (price !== undefined) updateData.price = price;
+    if (images !== undefined) updateData.images = images;
+    if (phone !== undefined) updateData.phone = phone;
+    if (city !== undefined) updateData.city = city;
+    if (street !== undefined) updateData.street = street;
+    if (lat !== undefined) updateData.lat = lat;
+    if (lng !== undefined) updateData.lng = lng;
+    if (status !== undefined) updateData.status = status;
+
     const updated = await Rental.findByIdAndUpdate(
         id,
-        { title, description, category, price, images, phone, city, street, lat, lng },
+        updateData,
         { new: true }
     );
 
@@ -243,6 +258,7 @@ const searchRentals = async (req, res) => {
 
     const results = await Rental.find({
         title: { $regex: regex },
+        status: 'available',
     });
 
     res.status(200).json(results);
@@ -256,7 +272,7 @@ const filterRentals = async (req, res) => {
     try {
     const { category, minPrice, maxPrice } = req.query;
 
-    const query = {};
+    const query = { status: 'available' };
     
     if (category) {
         const categoriesArray = Array.isArray(category)
