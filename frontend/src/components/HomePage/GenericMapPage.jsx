@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
-import MapView from "./MapView";
-import ListView from "./ListView";
+import React, { useEffect, useState, useRef, useMemo, useCallback, Suspense } from "react";
+
+const MapView = React.lazy(() => import("./MapView"));
+const ListView = React.lazy(() => import("./ListView"));
 import FilterButton from './FilterButton';
 import ToggleViewButton from "./ToggleViewButton";
 import TabBar from "./TabBar";
@@ -95,7 +96,7 @@ const DESIGN_TOKENS = {
 };
 
 // Constants
-const BOUNCE_TIMEOUT = 800;
+const BOUNCE_TIMEOUT = 300;
 const LOCATION_TIMEOUT = 10000;
 const DEFAULT_RADIUS = 1000;
 
@@ -151,21 +152,15 @@ const LoadingSpinner = React.memo(({ message = "Loading..." }) => (
 ));
 
 // Empty State Component
-const EmptyState = React.memo(({ contentType, searchQuery }) => {
+const EmptyState = React.memo(({ searchQuery }) => {
     const { t } = useTranslation();
-    
+
     const message = useMemo(() => {
         if (searchQuery) {
             return `No results found for "${searchQuery}"`;
         }
-        const messageMap = {
-            rentals: t('נסה להגדיל את האזור'),
-            services: t('נסה להגדיל את האזור'),
-            rental_requests: t('נסה להגדיל את האזור'),
-            service_requests: t('נסה להגדיל את האזור')
-        };
-        return messageMap[contentType] || t('No items available in this area');
-    }, [contentType, searchQuery, t]);
+        return t('No items available in this area');
+    }, [searchQuery, t]);
 
     return (
         <div className="empty-state" style={{
@@ -482,8 +477,17 @@ const GenericMapPage = ({ apiUrl }) => {
     const boundsTimeout = useRef(null);
     const lastFetchedBounds = useRef(null);
     const cacheRef = useRef(new Map());
+    const abortControllerRef = useRef(null);
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, []);
 
     // Memoized base URL with fallback to deployed backend
     const baseUrl = useMemo(
@@ -546,8 +550,12 @@ const GenericMapPage = ({ apiUrl }) => {
                 return;
             }
             const url = `${currentApiUrl}?minLat=${southWest.lat}&maxLat=${northEast.lat}&minLng=${southWest.lng}&maxLng=${northEast.lng}`;
-            
-            const res = await fetch(url);
+
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            abortControllerRef.current = new AbortController();
+            const res = await fetch(url, { signal: abortControllerRef.current.signal });
             if (!res.ok) {
                 throw new Error(`Failed to fetch items: ${res.status}`);
             }
@@ -560,10 +568,13 @@ const GenericMapPage = ({ apiUrl }) => {
             setLocations(withCoords);
             setError(null);
         } catch (err) {
+            if (err.name === 'AbortError') return;
             console.error('Error fetching items:', err);
             setError(err.message);
             setAllItems([]);
             setLocations([]);
+        } finally {
+            abortControllerRef.current = null;
         }
     }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory]);
 
@@ -1282,7 +1293,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
             {/* Empty State */}
             {shouldShowEmptyState && (
-                <EmptyState contentType={contentType} searchQuery={searchQuery} />
+                <EmptyState searchQuery={searchQuery} />
             )}
 
             {view === "map" ? (
@@ -1322,12 +1333,14 @@ const GenericMapPage = ({ apiUrl }) => {
                         
 
                         
-                        <MapView
-                            locations={locations}
-                            mapHeight={"100%"}
-                            onBoundsChanged={setMapBounds}
-                            contentType={contentType}
-                        />
+                        <Suspense fallback={<LoadingSpinner message={t('Loading map...')} />}>
+                            <MapView
+                                locations={locations}
+                                mapHeight={"100%"}
+                                onBoundsChanged={setMapBounds}
+                                contentType={contentType}
+                            />
+                        </Suspense>
                         {/* Overlay controls and labels at the top of the map */}
                         <div style={{
                             position: 'absolute',
@@ -1406,7 +1419,9 @@ const GenericMapPage = ({ apiUrl }) => {
                             overflowY: 'auto',
                             position: 'relative'
                         }}>
-                            <ListView rentals={allItems} contentType={contentType} />
+                            <Suspense fallback={<LoadingSpinner message={t('Loading list...')} />}>
+                                <ListView rentals={allItems} contentType={contentType} />
+                            </Suspense>
                         </div>
                     </div>
                 </div>
