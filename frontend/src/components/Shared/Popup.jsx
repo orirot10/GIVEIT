@@ -457,29 +457,42 @@ const Popup = ({ item, onClose, contentType }) => {
                     <FaStar className="h-3 w-3" style={{ color: DESIGN_TOKENS.colors.primary[500] }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      {[1,2,3,4,5].map(star => (
-                        <FaStar
-                          key={star}
-
-                          className={`h-3 w-3 ${hasRated ? '' : 'cursor-pointer'}`}
-                          style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
-                          onClick={() => { if (!hasRated) setSelectedRating(star); }}
-                        />
-                      ))}
-                      {!hasRated && (
-                        <button
-                          onClick={handleRate}
-                          disabled={selectedRating === 0}
-                          className="ml-2 text-xs text-blue-600 disabled:text-gray-400"
-                        >
-                          Rate
-                        </button>
-                      )}
-
-                      <span style={{ marginLeft: 4, fontSize: DESIGN_TOKENS.typography.fontSize.sm }}>
+                    <p 
+                      className="text-xs text-gray-500 font-medium mb-0"
+                      style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                        color: DESIGN_TOKENS.colors.neutral[500],
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
+                        lineHeight: 1.2
+                      }}
+                    >
+                      דירוג
+                    </p>
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm, fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, color: DESIGN_TOKENS.colors.neutral[800] }}>
                         {currentRating.toFixed(1)} ({ratingCount})
                       </span>
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="flex items-center">
+                          {[1,2,3,4,5].map(star => (
+                            <FaStar
+                              key={star}
+                              className={`h-1.5 w-1.5 ${hasRated ? '' : 'cursor-pointer'}`}
+                              style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
+                              onClick={() => { if (!hasRated) setSelectedRating(star); }}
+                            />
+                          ))}
+                        </div>
+                        {!hasRated && (
+                          <button
+                            onClick={handleRate}
+                            disabled={selectedRating === 0}
+                            className="text-s text-blue-900 disabled:text-gray-400"
+                          >
+                            דרג
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -490,7 +503,11 @@ const Popup = ({ item, onClose, contentType }) => {
             <div className="info-section">
               <div 
                 className="info-row flex items-center py-1.5"
-                style={{ paddingTop: DESIGN_TOKENS.spacing.xs, paddingBottom: DESIGN_TOKENS.spacing.xs }}
+                style={{ 
+                  paddingTop: DESIGN_TOKENS.spacing.xs, 
+                  paddingBottom: DESIGN_TOKENS.spacing.xs,
+                  borderTop: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`
+                }}
               >
                 <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
                   <CurrencyDollarIcon 
