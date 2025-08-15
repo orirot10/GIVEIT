@@ -468,28 +468,26 @@ const Popup = ({ item, onClose, contentType }) => {
                     >
                       דירוג
                     </p>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center">
                       <span style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm, fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, color: DESIGN_TOKENS.colors.neutral[800] }}>
                         {currentRating.toFixed(1)} ({ratingCount})
                       </span>
-                      <div className="flex items-center justify-center gap-4">
-                        <div className="flex items-center">
-                          {[1,2,3,4,5].map(star => (
-                            <FaStar
-                              key={star}
-                              className={`h-1.5 w-1.5 ${hasRated ? '' : 'cursor-pointer'}`}
-                              style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
-                              onClick={() => { if (!hasRated) setSelectedRating(star); }}
-                            />
-                          ))}
-                        </div>
+                      <div className="flex-1 flex items-center justify-center">
+                        {[1,2,3,4,5].map(star => (
+                          <FaStar
+                            key={star}
+                            className={`h-1.5 w-1.5 ${hasRated ? '' : 'cursor-pointer'}`}
+                            style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
+                            onClick={() => { if (!hasRated) setSelectedRating(star); }}
+                          />
+                        ))}
                         {!hasRated && (
                           <button
                             onClick={handleRate}
                             disabled={selectedRating === 0}
-                            className="text-s text-blue-900 disabled:text-gray-400"
+                            className="ml-2 text-s font-bold text-blue-600 disabled:text-gray-400 disabled:font-normal"
                           >
-                            דרג
+                               &nbsp; דרג   
                           </button>
                         )}
                       </div>
