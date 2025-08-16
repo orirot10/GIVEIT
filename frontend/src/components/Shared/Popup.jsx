@@ -312,9 +312,9 @@ const Popup = ({ item, onClose, contentType }) => {
       role="dialog"
       dir="auto"
     >
-      <div 
+      <div
         ref={popupRef}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-xs max-h-[80vh] overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-xs max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         style={{
           borderRadius: DESIGN_TOKENS.borderRadius.lg,
           boxShadow: DESIGN_TOKENS.shadows.xl,
@@ -332,18 +332,22 @@ const Popup = ({ item, onClose, contentType }) => {
             borderTopRightRadius: DESIGN_TOKENS.borderRadius.lg
           }}
         >
-          <h1 
-            className="header-title text-base font-semibold text-white break-words flex-1 pr-4"
+          <h1
+            className="header-title text-sm font-semibold text-white break-words flex-1 pr-4"
             style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.base,
+              fontSize: DESIGN_TOKENS.typography.fontSize.sm,
               fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
               color: 'white',
-              lineHeight: '1.1'
+              lineHeight: '1.1',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
             }}
           >
             {title}
           </h1>
-          
+        
           {/* Close Button */}
           <button
             onClick={onClose}
@@ -359,6 +363,7 @@ const Popup = ({ item, onClose, contentType }) => {
           </button>
         </div>
 
+        <div className="flex-1 overflow-y-auto">
         {/* Hero Image Section */}
         {resolvedImageUrls.length > 0 && (
           <div className="relative shadow-sm" style={{ aspectRatio: '3/2', boxShadow: DESIGN_TOKENS.shadows.md }}>
@@ -432,12 +437,17 @@ const Popup = ({ item, onClose, contentType }) => {
         {/* Description */}
         {description && (
           <div className="p-2 pb-1">
-            <p 
-              className="description-text text-gray-700 break-words whitespace-pre-wrap leading-tight"
+            <p
+              className="description-text text-gray-700 break-words whitespace-pre-line"
               style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
                 color: DESIGN_TOKENS.colors.neutral[700],
-                lineHeight: 1.3
+                lineHeight: 1.25,
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
               }}
             >
               {description}
@@ -525,10 +535,10 @@ const Popup = ({ item, onClose, contentType }) => {
                   >
                     מחיר
                   </p>
-                  <p 
-                    className="text-base font-bold text-gray-800 break-words"
+                  <p
+                    className="text-sm font-bold text-gray-800 break-words"
                     style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.base,
+                      fontSize: DESIGN_TOKENS.typography.fontSize.sm,
                       fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
                       color: DESIGN_TOKENS.colors.neutral[800],
                       lineHeight: 1.2
@@ -570,13 +580,18 @@ const Popup = ({ item, onClose, contentType }) => {
                   >
                     בעלים
                   </p>
-                  <p 
+                  <p
                     className="text-sm font-semibold text-gray-800 break-words"
                     style={{
                       fontSize: DESIGN_TOKENS.typography.fontSize.sm,
                       fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
                       color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: 1.2
+                      lineHeight: 1.2,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
                     }}
                   >
                     {ownerName}
@@ -615,13 +630,18 @@ const Popup = ({ item, onClose, contentType }) => {
                   >
                     מיקום
                   </p>
-                  <p 
+                  <p
                     className="text-sm font-semibold text-gray-800 break-words"
                     style={{
                       fontSize: DESIGN_TOKENS.typography.fontSize.sm,
                       fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
                       color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: 1.2
+                      lineHeight: 1.2,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
                     }}
                   >
                     {address}
@@ -668,9 +688,10 @@ const Popup = ({ item, onClose, contentType }) => {
             </div>
           </div>
         </div>
+        </div>
 
         {/* Call-to-Action Button */}
-        <div className="px-3 pt-3 pb-3 space-y-2">
+        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-2 border-t">
           <button
             className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
             style={{
