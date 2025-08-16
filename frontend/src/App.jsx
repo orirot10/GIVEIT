@@ -8,6 +8,7 @@ import ErrorBoundary from './ErrorBoundary';
 import Layout from './components/Layout';
 import RentalsMapPage from './components/HomePage/RentalsMapPage';
 import ServicesMapPage from './components/HomePage/ServicesMapPage';
+import { MapProvider } from './context/MapContext';
 import Account from './pages/account';
 import Dashboard from './pages/Dashboard';
 import EditProfile from './pages/EditProfile';
@@ -41,36 +42,38 @@ function App() {
   }
   return (
     <GoogleMapsLoader>
-      <Router>
-        <ErrorBoundary>
-        <I18nextProvider i18n={i18n}>
-        <div className="app-container">
-          <Routes>
-            <Route element={<Layout />}>
-                <Route path="/" element={<ServicesMapPage />} />
-                <Route path="/services" element={<ServicesMapPage />} />
-                <Route path="/rentals" element={<RentalsMapPage />} />
-                <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/edit-profile" element={<EditProfile />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginForm />} />
-                <Route path="/offer-rental" element={<RentalForm />} />
-                <Route path="/request-rental" element={<RequestRentalForm />} />
-                <Route path="/my-items" element={<MyModals />} />
-                <Route path="/messages" element={<MessagesPage />} />
-                <Route path="/offer-service" element={<ServiceForm />} />
-                <Route path="/request-service" element={<RequestServiceForm />} />
-                <Route path="/terms" element={<Terms />} />
+      <MapProvider>
+        <Router>
+          <ErrorBoundary>
+          <I18nextProvider i18n={i18n}>
+          <div className="app-container">
+            <Routes>
+              <Route element={<Layout />}>
+                  <Route path="/" element={<ServicesMapPage />} />
+                  <Route path="/services" element={<ServicesMapPage />} />
+                  <Route path="/rentals" element={<RentalsMapPage />} />
+                  <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/edit-profile" element={<EditProfile />} />
+                  <Route path="/signup" element={<SignUp />} />
+                  <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginForm />} />
+                  <Route path="/offer-rental" element={<RentalForm />} />
+                  <Route path="/request-rental" element={<RequestRentalForm />} />
+                  <Route path="/my-items" element={<MyModals />} />
+                  <Route path="/messages" element={<MessagesPage />} />
+                  <Route path="/offer-service" element={<ServiceForm />} />
+                  <Route path="/request-service" element={<RequestServiceForm />} />
+                  <Route path="/terms" element={<Terms />} />
 
-                <Route path="/auth-handler" element={<MobileAuthHandler />} />
-             </Route>
-            </Routes>
-          </div>
-          </I18nextProvider>
-         </ErrorBoundary>
-        </Router>
-        </GoogleMapsLoader>
+                  <Route path="/auth-handler" element={<MobileAuthHandler />} />
+               </Route>
+              </Routes>
+            </div>
+            </I18nextProvider>
+           </ErrorBoundary>
+          </Router>
+      </MapProvider>
+    </GoogleMapsLoader>
   );
 }
 
