@@ -15,6 +15,7 @@ const serviceSchema = new mongoose.Schema({
     images: [{ type: String }],
     phone: { type: String },
     status: { type: String, default: 'available' },
+    available: { type: Boolean, default: true },
     city: { type: String },
     street: { type: String },
     lat: { type: Number },
@@ -28,6 +29,7 @@ const serviceSchema = new mongoose.Schema({
 
 // Add compound index for spatial queries
 serviceSchema.index({ lat: 1, lng: 1 });
+serviceSchema.index({ available: 1, lat: 1, lng: 1 }, { partialFilterExpression: { available: true } });
 // Add index for category filtering
 serviceSchema.index({ category: 1 });
 // Add index for sorting by creation date

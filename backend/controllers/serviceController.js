@@ -1,4 +1,6 @@
 const Service = require('../models/Service.js');
+const { perf_map_v2 } = require('../config/flags');
+const redisClient = require('../services/redisClient');
 
 const uploadNewService = async (req, res) => {
     const { title, description, category, price, pricePeriod, phone, city, street, images, lat, lng, status } = req.body;
@@ -49,69 +51,99 @@ const uploadNewService = async (req, res) => {
 
 const getServices = async (req, res) => {
     try {
-        const { lat, lng, radius, minLat, maxLat, minLng, maxLng, limit = 200 } = req.query;
-        let query = { status: 'available' };
-        let services = [];
-        // Only select fields needed for the map/popup
-        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount';
-        // Bounding box filter (fast, uses index)
-        if (
-            minLat !== undefined && maxLat !== undefined &&
-            minLng !== undefined && maxLng !== undefined
-        ) {
-            query = {
-                status: 'available',
-                lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
-                lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
-            };
-            services = await Service.find(query)
-                .select(selectFields)
-                .limit(Number(limit))
-                .sort({ createdAt: -1 });
-        } else if (lat && lng && radius) {
-            // Fast radius query: bounding box + JS filter
-            const userLat = parseFloat(lat);
-            const userLng = parseFloat(lng);
-            const maxDistance = parseFloat(radius) || 1000;
-            // Calculate bounding box in degrees
-            const degLat = maxDistance / 111320; // meters per degree latitude
-            const degLng = maxDistance / (40075000 * Math.cos(userLat * Math.PI / 180) / 360);
-            const minLatBox = userLat - degLat;
-            const maxLatBox = userLat + degLat;
-            const minLngBox = userLng - degLng;
-            const maxLngBox = userLng + degLng;
-            query = {
-                status: 'available',
-                lat: { $gte: minLatBox, $lte: maxLatBox },
-                lng: { $gte: minLngBox, $lte: maxLngBox }
-            };
-            // Fetch extra for filtering
-            let candidates = await Service.find(query)
-                .select(selectFields)
-                .limit(Number(limit) * 2)
-                .sort({ createdAt: -1 });
-            // Haversine filter in JS
-            function haversine(lat1, lng1, lat2, lng2) {
-                const R = 6371000; // meters
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLng = (lng2 - lng1) * Math.PI / 180;
-                const a = Math.sin(dLat/2) ** 2 +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLng/2) ** 2;
-                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const { lat, lng, radius, minLat, maxLat, minLng, maxLng, limit = 100 } = req.query;
+        const reqId = req.reqId || Math.random().toString(36).slice(2);
+        const cacheKey = perf_map_v2 ? `services:${JSON.stringify(req.query)}` : null;
+        if (perf_map_v2 && redisClient) {
+            const cached = await redisClient.get(cacheKey);
+            if (cached) {
+                res.set('x-cache', 'HIT');
+                res.status(200).json(JSON.parse(cached));
+                (async () => {
+                    try {
+                        const fresh = await fetchServices();
+                        await redisClient.set(cacheKey, JSON.stringify(fresh), { EX: 60 });
+                    } catch (e) {
+                        console.error('cache refresh error', e);
+                    }
+                })();
+                return;
             }
-            services = candidates.filter(s =>
-                typeof s.lat === 'number' && typeof s.lng === 'number' &&
-                haversine(userLat, userLng, s.lat, s.lng) <= maxDistance
-            ).slice(0, Number(limit));
-        } else {
-            // Default: return most recent services (limit)
-            services = await Service.find({ status: 'available' })
-                .select(selectFields)
-                .limit(Number(limit))
-                .sort({ createdAt: -1 });
         }
+
+        const dbStart = process.hrtime.bigint();
+        const services = await fetchServices();
+        const dbTimeMs = Number(process.hrtime.bigint() - dbStart) / 1e6;
+        console.log(`[mapDB] reqId=${reqId} dbTimeMs=${dbTimeMs.toFixed(1)} params=${JSON.stringify(req.query)}`);
+
+        if (perf_map_v2 && redisClient) {
+            await redisClient.set(cacheKey, JSON.stringify(services), { EX: 60 });
+            res.set('x-cache', 'MISS');
+        }
+
         res.status(200).json(services);
+
+        async function fetchServices() {
+            let query = perf_map_v2 ? { available: true } : { status: 'available' };
+            let services = [];
+            let selectFields = 'firstName lastName email title description category price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
+            if (
+                minLat !== undefined && maxLat !== undefined &&
+                minLng !== undefined && maxLng !== undefined
+            ) {
+                query = {
+                    ...(perf_map_v2 ? { available: true } : { status: 'available' }),
+                    lat: { $gte: parseFloat(minLat), $lte: parseFloat(maxLat) },
+                    lng: { $gte: parseFloat(minLng), $lte: parseFloat(maxLng) }
+                };
+                services = await Service.find(query)
+                    .select(selectFields)
+                    .limit(Number(limit))
+                    .sort({ createdAt: -1 })
+                    .lean();
+            } else if (lat && lng && radius) {
+                const userLat = parseFloat(lat);
+                const userLng = parseFloat(lng);
+                const maxDistance = parseFloat(radius) || 1000;
+                const degLat = maxDistance / 111320;
+                const degLng = maxDistance / (40075000 * Math.cos(userLat * Math.PI / 180) / 360);
+                const minLatBox = userLat - degLat;
+                const maxLatBox = userLat + degLat;
+                const minLngBox = userLng - degLng;
+                const maxLngBox = userLng + degLng;
+                query = {
+                    ...(perf_map_v2 ? { available: true } : { status: 'available' }),
+                    lat: { $gte: minLatBox, $lte: maxLatBox },
+                    lng: { $gte: minLngBox, $lte: maxLngBox }
+                };
+                let candidates = await Service.find(query)
+                    .select(selectFields)
+                    .limit(Number(limit) * 2)
+                    .sort({ createdAt: -1 })
+                    .lean();
+                function haversine(lat1, lng1, lat2, lng2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLng = (lng2 - lng1) * Math.PI / 180;
+                    const a = Math.sin(dLat/2) ** 2 +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLng/2) ** 2;
+                    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                }
+                services = candidates.filter(s =>
+                    typeof s.lat === 'number' && typeof s.lng === 'number' &&
+                    haversine(userLat, userLng, s.lat, s.lng) <= maxDistance
+                ).slice(0, Number(limit));
+            } else {
+                services = await Service.find(perf_map_v2 ? { available: true } : { status: 'available' })
+                    .select(selectFields)
+                    .limit(Number(limit))
+                    .sort({ createdAt: -1 })
+                    .lean();
+            }
+            return services;
+        }
+
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch services' });
     }
