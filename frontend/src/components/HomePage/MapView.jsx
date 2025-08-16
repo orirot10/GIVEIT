@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import Popup from "../Shared/Popup";
 import { useMapContext } from "../../context/MapContext";
 
@@ -88,6 +88,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     const [isAndroid, setIsAndroid] = useState(false);
     const { mapRef } = useMapContext();
     const hasSetInitialLocation = useRef(false);
+    const memoizedLocations = useMemo(() => locations, [locations]);
 
 
     // Fit the map so that its visible WIDTH is exactly `widthKm` around `center`
@@ -542,7 +543,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                     } : {})
                 }}
             >
-                {locations && locations.map((item, index) => (
+                {memoizedLocations && memoizedLocations.map((item, index) => (
                     <MemoizedMarker
                         key={item.id || index}
                         item={item}

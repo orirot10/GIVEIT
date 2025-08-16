@@ -18,6 +18,17 @@ const serviceSchema = new mongoose.Schema({
     available: { type: Boolean, default: true },
     city: { type: String },
     street: { type: String },
+    // GeoJSON point for geospatial queries (perf_map_v2)
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number],
+        }
+    },
     lat: { type: Number },
     lng: { type: Number },
     rating: { type: Number, default: 0 },
@@ -30,6 +41,12 @@ const serviceSchema = new mongoose.Schema({
 // Add compound index for spatial queries
 serviceSchema.index({ lat: 1, lng: 1 });
 serviceSchema.index({ available: 1, lat: 1, lng: 1 }, { partialFilterExpression: { available: true } });
+// GeoJSON 2dsphere indexes for perf_map_v2
+serviceSchema.index({ location: '2dsphere' });
+serviceSchema.index(
+    { available: 1, location: '2dsphere' },
+    { partialFilterExpression: { available: true }, name: 'idx_avail_loc_partial' }
+);
 // Add index for category filtering
 serviceSchema.index({ category: 1 });
 // Add index for sorting by creation date

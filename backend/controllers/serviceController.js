@@ -38,6 +38,7 @@ const uploadNewService = async (req, res) => {
             city,
             street,
             images: imagePaths,
+            location: lat && lng ? { type: 'Point', coordinates: [parseFloat(lng), parseFloat(lat)] } : undefined,
             lat: lat ? parseFloat(lat) : undefined,
             lng: lng ? parseFloat(lng) : undefined,
             status: status || 'available'
@@ -84,6 +85,32 @@ const getServices = async (req, res) => {
         res.status(200).json(services);
 
         async function fetchServices() {
+            if (perf_map_v2 && lat && lng) {
+                const userLat = parseFloat(lat);
+                const userLng = parseFloat(lng);
+                const maxDistance = parseFloat(radius) || 1000;
+                const results = await Service.find({
+                    available: true,
+                    location: {
+                        $nearSphere: {
+                            $geometry: { type: 'Point', coordinates: [userLng, userLat] },
+                            $maxDistance: maxDistance
+                        }
+                    }
+                })
+                    .select('_id title price location images')
+                    .limit(Number(limit) || 100)
+                    .lean();
+                return results.map(r => ({
+                    _id: r._id,
+                    title: r.title,
+                    price: r.price,
+                    lat: r.location?.coordinates?.[1],
+                    lng: r.location?.coordinates?.[0],
+                    thumbnail: r.images?.[0]
+                }));
+            }
+
             let query = perf_map_v2 ? { available: true } : { status: 'available' };
             let services = [];
             let selectFields = 'firstName lastName email title description category price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
@@ -101,41 +128,8 @@ const getServices = async (req, res) => {
                     .limit(Number(limit))
                     .sort({ createdAt: -1 })
                     .lean();
-            } else if (lat && lng && radius) {
-                const userLat = parseFloat(lat);
-                const userLng = parseFloat(lng);
-                const maxDistance = parseFloat(radius) || 1000;
-                const degLat = maxDistance / 111320;
-                const degLng = maxDistance / (40075000 * Math.cos(userLat * Math.PI / 180) / 360);
-                const minLatBox = userLat - degLat;
-                const maxLatBox = userLat + degLat;
-                const minLngBox = userLng - degLng;
-                const maxLngBox = userLng + degLng;
-                query = {
-                    ...(perf_map_v2 ? { available: true } : { status: 'available' }),
-                    lat: { $gte: minLatBox, $lte: maxLatBox },
-                    lng: { $gte: minLngBox, $lte: maxLngBox }
-                };
-                let candidates = await Service.find(query)
-                    .select(selectFields)
-                    .limit(Number(limit) * 2)
-                    .sort({ createdAt: -1 })
-                    .lean();
-                function haversine(lat1, lng1, lat2, lng2) {
-                    const R = 6371000;
-                    const dLat = (lat2 - lat1) * Math.PI / 180;
-                    const dLng = (lng2 - lng1) * Math.PI / 180;
-                    const a = Math.sin(dLat/2) ** 2 +
-                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                        Math.sin(dLng/2) ** 2;
-                    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                }
-                services = candidates.filter(s =>
-                    typeof s.lat === 'number' && typeof s.lng === 'number' &&
-                    haversine(userLat, userLng, s.lat, s.lng) <= maxDistance
-                ).slice(0, Number(limit));
             } else {
-                services = await Service.find(perf_map_v2 ? { available: true } : { status: 'available' })
+                services = await Service.find(query)
                     .select(selectFields)
                     .limit(Number(limit))
                     .sort({ createdAt: -1 })
