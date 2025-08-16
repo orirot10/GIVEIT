@@ -478,12 +478,18 @@ const GenericMapPage = ({ apiUrl }) => {
     // Memoized item mapping function
     const mapItemsToCoords = useCallback((items) => {
         return items
-            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number')
-            .map(item => ({
-                ...item,
-                id: item._id || item.id,
-                type: contentType
-            }));
+            .map(item => {
+                const lat = item.lat ?? item.location?.coordinates?.[1];
+                const lng = item.lng ?? item.location?.coordinates?.[0];
+                return {
+                    ...item,
+                    lat,
+                    lng,
+                    id: item._id || item.id,
+                    type: contentType
+                };
+            })
+            .filter(item => typeof item.lat === 'number' && typeof item.lng === 'number');
     }, [contentType]);
 
     // Define tabs based on contentType and language
@@ -1325,7 +1331,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             />
                         </Suspense>
                         {perfMapV2 && loading && (
-                            <div className="map-loading-overlay">Loading...</div>
+                            <LoadingSpinner message={t('Loading...')} />
                         )}
                         {/* Overlay controls and labels at the top of the map */}
                         <div style={{

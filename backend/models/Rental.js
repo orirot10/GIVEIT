@@ -15,7 +15,17 @@ const rentalSchema = new mongoose.Schema({
     available: { type: Boolean, default: true },
     city: { type: String },
     street: { type: String },
-    location: { type: String },
+    // GeoJSON point for geospatial queries (perf_map_v2)
+    location: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
+        },
+        coordinates: {
+            type: [Number], // [lng, lat]
+        }
+    },
     lat: { type: Number },
     lng: { type: Number },
     ownerId: { type: String, required: true },
@@ -29,6 +39,12 @@ const rentalSchema = new mongoose.Schema({
 // Add compound index for spatial queries
 rentalSchema.index({ lat: 1, lng: 1 });
 rentalSchema.index({ available: 1, lat: 1, lng: 1 }, { partialFilterExpression: { available: true } });
+// GeoJSON 2dsphere indexes for perf_map_v2
+rentalSchema.index({ location: '2dsphere' });
+rentalSchema.index(
+    { available: 1, location: '2dsphere' },
+    { partialFilterExpression: { available: true }, name: 'idx_avail_loc_partial' }
+);
 // Add index for category filtering
 rentalSchema.index({ category: 1 });
 // Add index for sorting by creation date
