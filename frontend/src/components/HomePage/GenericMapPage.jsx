@@ -10,6 +10,7 @@ import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useMapContext } from '../../context/MapContext';
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -416,6 +417,7 @@ const GenericMapPage = ({ apiUrl }) => {
     const [locations, setLocations] = useState([]);
     const [view, setView] = useState("map");
     const [contentType, setContentType] = useState(apiUrl.includes('/services') ? 'services' : 'rentals');
+    const { locations: cachedLocations, setLocations: setCachedLocations, contentType: cachedType, setContentType: setCachedType } = useMapContext();
     const [searchQuery, setSearchQuery] = useState("");
     const [userLocation, setUserLocation] = useState(null);
     const [mapBounds, setMapBounds] = useState(null);
@@ -441,6 +443,19 @@ const GenericMapPage = ({ apiUrl }) => {
             }
         };
     }, []);
+
+    useEffect(() => {
+        if (cachedType === contentType && cachedLocations.length > 0) {
+            setAllItems(cachedLocations);
+            setLocations(cachedLocations);
+            setHasInitialLoad(true);
+        }
+    }, [cachedType, contentType, cachedLocations]);
+
+    useEffect(() => {
+        setCachedLocations(locations);
+        setCachedType(contentType);
+    }, [locations, contentType, setCachedLocations, setCachedType]);
 
     // Memoized base URL with fallback to deployed backend
     const baseUrl = useMemo(
@@ -746,6 +761,9 @@ const GenericMapPage = ({ apiUrl }) => {
 
     // Initial data fetch when component mounts or contentType changes
     useEffect(() => {
+        if (cachedType === contentType && cachedLocations.length > 0) {
+            return;
+        }
         const fetchInitialData = async () => {
             try {
                 setLoading(true);
@@ -808,7 +826,7 @@ const GenericMapPage = ({ apiUrl }) => {
 
         // Fetch initial data when component mounts or contentType changes
         fetchInitialData();
-    }, [contentType, userLocation, getApiUrl, mapItemsToCoords]);
+    }, [contentType, userLocation, getApiUrl, mapItemsToCoords, cachedType, cachedLocations.length]);
 
     // Debounced fetch for items within bounds
     useEffect(() => {

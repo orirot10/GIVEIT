@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import Popup from "../Shared/Popup";
+import { useMapContext } from "../../context/MapContext";
 
 const GoogleMap = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.GoogleMap })));
 const OverlayView = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.OverlayView })));
@@ -85,7 +86,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     const [mapLoadError, setMapLoadError] = useState(false);
     const [isMapLoaded, setIsMapLoaded] = useState(false);
     const [isAndroid, setIsAndroid] = useState(false);
-    const mapRef = useRef(null);
+    const { mapRef } = useMapContext();
     const hasSetInitialLocation = useRef(false);
 
 
@@ -705,4 +706,4 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
     );
 });
 
-export default MapView;
+export default React.memo(MapView);
