@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo, useCallback, Suspense } from "react";
+const perfMapV2 = import.meta.env.VITE_PERF_MAP_V2 === 'true';
 
 const MapView = React.lazy(() => import("./MapView"));
 const ListView = React.lazy(() => import("./ListView"));
@@ -1323,6 +1324,9 @@ const GenericMapPage = ({ apiUrl }) => {
                                 contentType={contentType}
                             />
                         </Suspense>
+                        {perfMapV2 && loading && (
+                            <div className="map-loading-overlay">Loading...</div>
+                        )}
                         {/* Overlay controls and labels at the top of the map */}
                         <div style={{
                             position: 'absolute',

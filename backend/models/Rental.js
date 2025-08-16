@@ -12,6 +12,7 @@ const rentalSchema = new mongoose.Schema({
     images: [{ type: String }], // Firebase Storage URLs or local paths
     phone: { type: String },
     status: { type: String, default: 'available' },
+    available: { type: Boolean, default: true },
     city: { type: String },
     street: { type: String },
     location: { type: String },
@@ -27,6 +28,7 @@ const rentalSchema = new mongoose.Schema({
 
 // Add compound index for spatial queries
 rentalSchema.index({ lat: 1, lng: 1 });
+rentalSchema.index({ available: 1, lat: 1, lng: 1 }, { partialFilterExpression: { available: true } });
 // Add index for category filtering
 rentalSchema.index({ category: 1 });
 // Add index for sorting by creation date

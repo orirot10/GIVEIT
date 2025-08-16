@@ -6,6 +6,8 @@ const http = require('http');
 const { Server } = require('socket.io');
 const compression = require('compression');
 const connectDB = require('./config/db');
+const { perf_map_v2 } = require('./config/flags');
+const mapTiming = require('./middleware/mapTiming');
 const rentalRoutes = require('./routes/rentalRoutes');
 const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
@@ -22,7 +24,9 @@ require('./config/firebase');
 
 const app = express();
 const server = http.createServer(app);
-app.use(compression());
+if (perf_map_v2) {
+  app.use(compression());
+}
 
 // Define allowed origins for CORS
 const allowedOrigins = [
@@ -65,9 +69,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
 }));
 
 // Routes
-app.use('/api/rentals', rentalRoutes);
+app.use('/api/rentals', mapTiming, rentalRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/services', serviceRoutes);
+app.use('/api/services', mapTiming, serviceRoutes);
 app.use('/api/rental_requests', rentalRequestRoutes);
 app.use('/api/service_requests', serviceRequestRoutes);
 app.use('/api/users', userRoutes);
