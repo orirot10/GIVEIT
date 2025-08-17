@@ -6,7 +6,7 @@ const NotificationHandler = () => {
 
   useEffect(() => {
     const handleNewMessage = (event) => {
-      const { title, body, data } = event.detail;
+      const { title, body } = event.detail;
       
       // Show in-app notification or toast
       if ('Notification' in window && Notification.permission === 'granted') {
