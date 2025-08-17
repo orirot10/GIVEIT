@@ -9,6 +9,7 @@ import Dashboard from './src/screens/Dashboard';
 import EditProfile from './src/screens/EditProfile';
 import Home from './src/screens/Home';
 import Messages from './src/screens/Messages';
+import Login from './src/screens/Login';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function App() {
           <Stack.Screen name="Rentals" component={RentalsMapPage} />
           <Stack.Screen name="Services" component={ServicesMapPage} />
           <Stack.Screen name="Account" component={Account} />
+          <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Dashboard" component={Dashboard} />
           <Stack.Screen name="EditProfile" component={EditProfile} />
         </Stack.Navigator>
