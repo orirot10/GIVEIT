@@ -22,6 +22,7 @@ import ServiceForm from './components/UploadForm/ServiceForm';
 import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 import Terms from "./pages/Terms";
+import NotificationHandler from './components/NotificationHandler';
 import splashLogo from '../images/logogood.png';
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
         <Router>
           <ErrorBoundary>
           <I18nextProvider i18n={i18n}>
+          <NotificationHandler />
           <div className="app-container">
             <Routes>
               <Route element={<Layout />}>
