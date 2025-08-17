@@ -32,12 +32,13 @@ isSupported().then((supported) => {
 
 // ✅ Configure Google Provider
 const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ 
+googleProvider.setCustomParameters({
   prompt: 'select_account',
   // Add mobile-specific parameters
   ...(window.Capacitor && {
     // For mobile apps, we need to handle redirects differently
-    redirect_uri: window.location.origin
+    // Use the custom scheme defined in AndroidManifest for OAuth redirects
+    redirect_uri: 'com.orirot.givit://oauth2redirect'
   })
 });
 
