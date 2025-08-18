@@ -210,8 +210,10 @@ export const AuthProvider = ({ children }) => {
       if (isMobileWebView()) {
         console.log('Using native Google sign-in for mobile');
         const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
-
-        await GoogleAuth.initialize();
+        await GoogleAuth.initialize({
+          clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
+          scopes: ['profile', 'email']
+        });
         const googleUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
         const userCredential = await signInWithCredential(auth, credential);
