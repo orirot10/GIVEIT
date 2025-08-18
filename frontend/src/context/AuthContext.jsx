@@ -7,8 +7,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult
+  signInWithCredential,
+  GoogleAuthProvider
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
@@ -103,23 +103,6 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: false });
     });
 
-    // Handle redirect result for mobile
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          console.log('Redirect sign-in successful:', result.user);
-          // The auth state listener will handle the rest
-        }
-      } catch (error) {
-        console.error('Redirect sign-in error:', error);
-        dispatch({ type: 'SET_ERROR', payload: 'Google sign-in failed. Please try again.' });
-      }
-    };
-
-    // Check for redirect result on mount
-    handleRedirectResult();
-    
     return () => unsubscribe();
   }, []);
 
@@ -223,17 +206,17 @@ export const AuthProvider = ({ children }) => {
       googleProvider.addScope('profile');
       googleProvider.addScope('email');
       
-      // Use redirect for mobile WebView, popup for desktop
+      // Use native GoogleAuth plugin for mobile WebView, popup for desktop
       if (isMobileWebView()) {
-        console.log('Using redirect sign-in for mobile');
-        await signInWithRedirect(auth, googleProvider);
-        // Don't return here - the redirect will happen
-        return;
-      } else {
-        console.log('Using popup sign-in for desktop');
-        const userCredential = await signInWithPopup(auth, googleProvider);
+        console.log('Using native Google sign-in for mobile');
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
+
+        await GoogleAuth.initialize();
+        const googleUser = await GoogleAuth.signIn();
+        const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+        const userCredential = await signInWithCredential(auth, credential);
         const user = userCredential.user;
-        
+
         // Check if user exists in Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
 
@@ -265,7 +248,47 @@ export const AuthProvider = ({ children }) => {
             await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
           }
         }
-        
+
+        // Sync user to MongoDB after successful Google sign-in
+        await syncUserToMongo(user);
+        return user;
+      } else {
+        console.log('Using popup sign-in for desktop');
+        const userCredential = await signInWithPopup(auth, googleProvider);
+        const user = userCredential.user;
+
+        // Check if user exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+        const firstName = names[0] || '';
+        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+
+        if (!userDoc.exists()) {
+          // Store user data in Firestore if it's a new user
+          await setDoc(doc(db, 'users', user.uid), {
+            firstName,
+            lastName,
+            email: user.email,
+            phone: user.phoneNumber || '',
+            photoURL: user.photoURL || '',
+            country: '',
+            city: '',
+            street: '',
+            createdAt: new Date().toISOString(),
+            authProvider: 'google'
+          });
+        } else {
+          // Update missing name fields for existing users
+          const data = userDoc.data();
+          const updates = {};
+          if (!data.firstName && firstName) updates.firstName = firstName;
+          if (!data.lastName && lastName) updates.lastName = lastName;
+          if (Object.keys(updates).length > 0) {
+            await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+          }
+        }
+
         // Sync user to MongoDB after successful Google sign-in
         await syncUserToMongo(user);
         return user;
