@@ -29,3 +29,4 @@ serviceAccountKey.json
 *.sln
 *.sw?
 uploads/
+frontend/public/icon.png

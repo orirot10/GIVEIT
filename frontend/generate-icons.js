@@ -2,17 +2,15 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { Buffer } from 'buffer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load SVG content from resources/givit.svg so the app icon matches the provided asset
-const svgPath = path.join(__dirname, 'resources', 'givit.svg');
-if (!fs.existsSync(svgPath)) {
-  throw new Error(`SVG not found at: ${svgPath}`);
+// Load the base PNG icon that should be used for the app
+const iconPath = path.join(__dirname, 'resources', 'icon.png');
+if (!fs.existsSync(iconPath)) {
+  throw new Error(`Icon not found at: ${iconPath}`);
 }
-const svgContent = fs.readFileSync(svgPath, 'utf8');
 
 // Android icon sizes for different densities
 const iconSizes = {
@@ -25,6 +23,13 @@ const iconSizes = {
 
 // Create icons for each density
 async function generateIcons() {
+  const publicPath = path.join(__dirname, 'public');
+  if (!fs.existsSync(publicPath)) {
+    fs.mkdirSync(publicPath, { recursive: true });
+  }
+  fs.copyFileSync(iconPath, path.join(publicPath, 'icon.png'));
+  console.log('Copied web icon to public/icon.png');
+
   const androidResPath = path.join(__dirname, 'android', 'app', 'src', 'main', 'res');
   
   for (const [folder, size] of Object.entries(iconSizes)) {
@@ -36,19 +41,19 @@ async function generateIcons() {
     }
     
     // Generate ic_launcher.png
-    await sharp(Buffer.from(svgContent))
+    await sharp(iconPath)
       .resize(size, size)
       .png()
       .toFile(path.join(folderPath, 'ic_launcher.png'));
-    
+
     // Generate ic_launcher_round.png (same as regular for now)
-    await sharp(Buffer.from(svgContent))
+    await sharp(iconPath)
       .resize(size, size)
       .png()
       .toFile(path.join(folderPath, 'ic_launcher_round.png'));
-    
+
     // Generate ic_launcher_foreground.png (same as regular for now)
-    await sharp(Buffer.from(svgContent))
+    await sharp(iconPath)
       .resize(size, size)
       .png()
       .toFile(path.join(folderPath, 'ic_launcher_foreground.png'));
