@@ -1,6 +1,7 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
 const mongoose = require('mongoose'); // Import mongoose to validate ObjectId
+const admin = require('firebase-admin');
 
 // Load all messages for a user (used in the join event)
 exports.loadMessages = async (userId) => {
@@ -113,8 +114,40 @@ exports.sendMessage = async (messageData) => {
       isRead: false,
     });
     await message.save();
+    
+    // Send push notification
+    await sendPushNotification(messageData.receiverId, messageData.senderId, messageData.content);
+    
     return message;
   } catch (err) {
     throw new Error('Failed to send message');
+  }
+};
+
+// Send push notification
+const sendPushNotification = async (receiverId, senderId, messageContent) => {
+  try {
+    const receiver = await User.findById(receiverId);
+    const sender = await User.findById(senderId);
+    
+    if (!receiver || !receiver.fcmToken || !sender) {
+      return;
+    }
+
+    const message = {
+      notification: {
+        title: `${sender.firstName} ${sender.lastName}`,
+        body: messageContent
+      },
+      data: {
+        senderId: senderId.toString(),
+        type: 'message'
+      },
+      token: receiver.fcmToken
+    };
+
+    await admin.messaging().send(message);
+  } catch (error) {
+    console.error('Error sending push notification:', error);
   }
 };

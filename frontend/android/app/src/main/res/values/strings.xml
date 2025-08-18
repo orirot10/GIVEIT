@@ -4,7 +4,8 @@
     <string name="title_activity_main">Givit</string>
     <string name="package_name">com.orirot.givit</string>
     <string name="custom_url_scheme">com.orirot.givit</string>
-    <!-- 
+    <string name="server_client_id">552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com</string>
+    <!--
     IMPORTANT: Replace YOUR_API_KEY_HERE with your actual Google Maps API key
     Get it from: https://console.cloud.google.com/apis/credentials
     Make sure to enable Maps JavaScript API and Android Maps SDK

@@ -10,7 +10,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Register plugins
+        // Register native plugins
         registerPlugin(PushNotificationsPlugin.class);
         registerPlugin(GoogleAuth.class);
     }

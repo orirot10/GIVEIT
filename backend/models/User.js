@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     photoURL:  { type: String },
     displayName: { type: String },
     photoUrl: { type: String },
+    fcmToken: { type: String },
     createdAt: { type: Date, default: Date.now },
 }, {
     timestamps: true,

@@ -42,4 +42,25 @@ router.put('/profile', protect, async (req, res) => {
   }
 });
 
+// Update FCM token
+router.post('/fcm-token', protect, async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    
+    const user = await User.findOneAndUpdate(
+      { firebaseUid: req.user.uid },
+      { fcmToken },
+      { new: true }
+    );
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ message: 'FCM token updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;
