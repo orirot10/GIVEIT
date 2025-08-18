@@ -6,6 +6,7 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  signInWithPopup,
   signInWithCredential,
   GoogleAuthProvider
 } from 'firebase/auth';
@@ -108,8 +109,6 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: false });
     });
 
-
-    
     return () => unsubscribe();
   }, []);
 
@@ -206,30 +205,98 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
-      let googleUser;
+      // Import the pre-configured Google provider
+      const { googleProvider } = await import('../firebase');
       
-      if (Capacitor.isNativePlatform()) {
-        // Use Capacitor Google Auth for native platforms (opens Chrome Custom Tab)
-        googleUser = await GoogleAuth.signIn();
-        
-        // Create Firebase credential from Google Auth result
+      // Add additional scopes if needed
+      googleProvider.addScope('profile');
+      googleProvider.addScope('email');
+      
+      // Use native GoogleAuth plugin for mobile WebView, popup for desktop
+      if (isMobileWebView()) {
+        console.log('Using native Google sign-in for mobile');
+        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
+
+        await GoogleAuth.initialize();
+        const googleUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
         const userCredential = await signInWithCredential(auth, credential);
         const user = userCredential.user;
-        
-        await handleUserData(user);
+
+        // Check if user exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+        const firstName = names[0] || '';
+        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+
+        if (!userDoc.exists()) {
+          // Store user data in Firestore if it's a new user
+          await setDoc(doc(db, 'users', user.uid), {
+            firstName,
+            lastName,
+            email: user.email,
+            phone: user.phoneNumber || '',
+            photoURL: user.photoURL || '',
+            country: '',
+            city: '',
+            street: '',
+            createdAt: new Date().toISOString(),
+            authProvider: 'google'
+          });
+        } else {
+          // Update missing name fields for existing users
+          const data = userDoc.data();
+          const updates = {};
+          if (!data.firstName && firstName) updates.firstName = firstName;
+          if (!data.lastName && lastName) updates.lastName = lastName;
+          if (Object.keys(updates).length > 0) {
+            await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+          }
+        }
+
+        // Sync user to MongoDB after successful Google sign-in
+        await syncUserToMongo(user);
         return user;
       } else {
-        // Fallback to web-based auth for browsers
-        const { googleProvider } = await import('../firebase');
-        googleProvider.addScope('profile');
-        googleProvider.addScope('email');
-        
-        const { signInWithPopup } = await import('firebase/auth');
+        console.log('Using popup sign-in for desktop');
         const userCredential = await signInWithPopup(auth, googleProvider);
         const user = userCredential.user;
-        
-        await handleUserData(user);
+
+        // Check if user exists in Firestore
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+        const names = user.displayName ? user.displayName.split(' ') : ['', ''];
+        const firstName = names[0] || '';
+        const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
+
+        if (!userDoc.exists()) {
+          // Store user data in Firestore if it's a new user
+          await setDoc(doc(db, 'users', user.uid), {
+            firstName,
+            lastName,
+            email: user.email,
+            phone: user.phoneNumber || '',
+            photoURL: user.photoURL || '',
+            country: '',
+            city: '',
+            street: '',
+            createdAt: new Date().toISOString(),
+            authProvider: 'google'
+          });
+        } else {
+          // Update missing name fields for existing users
+          const data = userDoc.data();
+          const updates = {};
+          if (!data.firstName && firstName) updates.firstName = firstName;
+          if (!data.lastName && lastName) updates.lastName = lastName;
+          if (Object.keys(updates).length > 0) {
+            await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
+          }
+        }
+
+        // Sync user to MongoDB after successful Google sign-in
+        await syncUserToMongo(user);
         return user;
       }
     } catch (error) {
@@ -237,48 +304,19 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'SET_LOADING', payload: false });
       let errorMessage = 'Google sign-in failed. Please try again.';
       
-      if (error.message?.includes('popup')) {
-        errorMessage = 'Sign-in popup was closed or blocked. Please try again.';
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in popup was closed. Please try again.';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
       } else if (error.code === 'auth/unauthorized-domain') {
         errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
+      } else if (error.code === 'auth/account-exists-with-different-credential') {
+        errorMessage = 'An account already exists with the same email address but different sign-in credentials.';
       }
       
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
-  };
-  
-  // Helper function to handle user data after successful sign-in
-  const handleUserData = async (user) => {
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    const names = user.displayName ? user.displayName.split(' ') : ['', ''];
-    const firstName = names[0] || '';
-    const lastName = names.length > 1 ? names.slice(1).join(' ') : '';
-
-    if (!userDoc.exists()) {
-      await setDoc(doc(db, 'users', user.uid), {
-        firstName,
-        lastName,
-        email: user.email,
-        phone: user.phoneNumber || '',
-        photoURL: user.photoURL || '',
-        country: '',
-        city: '',
-        street: '',
-        createdAt: new Date().toISOString(),
-        authProvider: 'google'
-      });
-    } else {
-      const data = userDoc.data();
-      const updates = {};
-      if (!data.firstName && firstName) updates.firstName = firstName;
-      if (!data.lastName && lastName) updates.lastName = lastName;
-      if (Object.keys(updates).length > 0) {
-        await setDoc(doc(db, 'users', user.uid), updates, { merge: true });
-      }
-    }
-    
-    await syncUserToMongo(user);
   };
 
   // Logout function
