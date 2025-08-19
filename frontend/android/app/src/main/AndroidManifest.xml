@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -15,10 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key" />
 
         <activity
             android:name=".MainActivity"
@@ -27,7 +24,6 @@
             android:launchMode="singleTask"
             android:exported="true"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation">
-
             <!-- Main launcher -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,9 +35,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:scheme="com.orirot.givit"
-                    android:host="oauth2redirect" />
+                <data android:scheme="com.orirot.givit" android:host="oauth2redirect" />
             </intent-filter>
 
             <!-- 🔗 Deep link handler for Firebase Auth -->
@@ -52,7 +46,8 @@
                 <data
                     android:scheme="https"
                     android:host="givitori.firebaseapp.com"
-                    android:pathPrefix="/__/auth/handler" />
+                    android:pathPrefix="/__/auth/handler"
+                />
             </intent-filter>
         </activity>
 
@@ -62,19 +57,14 @@
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
 
         <!-- Firebase Messaging Service -->
-        <service
-            android:name=".FirebaseMessagingService"
-            android:exported="false">
+        <service android:name=".FirebaseMessagingService" android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
     </application>
 </manifest>

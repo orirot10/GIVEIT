@@ -26,12 +26,8 @@
     },
     "GoogleAuth": {
       "scopes": ["profile", "email"],
-<<<<<<< HEAD
-      "serverClientId": "1051036806406-aqhqhqhqhqhqhqhqhqhqhqhqhqhqhqhq.apps.googleusercontent.com",
+      "serverClientId": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
-=======
-      "androidClientId": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com"
->>>>>>> 171e4c59c780dfb431eebc82a440e824f242a3a8
     }
   },
   "android": {

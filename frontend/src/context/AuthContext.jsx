@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       GoogleAuth.initialize({
-        clientId: '1051036806406-aqhqhqhqhqhqhqhqhqhqhqhqhqhqhqhq.apps.googleusercontent.com',
+        clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
         scopes: ['profile', 'email'],
         grantOfflineAccess: true,
       });
