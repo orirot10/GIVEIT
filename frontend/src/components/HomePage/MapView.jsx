@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
+import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
 import { useMapContext } from "../../context/MapContext";
-
-const GoogleMap = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.GoogleMap })));
-const OverlayView = React.lazy(() => import("@react-google-maps/api").then(m => ({ default: m.OverlayView })));
 
 // Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
@@ -453,7 +451,6 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                 </div>
             )}
             
-            <Suspense fallback={<div className="p-4 text-center">Loading map...</div>}>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={userLocation || defaultCenter}
@@ -542,6 +539,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                         draggingCursor: 'grabbing'
                     } : {})
                 }}
+
             >
                 {memoizedLocations && memoizedLocations.map((item, index) => (
                     <MemoizedMarker
@@ -574,7 +572,6 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
                     </OverlayView>
                 )}
             </GoogleMap>
-            </Suspense>
 
             {/* Enhanced return to location button */}
             {userLocation && (

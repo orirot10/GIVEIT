@@ -9,6 +9,8 @@ const GoogleMapsLoader = ({ children }) => {
         id: 'google-map-script',
         googleMapsApiKey: GOOGLE_MAPS_API_KEY,
         libraries: LIBRARIES,
+        language: 'he',
+        region: 'IL'
     });
 
     if (loadError) {
