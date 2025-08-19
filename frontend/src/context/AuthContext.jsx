@@ -14,6 +14,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { Capacitor } from '@capacitor/core';
+import { isMobileWebView } from '../utils/deviceDetection';
 
 const AuthContext = createContext();
 
@@ -205,21 +206,19 @@ export const AuthProvider = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
     dispatch({ type: 'CLEAR_ERROR' });
     try {
-      // Import the pre-configured Google provider
-      const { googleProvider } = await import('../firebase');
-      
-      // Add additional scopes if needed
-      googleProvider.addScope('profile');
-      googleProvider.addScope('email');
-      
       // Use native GoogleAuth plugin for mobile WebView, popup for desktop
       if (isMobileWebView()) {
         console.log('Using native Google sign-in for mobile');
-        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
-        await GoogleAuth.initialize({
-          clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
-          scopes: ['profile', 'email']
-        });
+        
+        // Initialize GoogleAuth if not already done
+        if (!GoogleAuth.isInitialized) {
+          await GoogleAuth.initialize({
+            clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true
+          });
+        }
+        
         const googleUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
         const userCredential = await signInWithCredential(auth, credential);
@@ -262,6 +261,13 @@ export const AuthProvider = ({ children }) => {
         return user;
       } else {
         console.log('Using popup sign-in for desktop');
+        // Import the pre-configured Google provider
+        const { googleProvider } = await import('../firebase');
+        
+        // Add additional scopes if needed
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+        
         const userCredential = await signInWithPopup(auth, googleProvider);
         const user = userCredential.user;
 

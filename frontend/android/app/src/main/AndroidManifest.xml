@@ -30,14 +30,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- 🌐 Google Sign-In redirect handler -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.orirot.givit" android:host="oauth2redirect" />
-            </intent-filter>
-
             <!-- 🔗 Deep link handler for Firebase Auth -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

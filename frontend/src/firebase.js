@@ -33,20 +33,11 @@ isSupported().then((supported) => {
 // ✅ Configure Google Provider
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
-  prompt: 'select_account',
-  // Add mobile-specific parameters
-  ...(window.Capacitor && {
-    // For mobile apps, we need to handle redirects differently
-    // Use the custom scheme defined in AndroidManifest for OAuth redirects
-    redirect_uri: 'com.orirot.givit://oauth2redirect'
-  })
+  prompt: 'select_account'
 });
 
 // ✅ Configure auth for mobile environments
 if (window.Capacitor) {
-  // Set persistence to LOCAL for mobile apps
-  auth.setPersistence('local');
-  
   // Configure auth settings for mobile
   auth.settings.appVerificationDisabledForTesting = false;
 }
