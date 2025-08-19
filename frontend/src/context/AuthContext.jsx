@@ -47,11 +47,7 @@ export const AuthProvider = ({ children }) => {
   // Initialize Google Auth for native platforms
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      GoogleAuth.initialize({
-        clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
-        scopes: ['profile', 'email'],
-        grantOfflineAccess: true,
-      });
+      GoogleAuth.initialize();
     }
   }, []);
 
@@ -210,14 +206,8 @@ export const AuthProvider = ({ children }) => {
       if (isMobileWebView()) {
         console.log('Using native Google sign-in for mobile');
         
-        // Initialize GoogleAuth if not already done
-        if (!GoogleAuth.isInitialized) {
-          await GoogleAuth.initialize({
-            clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
-            scopes: ['profile', 'email'],
-            grantOfflineAccess: true
-          });
-        }
+        // Initialize GoogleAuth
+        await GoogleAuth.initialize();
         
         const googleUser = await GoogleAuth.signIn();
         const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
