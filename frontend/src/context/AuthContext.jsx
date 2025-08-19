@@ -326,7 +326,9 @@ export const AuthProvider = ({ children }) => {
       } else if (error.code === 'auth/account-exists-with-different-credential') {
         errorMessage = 'An account already exists with the same email address but different sign-in credentials.';
       } else if (error.message) {
-        errorMessage = `Google sign-in failed: ${error.message}`;
+        errorMessage = `Auth Error: ${error.message}`;
+      } else {
+        errorMessage = `Auth Error: ${JSON.stringify(error)}`;
       }
       
       dispatch({ type: 'SET_ERROR', payload: errorMessage });

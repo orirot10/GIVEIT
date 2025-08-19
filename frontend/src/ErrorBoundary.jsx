@@ -14,9 +14,11 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div>
+        <div style={{ padding: '20px', textAlign: 'center' }}>
           <h1>שגיאה בטעינת העמוד</h1>
-          <p>{this.state.error.message}</p>
+          <p><strong>Error:</strong> {this.state.error?.message || 'Unknown error'}</p>
+          <p><strong>Stack:</strong> {this.state.error?.stack}</p>
+          <button onClick={() => window.location.reload()}>רענן דף</button>
         </div>
       );
     }
