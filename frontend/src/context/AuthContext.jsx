@@ -46,11 +46,21 @@ export const AuthProvider = ({ children }) => {
 
   // Initialize Google Auth for native platforms
   useEffect(() => {
-    if (Capacitor.isNativePlatform()) {
-      GoogleAuth.initialize().catch(err => {
-        console.error('GoogleAuth initialization failed:', err);
-      });
-    }
+    const initGoogleAuth = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await GoogleAuth.initialize({
+            clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true
+          });
+          console.log('GoogleAuth initialized successfully');
+        } catch (err) {
+          console.error('GoogleAuth initialization failed:', err);
+        }
+      }
+    };
+    initGoogleAuth();
   }, []);
 
   // Sync user to MongoDB
@@ -209,16 +219,24 @@ export const AuthProvider = ({ children }) => {
         console.log('Using native Google sign-in for mobile');
         
         try {
-          const googleUser = await GoogleAuth.signIn();
-          console.log('Google user:', googleUser);
+          // Ensure GoogleAuth is initialized
+          await GoogleAuth.initialize({
+            clientId: '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
+            scopes: ['profile', 'email'],
+            grantOfflineAccess: true
+          });
           
-          if (!googleUser.authentication?.idToken) {
-            throw new Error('No ID token received from Google');
+          const googleUser = await GoogleAuth.signIn();
+          console.log('Google user received:', googleUser);
+          
+          if (!googleUser?.authentication?.idToken) {
+            throw new Error('No ID token received from Google Auth');
           }
           
           const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
           const userCredential = await signInWithCredential(auth, credential);
           const user = userCredential.user;
+          console.log('Firebase user created:', user.uid);
         } catch (googleError) {
           console.error('Native Google Auth error:', googleError);
           throw googleError;

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "552189348251",
+    "project_id": "givitori",
+    "storage_bucket": "givitori.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:552189348251:android:bec9a1074229965334b93e",
+        "android_client_info": {
+          "package_name": "com.orirot.givit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "552189348251-efl1d4ch20i43qooj9bt35m0ebkr05od.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.orirot.givit",
+            "certificate_hash": "5640f63885ba7f67ad45c3cf6265d6fa99c6c6f0"
+          }
+        },
+        {
+          "client_id": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAadHtree3Tig7f-O0g5IOOU93TFp5gn0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
