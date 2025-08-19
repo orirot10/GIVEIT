@@ -47,7 +47,9 @@ export const AuthProvider = ({ children }) => {
   // Initialize Google Auth for native platforms
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      GoogleAuth.initialize();
+      GoogleAuth.initialize().catch(err => {
+        console.error('GoogleAuth initialization failed:', err);
+      });
     }
   }, []);
 
@@ -206,13 +208,21 @@ export const AuthProvider = ({ children }) => {
       if (isMobileWebView()) {
         console.log('Using native Google sign-in for mobile');
         
-        // Initialize GoogleAuth
-        await GoogleAuth.initialize();
-        
-        const googleUser = await GoogleAuth.signIn();
-        const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
-        const userCredential = await signInWithCredential(auth, credential);
-        const user = userCredential.user;
+        try {
+          const googleUser = await GoogleAuth.signIn();
+          console.log('Google user:', googleUser);
+          
+          if (!googleUser.authentication?.idToken) {
+            throw new Error('No ID token received from Google');
+          }
+          
+          const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const user = userCredential.user;
+        } catch (googleError) {
+          console.error('Native Google Auth error:', googleError);
+          throw googleError;
+        }
 
         // Check if user exists in Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
@@ -299,10 +309,15 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
+      console.error('Error code:', error.code);
+      console.error('Error message:', error.message);
       dispatch({ type: 'SET_LOADING', payload: false });
+      
       let errorMessage = 'Google sign-in failed. Please try again.';
       
-      if (error.code === 'auth/popup-closed-by-user') {
+      if (error.message?.includes('No ID token')) {
+        errorMessage = 'Google authentication failed. Please try again.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
         errorMessage = 'Sign-in popup was closed. Please try again.';
       } else if (error.code === 'auth/popup-blocked') {
         errorMessage = 'Sign-in popup was blocked. Please allow popups for this site.';
@@ -310,6 +325,8 @@ export const AuthProvider = ({ children }) => {
         errorMessage = 'This domain is not authorized for Google sign-in. Please contact support.';
       } else if (error.code === 'auth/account-exists-with-different-credential') {
         errorMessage = 'An account already exists with the same email address but different sign-in credentials.';
+      } else if (error.message) {
+        errorMessage = `Google sign-in failed: ${error.message}`;
       }
       
       dispatch({ type: 'SET_ERROR', payload: errorMessage });

@@ -28,7 +28,8 @@
       "scopes": ["profile", "email"],
       "serverClientId": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com",
       "androidClientId": "552189348251-efl1d4ch20i43qooj9bt35m0ebkr05od.apps.googleusercontent.com",
-      "forceCodeForRefreshToken": true
+      "forceCodeForRefreshToken": true,
+      "requestIdToken": true
     }
   },
   "android": {

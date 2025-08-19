@@ -10,5 +10,5 @@
     Get it from: https://console.cloud.google.com/apis/credentials
     Make sure to enable Maps JavaScript API and Android Maps SDK
     -->
-    <string name="google_maps_key">YOUR_API_KEY_HERE</string>
+    <string name="google_maps_key">AIzaSyCZpXDxunDa9dHHO6bz2v4ncKTOmEpUwWM</string>
 </resources>
