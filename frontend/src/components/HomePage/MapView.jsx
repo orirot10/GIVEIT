@@ -337,7 +337,7 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     // Get marker color based on item type
     const getMarkerColor = (item) => {
         if (item.type?.includes('request')) {
-            return DESIGN_TOKENS.colors.semantic.warning; // Orange for wanted items
+            return '#8b5cf6'; // Purple for wanted items
         }
         return DESIGN_TOKENS.colors.semantic.success; // Green for available items
     };

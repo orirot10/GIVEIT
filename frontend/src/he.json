@@ -172,10 +172,10 @@
         "add_listing": "הוסף פריט"
     },
 
-    "Available Products": " מוצרים זמינים",
-    "Wanted Products": "מוצרים דרושים",
-    "Available Services": "שירותים זמינים",
-    "Wanted Services": "שירותים דרושים",
+    "Available Products": "הצעות",
+    "Wanted Products": "בקשות",
+    "Available Services": "הצעות",
+    "Wanted Services": "בקשות",
     "forms": {
         "request_rental_title": "בקש פריט להשכרה",
         "request_service_title": "בקש שירות",
