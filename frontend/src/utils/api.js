@@ -1,4 +1,5 @@
 import { auth } from '../firebase';
+import { Capacitor } from '@capacitor/core';
 
 const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
@@ -14,10 +15,18 @@ export const apiRequest = async (url, options = {}) => {
       headers.Authorization = `Bearer ${token}`;
     }
     
-    return fetch(`${baseUrl}${url}`, {
+    const requestOptions = {
       ...options,
       headers,
-    });
+    };
+    
+    // Add timeout for mobile
+    if (Capacitor.isNativePlatform()) {
+      requestOptions.timeout = 30000; // 30 seconds
+    }
+    
+    console.log(`Making request to: ${baseUrl}${url}`);
+    return fetch(`${baseUrl}${url}`, requestOptions);
   };
   
   // First attempt
@@ -30,7 +39,13 @@ export const apiRequest = async (url, options = {}) => {
     }
   }
   
-  let response = await makeRequest(token);
+  let response;
+  try {
+    response = await makeRequest(token);
+  } catch (networkError) {
+    console.error('Network error:', networkError);
+    throw new Error('Network connection failed. Please check your internet connection.');
+  }
   
   // If we get a 401 with token-expired, try to refresh and retry once
   if (response.status === 401 && auth.currentUser) {
