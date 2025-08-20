@@ -45,6 +45,16 @@ class NotificationService {
       console.log('Push notification action performed', notification.actionId, notification.inputValue);
       this.handleNotificationTap(notification);
     });
+
+    // Listen for deep link events from MainActivity
+    window.addEventListener('notificationTapped', (event) => {
+      if (event.detail?.action === 'openMessages') {
+        const customEvent = new CustomEvent('notificationTap', {
+          detail: { data: { action: 'openMessages' } }
+        });
+        window.dispatchEvent(customEvent);
+      }
+    });
   }
 
   async sendTokenToServer(token) {

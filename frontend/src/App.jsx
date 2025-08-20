@@ -23,6 +23,7 @@ import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 import Terms from "./pages/Terms";
 import NotificationHandler from './components/NotificationHandler';
+import notificationService from './services/notificationService';
 import splashLogo from '../images/logogood.png';
 
 function App() {
@@ -33,6 +34,12 @@ function App() {
     const timerId = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(timerId);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      notificationService.initialize();
+    }
+  }, [user]);
 
   if (showSplash) {
     return (

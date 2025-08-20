@@ -137,11 +137,22 @@ const sendPushNotification = async (receiverId, senderId, messageContent) => {
     const message = {
       notification: {
         title: `${sender.firstName} ${sender.lastName}`,
-        body: messageContent
+        body: messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent
       },
       data: {
         senderId: senderId.toString(),
-        type: 'message'
+        senderName: `${sender.firstName} ${sender.lastName}`,
+        type: 'message',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK'
+      },
+      android: {
+        priority: 'high',
+        notification: {
+          channelId: 'giveit_messages',
+          priority: 'high',
+          defaultSound: true,
+          defaultVibrateTimings: true
+        }
       },
       token: receiver.fcmToken
     };
