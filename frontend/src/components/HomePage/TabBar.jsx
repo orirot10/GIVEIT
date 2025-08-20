@@ -6,7 +6,7 @@ import '../../styles/HomePage/TabBar.css';
 const TabBar = ({ activeTab, onTabChange, tabs }) => {
     const activeIndex = tabs.findIndex(tab => tab.id === activeTab);
     const indicatorTransform = `translateX(${activeIndex * 100}%)`;
-
+    const isWantedTab = activeTab.includes('request');
 
     return (
         <div className="tab-bar-container">
@@ -29,7 +29,7 @@ const TabBar = ({ activeTab, onTabChange, tabs }) => {
             })}
             </div>
             <div
-                className="tab-indicator"
+                className={`tab-indicator ${isWantedTab ? 'wanted' : 'available'}`}
                 style={{
                     transform: indicatorTransform
                 }}

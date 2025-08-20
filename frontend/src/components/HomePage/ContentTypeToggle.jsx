@@ -30,9 +30,13 @@ const ContentTypeToggle = ({ contentType, setContentType }) => {
                             ? contentType === btn.id
                                 ? 'bg-yellow-500 text-white hover:bg-yellow-600'
                                 : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                            : (btn.id === 'rental_requests' || btn.id === 'service_requests')
+                            ? contentType === btn.id
+                                ? 'bg-purple-500 text-white hover:bg-purple-600'
+                                : 'bg-purple-100 text-purple-800 hover:bg-purple-200'
                             : contentType === btn.id
-                            ? 'bg-blue-500 text-white hover:bg-blue-600'
-                            : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                            ? 'bg-green-500 text-white hover:bg-green-600'
+                            : 'bg-green-100 text-green-800 hover:bg-green-200'
                     }`}
                     onClick={() => handleClick(btn.id)}
                 >
