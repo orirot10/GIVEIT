@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import EditModal from './EditModal';
+import { apiRequest } from '../../utils/api';
 
 const placeholderSVG = `<svg width='16' height='16' xmlns='http://www.w3.org/2000/svg'><rect width='16' height='16' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='12' height='8' rx='4' fill='#CFD8DC'/><rect x='12' y='12' width='12' height='6' rx='2' fill='#B0BEC5'/></svg>`;
 
@@ -85,41 +86,25 @@ const MyModals = () => {
         const fetchData = async () => {
             try {
                 // Fetch rentals
-                const rentalsRes = await fetch(`${baseUrl}/api/rentals/user`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
+                const rentalsRes = await apiRequest('/api/rentals/user');
                 const rentalsData = await rentalsRes.json();
                 if (!rentalsRes.ok) throw new Error(rentalsData.error);
                 setRentals(rentalsData);
 
                 // Fetch services
-                const servicesRes = await fetch(`${baseUrl}/api/services/user`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
+                const servicesRes = await apiRequest('/api/services/user');
                 const servicesData = await servicesRes.json();
                 if (!servicesRes.ok) throw new Error(servicesData.error);
                 setServices(servicesData);
 
                 // Fetch rental requests
-                const rentalRequestsRes = await fetch(`${baseUrl}/api/rental_requests/user`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
+                const rentalRequestsRes = await apiRequest('/api/rental_requests/user');
                 const rentalRequestsData = await rentalRequestsRes.json();
                 if (!rentalRequestsRes.ok) throw new Error(rentalRequestsData.error);
                 setRentalRequests(rentalRequestsData);
 
                 // Fetch service requests
-                const serviceRequestsRes = await fetch(`${baseUrl}/api/service_requests/user`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
+                const serviceRequestsRes = await apiRequest('/api/service_requests/user');
                 const serviceRequestsData = await serviceRequestsRes.json();
                 if (!serviceRequestsRes.ok) throw new Error(serviceRequestsData.error);
                 setServiceRequests(serviceRequestsData);
@@ -140,11 +125,8 @@ const MyModals = () => {
         else if (type === 'rental_request') endpoint = 'rental_requests';
         else if (type === 'service_request') endpoint = 'service_requests';
         try {
-            const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}`, {
+            const res = await apiRequest(`/api/${endpoint}/${item._id}`, {
                 method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
             });
             if (res.ok) {
                 if (type === 'rental') setRentals(rentals.filter(r => r._id !== item._id));
@@ -168,12 +150,8 @@ const MyModals = () => {
         else if (type === 'rental_request') endpoint = 'rental_requests';
         else if (type === 'service_request') endpoint = 'service_requests';
         try {
-            const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}`, {
+            const res = await apiRequest(`/api/${endpoint}/${item._id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
                 body: JSON.stringify(updatedItem),
             });
             if (res.ok) {
@@ -195,12 +173,8 @@ const MyModals = () => {
         const endpoint = type === 'rental' ? 'rentals' : 'services';
         const newStatus = item.status === 'available' ? 'not_available' : 'available';
         try {
-            const res = await fetch(`${baseUrl}/api/${endpoint}/${item._id}`, {
+            const res = await apiRequest(`/api/${endpoint}/${item._id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
-                },
                 body: JSON.stringify({ status: newStatus }),
             });
             if (res.ok) {

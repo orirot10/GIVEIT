@@ -8,6 +8,7 @@ const compression = require('compression');
 const connectDB = require('./config/db');
 const { perf_map_v2 } = require('./config/flags');
 const mapTiming = require('./middleware/mapTiming');
+const requestLogger = require('./middleware/requestLogger');
 const rentalRoutes = require('./routes/rentalRoutes');
 const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
@@ -48,7 +49,13 @@ const io = new Server(server, {
 // Connect to DB
 connectDB();
 
+// Health check route (must be before auth middleware)
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Middleware
+app.use(requestLogger);
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,
@@ -122,8 +129,8 @@ io.on('connection', (socket) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 5173;
-const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const PORT = process.env.PORT || 5000;
+const HOST = '0.0.0.0';
 
 server.listen(PORT, HOST, () => {
   console.log(`Server running on http://${HOST}:${PORT}`);

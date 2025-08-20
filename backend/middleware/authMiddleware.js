@@ -21,19 +21,18 @@ const protect = async (req, res, next) => {
     // Check if authorization header exists
     if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer ')) {
       return res.status(401).json({ 
+        code: 'unauthorized',
         error: 'Not authorized', 
         message: 'Authentication required. Please log in.'
       });
     }
 
-    // Get token from header
+    // Get token from header (don't log it)
     const token = req.headers.authorization.split(' ')[1];
-    console.log('Incoming token:', token);
 
     try {
       // Verify token
       const decodedToken = await auth.verifyIdToken(token);
-      console.log('Decoded token:', decodedToken);
       
       // Find user by Firebase UID
       let mongoUser = await User.findOne({ firebaseUid: decodedToken.uid });
@@ -81,9 +80,19 @@ const protect = async (req, res, next) => {
           message: 'A user with this email already exists. Please contact support if this persists.'
         });
       }
-      // Token verification errors
-      console.error('Token verification error:', tokenError.message);
+      // Token verification errors - map specific Firebase errors
+      console.error('Token verification error:', tokenError.code || tokenError.message);
+      
+      if (tokenError.code === 'auth/id-token-expired') {
+        return res.status(401).json({ 
+          code: 'token-expired',
+          error: 'Token expired', 
+          message: 'Your session has expired. Please log in again.'
+        });
+      }
+      
       return res.status(401).json({ 
+        code: 'unauthorized',
         error: 'Invalid token', 
         message: 'Your session has expired. Please log in again.'
       });
