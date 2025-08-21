@@ -210,6 +210,7 @@ const MyModals = () => {
     if (loading) {
         return (
             <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                            <h2 className="main-title">{t(' ')}</h2>
                 <h2 className="main-title">{t('my_items.title')}</h2>
                 <div className="services-placeholder">טוען...</div>
             </div>
@@ -252,7 +253,9 @@ const MyModals = () => {
 
     return (
         <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
+            <h2 className="main-title">{t(' ')}</h2>
             <h2 className="main-title">{t('my_items.title')}</h2>
+            <div style={{ marginTop: '1rem' }}>
             <div className="myitems-tabs" role="tablist">
                 {TAB_CATEGORIES.map(tab => (
                     <button
@@ -335,6 +338,7 @@ const MyModals = () => {
                     onCancel={() => setEditTarget(null)}
                 />
             )}
+            </div>
         </div>
     );
 };
