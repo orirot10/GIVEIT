@@ -1,0 +1,3 @@
+@echo off
+echo Opening iOS project in Xcode...
+npx cap open ios

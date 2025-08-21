@@ -38,5 +38,11 @@
     "captureInput": true,
     "webContentsOpaque": false,
     "backgroundColor": "#ffffff"
+  },
+  "ios": {
+    "webContentsDebuggingEnabled": true,
+    "backgroundColor": "#ffffff",
+    "allowsLinkPreview": false,
+    "handleApplicationNotifications": false
   }
 }
