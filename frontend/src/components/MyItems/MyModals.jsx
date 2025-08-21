@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import EditModal from './EditModal';
 import { apiRequest } from '../../utils/api';
-import { testNetworkConnection } from '../../utils/networkTest';
 
 const placeholderSVG = `<svg width='16' height='16' xmlns='http://www.w3.org/2000/svg'><rect width='16' height='16' rx='8' fill='#F4F6F8' stroke='#B0BEC5' stroke-width='2'/><rect x='12' y='24' width='12' height='8' rx='4' fill='#CFD8DC'/><rect x='12' y='12' width='12' height='6' rx='2' fill='#B0BEC5'/></svg>`;
 
@@ -80,49 +79,49 @@ const MyModals = () => {
         { key: 'service_requests', label: t('my_items.my_service_requests') },
     ];
 
-    useEffect(() => {
-        if (!user) {
-            return;
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchData = async () => {
+        if (!user) return;
+        
+        setLoading(true);
+        setError(null);
+        
+        try {
+            // Skip network test and try direct API calls
+            // Fetch rentals
+            const rentalsRes = await apiRequest('/api/rentals/user');
+            const rentalsData = await rentalsRes.json();
+            if (!rentalsRes.ok) throw new Error(rentalsData.error);
+            setRentals(rentalsData);
+
+            // Fetch services
+            const servicesRes = await apiRequest('/api/services/user');
+            const servicesData = await servicesRes.json();
+            if (!servicesRes.ok) throw new Error(servicesData.error);
+            setServices(servicesData);
+
+            // Fetch rental requests
+            const rentalRequestsRes = await apiRequest('/api/rental_requests/user');
+            const rentalRequestsData = await rentalRequestsRes.json();
+            if (!rentalRequestsRes.ok) throw new Error(rentalRequestsData.error);
+            setRentalRequests(rentalRequestsData);
+
+            // Fetch service requests
+            const serviceRequestsRes = await apiRequest('/api/service_requests/user');
+            const serviceRequestsData = await serviceRequestsRes.json();
+            if (!serviceRequestsRes.ok) throw new Error(serviceRequestsData.error);
+            setServiceRequests(serviceRequestsData);
+        } catch (err) {
+            console.error('Failed to fetch data:', err.message);
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-        const fetchData = async () => {
-            try {
-                // Test network connection first
-                const networkTest = await testNetworkConnection();
-                if (!networkTest.success) {
-                    console.error('Network test failed:', networkTest.error);
-                    alert(`Network connection failed: ${networkTest.error}`);
-                    return;
-                }
-                
-                // Fetch rentals
-                const rentalsRes = await apiRequest('/api/rentals/user');
-                const rentalsData = await rentalsRes.json();
-                if (!rentalsRes.ok) throw new Error(rentalsData.error);
-                setRentals(rentalsData);
+    };
 
-                // Fetch services
-                const servicesRes = await apiRequest('/api/services/user');
-                const servicesData = await servicesRes.json();
-                if (!servicesRes.ok) throw new Error(servicesData.error);
-                setServices(servicesData);
-
-                // Fetch rental requests
-                const rentalRequestsRes = await apiRequest('/api/rental_requests/user');
-                const rentalRequestsData = await rentalRequestsRes.json();
-                if (!rentalRequestsRes.ok) throw new Error(rentalRequestsData.error);
-                setRentalRequests(rentalRequestsData);
-
-                // Fetch service requests
-                const serviceRequestsRes = await apiRequest('/api/service_requests/user');
-                const serviceRequestsData = await serviceRequestsRes.json();
-                if (!serviceRequestsRes.ok) throw new Error(serviceRequestsData.error);
-                setServiceRequests(serviceRequestsData);
-            } catch (err) {
-                console.error('Failed to fetch data:', err.message);
-                alert(`Failed to fetch data: ${err.message}`);
-            }
-        };
-
+    useEffect(() => {
         fetchData();
     }, [user, baseUrl]);
 
@@ -203,6 +202,35 @@ const MyModals = () => {
             <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
                 <h2>{t('my_items.title')}</h2>
                 <p className="not-logged-in">{t('my_items.login_required')}</p>
+            </div>
+        );
+    }
+
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <h2 className="main-title">{t('my_items.title')}</h2>
+                <div className="services-placeholder">טוען...</div>
+            </div>
+        );
+    }
+
+    // Show error state with retry button
+    if (error) {
+        return (
+            <div className="my-items-container" dir={isRTL ? 'rtl' : 'ltr'}>
+                <h2 className="main-title">{t('my_items.title')}</h2>
+                <div className="services-placeholder">
+                    <p>שגיאה בטעינת הנתונים: {error}</p>
+                    <button 
+                        className="primary-btn" 
+                        onClick={fetchData}
+                        style={{ marginTop: '10px' }}
+                    >
+                        נסה שוב
+                    </button>
+                </div>
             </div>
         );
     }
