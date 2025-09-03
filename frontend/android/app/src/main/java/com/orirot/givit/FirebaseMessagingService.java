@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.RemoteMessage;
+import java.util.Map;
 
 public class FirebaseMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
     private static final String CHANNEL_ID = "giveit_messages";
@@ -21,12 +22,16 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
         
-        String title = remoteMessage.getNotification() != null ? 
+        String title = remoteMessage.getNotification() != null ?
             remoteMessage.getNotification().getTitle() : "New Message";
-        String body = remoteMessage.getNotification() != null ? 
+        String body = remoteMessage.getNotification() != null ?
             remoteMessage.getNotification().getBody() : "You have a new message";
-            
-        showNotification(title, body);
+
+        Map<String, String> data = remoteMessage.getData();
+        String senderId = data.get("senderId");
+        String senderName = data.get("senderName");
+
+        showNotification(title, body, senderId, senderName);
     }
 
     @Override
@@ -36,10 +41,16 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         sendTokenToServer(token);
     }
 
-    private void showNotification(String title, String body) {
+    private void showNotification(String title, String body, String senderId, String senderName) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("openMessages", true);
+        if (senderId != null) {
+            intent.putExtra("senderId", senderId);
+        }
+        if (senderName != null) {
+            intent.putExtra("senderName", senderName);
+        }
         
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
