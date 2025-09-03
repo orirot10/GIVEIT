@@ -48,12 +48,10 @@ class NotificationService {
 
     // Listen for deep link events from MainActivity
     window.addEventListener('notificationTapped', (event) => {
-      if (event.detail?.action === 'openMessages') {
-        const customEvent = new CustomEvent('notificationTap', {
-          detail: { data: { action: 'openMessages' } }
-        });
-        window.dispatchEvent(customEvent);
-      }
+      const customEvent = new CustomEvent('notificationTap', {
+        detail: { data: event.detail }
+      });
+      window.dispatchEvent(customEvent);
     });
   }
 

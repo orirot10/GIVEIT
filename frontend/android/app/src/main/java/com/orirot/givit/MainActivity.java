@@ -20,10 +20,26 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void handleNotificationIntent(Intent intent) {
-        if (intent != null && intent.getBooleanExtra("openMessages", false)) {
+        if (intent == null) {
+            return;
+        }
+
+        boolean openMessages = intent.getBooleanExtra("openMessages", false);
+        String senderId = intent.getStringExtra("senderId");
+        String senderName = intent.getStringExtra("senderName");
+
+        if (openMessages || senderId != null) {
             JSObject data = new JSObject();
-            data.put("action", "openMessages");
-            
+            if (openMessages) {
+                data.put("action", "openMessages");
+            }
+            if (senderId != null) {
+                data.put("senderId", senderId);
+                if (senderName != null) {
+                    data.put("senderName", senderName);
+                }
+            }
+
             if (getBridge() != null) {
                 getBridge().triggerJSEvent("notificationTapped", "window", data.toString());
             }
