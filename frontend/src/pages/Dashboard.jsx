@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import '../styles/Dashboard.css';
 import { useAuthContext } from '../context/AuthContext';
 import ListingForm from '../components/ListingForm';
+import NotificationTest from '../components/NotificationTest';
 
 function Dashboard() {
     const { user, logout } = useAuthContext();
@@ -99,6 +100,9 @@ function Dashboard() {
             <div className="dashboard-footer">
                 <Link to="/terms" className="dashboard-terms-link">{t('terms.title')}</Link>
             </div>
+            
+            {/* Notification Test - Remove in production */}
+            <NotificationTest />
 
             {showRentalForm && (
                 <div className="modal-overlay">

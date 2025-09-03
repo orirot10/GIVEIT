@@ -36,9 +36,24 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      notificationService.initialize();
-    }
+    const initializeNotifications = async () => {
+      if (user) {
+        console.log('Initializing notifications for user:', user.uid);
+        const success = await notificationService.initialize();
+        if (success) {
+          console.log('Push notifications initialized successfully');
+        } else {
+          console.log('Failed to initialize push notifications');
+        }
+      } else {
+        // Clean up notifications when user logs out
+        await notificationService.cleanup();
+      }
+    };
+
+    // Add a small delay to ensure the app is fully loaded
+    const timer = setTimeout(initializeNotifications, 1000);
+    return () => clearTimeout(timer);
   }, [user]);
 
   if (showSplash) {

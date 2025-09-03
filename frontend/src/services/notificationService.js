@@ -5,54 +5,97 @@ class NotificationService {
   constructor() {
     this.isInitialized = false;
     this.token = null;
+    this.listeners = [];
   }
 
   async initialize() {
     if (!Capacitor.isNativePlatform()) {
       console.log('Push notifications not available on web');
-      return;
+      return false;
+    }
+
+    if (this.isInitialized) {
+      console.log('Push notifications already initialized');
+      return true;
     }
 
     try {
-      const permission = await PushNotifications.requestPermissions();
+      // Check current permission status first
+      let permission = await PushNotifications.checkPermissions();
+      
+      if (permission.receive !== 'granted') {
+        // Request permissions if not granted
+        permission = await PushNotifications.requestPermissions();
+      }
+      
       if (permission.receive === 'granted') {
-        await PushNotifications.register();
+        console.log('Push notification permissions granted');
         this.setupListeners();
+        await PushNotifications.register();
         this.isInitialized = true;
+        return true;
+      } else {
+        console.log('Push notification permissions denied');
+        return false;
       }
     } catch (error) {
       console.error('Error initializing push notifications:', error);
+      return false;
     }
   }
 
   setupListeners() {
-    PushNotifications.addListener('registration', (token) => {
+    // Clear existing listeners to prevent duplicates
+    this.removeListeners();
+
+    // Registration success
+    const registrationListener = PushNotifications.addListener('registration', (token) => {
       console.log('Push registration success, token: ' + token.value);
       this.token = token.value;
       this.sendTokenToServer(token.value);
     });
+    this.listeners.push(registrationListener);
 
-    PushNotifications.addListener('registrationError', (error) => {
+    // Registration error
+    const registrationErrorListener = PushNotifications.addListener('registrationError', (error) => {
       console.error('Error on registration: ' + JSON.stringify(error));
     });
+    this.listeners.push(registrationErrorListener);
 
-    PushNotifications.addListener('pushNotificationReceived', (notification) => {
+    // Foreground notification received
+    const notificationReceivedListener = PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('Push notification received: ', notification);
       this.handleForegroundNotification(notification);
     });
+    this.listeners.push(notificationReceivedListener);
 
-    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+    // Notification tapped (background/killed app)
+    const notificationActionListener = PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
       console.log('Push notification action performed', notification.actionId, notification.inputValue);
       this.handleNotificationTap(notification);
     });
+    this.listeners.push(notificationActionListener);
 
     // Listen for deep link events from MainActivity
-    window.addEventListener('notificationTapped', (event) => {
+    const handleNotificationTapped = (event) => {
       const customEvent = new CustomEvent('notificationTap', {
         detail: { data: event.detail }
       });
       window.dispatchEvent(customEvent);
+    };
+    window.addEventListener('notificationTapped', handleNotificationTapped);
+    this.listeners.push(() => window.removeEventListener('notificationTapped', handleNotificationTapped));
+  }
+
+  removeListeners() {
+    this.listeners.forEach(listener => {
+      if (typeof listener === 'function') {
+        listener();
+      } else if (listener && listener.remove) {
+        listener.remove();
+      }
     });
+    this.listeners = [];
   }
 
   async sendTokenToServer(token) {
@@ -97,6 +140,17 @@ class NotificationService {
 
   getToken() {
     return this.token;
+  }
+
+  async cleanup() {
+    this.removeListeners();
+    this.isInitialized = false;
+    this.token = null;
+  }
+
+  async reinitialize() {
+    await this.cleanup();
+    return await this.initialize();
   }
 }
 
