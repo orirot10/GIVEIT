@@ -127,38 +127,60 @@ exports.sendMessage = async (messageData) => {
 // Send push notification
 const sendPushNotification = async (receiverId, senderId, messageContent) => {
   try {
+    console.log('🔔 Attempting to send push notification...');
     const receiver = await User.findById(receiverId);
     const sender = await User.findById(senderId);
     
-    if (!receiver || !receiver.fcmToken || !sender) {
+    if (!receiver) {
+      console.log('❌ Receiver not found:', receiverId);
+      return;
+    }
+    
+    if (!receiver.fcmToken) {
+      console.log('❌ No FCM token for receiver:', receiverId);
+      return;
+    }
+    
+    if (!sender) {
+      console.log('❌ Sender not found:', senderId);
       return;
     }
 
+    const senderName = `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Someone';
+    const truncatedMessage = messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent;
+    
+    console.log(`📤 Sending notification to ${senderName} -> ${receiver.firstName}`);
+
     const message = {
-      notification: {
-        title: `${sender.firstName} ${sender.lastName}`,
-        body: messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent
-      },
       data: {
+        title: senderName,
+        body: truncatedMessage,
         senderId: senderId.toString(),
-        senderName: `${sender.firstName} ${sender.lastName}`,
-        type: 'message',
-        click_action: 'FLUTTER_NOTIFICATION_CLICK'
+        senderName: senderName,
+        type: 'message'
       },
       android: {
         priority: 'high',
         notification: {
+          title: senderName,
+          body: truncatedMessage,
           channelId: 'giveit_messages',
           priority: 'high',
           defaultSound: true,
-          defaultVibrateTimings: true
+          defaultVibrateTimings: true,
+          clickAction: 'FLUTTER_NOTIFICATION_CLICK'
         }
       },
       token: receiver.fcmToken
     };
 
-    await admin.messaging().send(message);
+    const result = await admin.messaging().send(message);
+    console.log('✅ Push notification sent successfully:', result);
   } catch (error) {
-    console.error('Error sending push notification:', error);
+    console.error('❌ Error sending push notification:', error);
+    if (error.code === 'messaging/registration-token-not-registered') {
+      console.log('🔄 Removing invalid FCM token for user:', receiverId);
+      await User.findByIdAndUpdate(receiverId, { $unset: { fcmToken: 1 } });
+    }
   }
 };

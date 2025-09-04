@@ -232,8 +232,12 @@ const Popup = ({ item, onClose, contentType }) => {
     pricePeriod = 'use',
     firstName = 'N/A',
     lastName = '',
-    ownerId = null
+    ownerId = null,
+    owner = null
   } = item;
+
+  // Handle different owner ID field names
+  const actualOwnerId = ownerId || (owner && owner._id) || (owner && owner.uid) || null;
 
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
@@ -255,7 +259,7 @@ const Popup = ({ item, onClose, contentType }) => {
       return;
     }
 
-    if (!ownerId) {
+    if (!actualOwnerId) {
       alert('Unable to start conversation: Owner information is missing');
       onClose();
       return;
@@ -269,16 +273,16 @@ const Popup = ({ item, onClose, contentType }) => {
       return;
     }
 
-    if (ownerId === currentUserId) {
+    if (actualOwnerId === currentUserId) {
       alert('You cannot start a conversation with yourself');
       onClose();
       return;
     }
 
-    console.log(`Navigating to messages to chat with owner: ${ownerId}`);
+    console.log(`Navigating to messages to chat with owner: ${actualOwnerId}`);
     navigate('/messages', {
       state: {
-        contactId: ownerId,
+        contactId: actualOwnerId,
         contactName: title,
         itemTitle: title,
         initialMessage: true

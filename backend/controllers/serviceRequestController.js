@@ -144,7 +144,7 @@ const getUserServiceRequests = async (req, res) => {
             query = query.skip((page - 1) * limit).limit(limit);
         }
 
-        const services = await query;
+        const services = await query.select('firstName lastName email title description category price images phone status city street ownerId lat lng type createdAt updatedAt');
         res.status(200).json(services);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch user service requests' });
