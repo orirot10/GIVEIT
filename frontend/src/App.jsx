@@ -23,17 +23,18 @@ import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 import Terms from "./pages/Terms";
 import NotificationHandler from './components/NotificationHandler';
+import PermissionRequest from './components/PermissionRequest';
 import notificationService from './services/notificationService';
 import splashLogo from '../images/logogood.png';
+import WelcomeVideo from './components/WelcomeVideo';
 
 function App() {
   const { user } = useAuthContext();
-  const [showSplash, setShowSplash] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(true);
 
-  useEffect(() => {
-    const timerId = setTimeout(() => setShowSplash(false), 2000);
-    return () => clearTimeout(timerId);
-  }, []);
+  const handleWelcomeEnd = () => {
+    setShowWelcome(false);
+  };
 
   useEffect(() => {
     const initializeNotifications = async () => {
@@ -56,12 +57,8 @@ function App() {
     return () => clearTimeout(timer);
   }, [user]);
 
-  if (showSplash) {
-    return (
-      <div className="splash-screen">
-        <img src={splashLogo} alt="GIVIT" />
-      </div>
-    );
+  if (showWelcome) {
+    return <WelcomeVideo onVideoEnd={handleWelcomeEnd} />;
   }
   return (
     <GoogleMapsLoader>
@@ -70,6 +67,7 @@ function App() {
           <ErrorBoundary>
           <I18nextProvider i18n={i18n}>
           <NotificationHandler />
+          <PermissionRequest onPermissionGranted={() => notificationService.initialize()} />
           <div className="app-container">
             <Routes>
               <Route element={<Layout />}>

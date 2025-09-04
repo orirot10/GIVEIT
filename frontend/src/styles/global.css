@@ -37,6 +37,46 @@ body {
   height: auto;
 }
 
+/* Welcome video styles */
+.welcome-video-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.welcome-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  max-width: 430px;
+  max-height: 100vh;
+}
+
+/* Mobile optimization for welcome video */
+@media (max-width: 430px) {
+  .welcome-video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+  }
+}
+
+/* Ensure video doesn't exceed container bounds */
+@media (min-width: 431px) {
+  .welcome-video-container {
+    max-width: 430px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 430px;
+  }
+}
+
 h1 {
     font-size: 24px;
     font-weight: bold;

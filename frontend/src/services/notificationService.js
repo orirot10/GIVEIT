@@ -20,26 +20,26 @@ class NotificationService {
     }
 
     try {
-      // Check current permission status first
-      let permission = await PushNotifications.checkPermissions();
+      console.log('Starting push notification initialization...');
       
-      if (permission.receive !== 'granted') {
-        // Request permissions if not granted
-        permission = await PushNotifications.requestPermissions();
-      }
+      // Always request permissions explicitly
+      console.log('Requesting push notification permissions...');
+      const permission = await PushNotifications.requestPermissions();
+      console.log('Permission result:', permission);
       
       if (permission.receive === 'granted') {
-        console.log('Push notification permissions granted');
+        console.log('✅ Push notification permissions granted');
         this.setupListeners();
+        console.log('Registering for push notifications...');
         await PushNotifications.register();
         this.isInitialized = true;
         return true;
       } else {
-        console.log('Push notification permissions denied');
+        console.log('❌ Push notification permissions denied:', permission.receive);
         return false;
       }
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      console.error('❌ Error initializing push notifications:', error);
       return false;
     }
   }
