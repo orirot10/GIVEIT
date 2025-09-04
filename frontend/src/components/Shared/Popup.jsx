@@ -330,7 +330,7 @@ const Popup = ({ item, onClose, contentType }) => {
         <div 
           className="relative flex items-center justify-between px-3"
           style={{
-            background: DESIGN_TOKENS.colors.primary[600],
+            background: (contentType?.includes('request') || item.type?.includes('request')) ? '#0f766e' : '#10b981',
             height: '40px',
             borderTopLeftRadius: DESIGN_TOKENS.borderRadius.lg,
             borderTopRightRadius: DESIGN_TOKENS.borderRadius.lg
