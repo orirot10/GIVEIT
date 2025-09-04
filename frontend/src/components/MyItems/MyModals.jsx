@@ -66,7 +66,7 @@ const MyModals = () => {
     const [services, setServices] = useState([]);
     const [rentalRequests, setRentalRequests] = useState([]);
     const [serviceRequests, setServiceRequests] = useState([]);
-    const [view, setView] = useState('rentals'); // 'rentals', 'services', 'rental_requests', 'service_requests'
+    const [view, setView] = useState('services'); // 'rentals', 'services', 'rental_requests', 'service_requests'
     const [deleteTarget, setDeleteTarget] = useState(null); // { item, type }
     const [editTarget, setEditTarget] = useState(null); // { item, type }
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';

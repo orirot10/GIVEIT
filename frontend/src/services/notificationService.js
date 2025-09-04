@@ -20,12 +20,18 @@ class NotificationService {
     }
 
     try {
-      console.log('Starting push notification initialization...');
+      console.log('🔔 Starting push notification initialization...');
       
-      // Always request permissions explicitly
-      console.log('Requesting push notification permissions...');
-      const permission = await PushNotifications.requestPermissions();
-      console.log('Permission result:', permission);
+      // Check current permission status first
+      const currentPermission = await PushNotifications.checkPermissions();
+      console.log('Current permission status:', currentPermission);
+      
+      let permission = currentPermission;
+      if (currentPermission.receive !== 'granted') {
+        console.log('Requesting push notification permissions...');
+        permission = await PushNotifications.requestPermissions();
+        console.log('Permission result:', permission);
+      }
       
       if (permission.receive === 'granted') {
         console.log('✅ Push notification permissions granted');
@@ -33,6 +39,7 @@ class NotificationService {
         console.log('Registering for push notifications...');
         await PushNotifications.register();
         this.isInitialized = true;
+        console.log('✅ Push notifications initialized successfully');
         return true;
       } else {
         console.log('❌ Push notification permissions denied:', permission.receive);
@@ -50,7 +57,7 @@ class NotificationService {
 
     // Registration success
     const registrationListener = PushNotifications.addListener('registration', (token) => {
-      console.log('Push registration success, token: ' + token.value);
+      console.log('✅ Push registration success, token: ' + token.value.substring(0, 20) + '...');
       this.token = token.value;
       this.sendTokenToServer(token.value);
     });
@@ -58,7 +65,7 @@ class NotificationService {
 
     // Registration error
     const registrationErrorListener = PushNotifications.addListener('registrationError', (error) => {
-      console.error('Error on registration: ' + JSON.stringify(error));
+      console.error('❌ FCM registration error:', JSON.stringify(error));
     });
     this.listeners.push(registrationErrorListener);
 
@@ -101,11 +108,15 @@ class NotificationService {
   async sendTokenToServer(token) {
     try {
       const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) return;
+      if (!user || !user.token) {
+        console.log('No user or token found, skipping FCM token update');
+        return;
+      }
 
       const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
+      console.log('📤 Sending FCM token to server:', token.substring(0, 20) + '...');
       
-      await fetch(`${baseUrl}/api/users/fcm-token`, {
+      const response = await fetch(`${baseUrl}/api/users/fcm-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,8 +124,15 @@ class NotificationService {
         },
         body: JSON.stringify({ fcmToken: token })
       });
+      
+      if (response.ok) {
+        console.log('✅ FCM token sent to server successfully');
+      } else {
+        const errorData = await response.text();
+        console.error('❌ Failed to send FCM token:', response.status, errorData);
+      }
     } catch (error) {
-      console.error('Error sending token to server:', error);
+      console.error('❌ Error sending token to server:', error);
     }
   }
 
