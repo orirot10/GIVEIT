@@ -12,7 +12,7 @@ import {
 import { db } from '../firebase';
 import { useAuthContext } from '../context/AuthContext';
 
-const RealtimeChat = ({ otherUserId, otherUserName, initialMessage }) => {
+const RealtimeChat = ({ otherUserId, otherUserName, initialMessage, onMessagesRead }) => {
   const { user } = useAuthContext();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -71,6 +71,18 @@ const RealtimeChat = ({ otherUserId, otherUserName, initialMessage }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMsg = messages[messages.length - 1];
+      const lastTime = lastMsg.timestamp?.toMillis?.() || Date.now();
+      const read = JSON.parse(localStorage.getItem('chatReadTimes') || '{}');
+      read[chatId] = lastTime;
+      localStorage.setItem('chatReadTimes', JSON.stringify(read));
+      onMessagesRead?.(lastTime);
+      window.dispatchEvent(new Event('messagesRead'));
+    }
+  }, [messages, chatId, onMessagesRead]);
 
   const sendMessage = async (e) => {
     e.preventDefault();

@@ -207,6 +207,16 @@
   backdrop-filter: blur(10px);
 }
 
+.chat-unread-dot {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: #ff0000;
+  border-radius: 50%;
+}
+
 /* Accent Border System */
 .chat-item:nth-child(4n+1)::before {
   content: '';
