@@ -43,6 +43,7 @@
     border-bottom: 2px solid transparent;
     transition: border-color 0.3s;
     gap: 0.25rem;
+    position: relative;
 }
 
 .nav-tab.active {
@@ -82,4 +83,14 @@
     .nav-tab {
         padding: 0.4rem;
     }
+}
+
+.notification-dot {
+    position: absolute;
+    top: 6px;
+    right: 18px;
+    width: 8px;
+    height: 8px;
+    background-color: #ff0000;
+    border-radius: 50%;
 }
