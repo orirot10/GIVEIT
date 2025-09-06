@@ -11,6 +11,13 @@ const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [readTimes, setReadTimes] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('chatReadTimes')) || {};
+    } catch {
+      return {};
+    }
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -34,6 +41,20 @@ const ChatList = () => {
     return () => unsubscribe();
   }, [user]);
 
+  const markChatRead = (chatId, time) => {
+    const updated = { ...readTimes, [chatId]: time };
+    setReadTimes(updated);
+    localStorage.setItem('chatReadTimes', JSON.stringify(updated));
+  };
+
+  useEffect(() => {
+    const hasUnread = chats.some(chat => {
+      const lastTime = chat.lastMessageTime?.toMillis?.() || 0;
+      return lastTime > (readTimes[chat.id] || 0);
+    });
+    window.dispatchEvent(new Event(hasUnread ? 'newMessage' : 'messagesRead'));
+  }, [chats, readTimes]);
+
   const getOtherParticipant = (chat) => {
     const otherUid = chat.participants.find(uid => uid !== user.uid);
     return {
@@ -54,13 +75,16 @@ const ChatList = () => {
           ) : (
             chats.map(chat => {
               const otherUser = getOtherParticipant(chat);
+              const lastTime = chat.lastMessageTime?.toMillis?.() || 0;
+              const isUnread = lastTime > (readTimes[chat.id] || 0);
               return (
-                <div 
-                  key={chat.id} 
+                <div
+                  key={chat.id}
                   className="chat-item"
                   style={{ background: '#fff', border: '1px solid #607D8B', color: '#1C2526' }}
                   onClick={() => setSelectedChat({ chat, otherUser })}
                 >
+                  {isUnread && <span className="chat-unread-dot" />}
                   <h3 style={{ color: '#2E4057' }}>{otherUser.name}</h3>
                   <p style={{ color: '#607D8B' }}>{chat.lastMessage}</p>
                   <small style={{ color: '#607D8B' }}>
@@ -73,16 +97,17 @@ const ChatList = () => {
         </div>
       ) : (
         <div className="chat-view">
-          <button 
+          <button
             onClick={() => setSelectedChat(null)}
             className="back-button"
             style={{ background: 'linear-gradient(135deg, #607D8B, #2E4057)', color: '#fff' }}
           >
             {t('back')}
           </button>
-          <RealtimeChat 
+          <RealtimeChat
             otherUserId={selectedChat.otherUser.uid}
             otherUserName={selectedChat.otherUser.name}
+            onMessagesRead={(ts) => markChatRead(selectedChat.chat.id, ts)}
           />
         </div>
       )}
