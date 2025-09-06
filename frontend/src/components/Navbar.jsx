@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { GoHome, GoTools } from "react-icons/go";
 import { BsViewList } from "react-icons/bs";
 import { VscAccount } from "react-icons/vsc";
 import { AiOutlineMessage } from "react-icons/ai";
@@ -15,11 +15,44 @@ function Navbar() {
   const location = useLocation();
   const { user } = useAuthContext();
   const { t } = useTranslation();
+  const [hasNewMessages, setHasNewMessages] = useState(false);
+
+  useEffect(() => {
+    const handleNewMessage = () => {
+      if (location.pathname !== '/messages') {
+        localStorage.setItem('hasNewMessages', 'true');
+        setHasNewMessages(true);
+      }
+    };
+    const handleMessagesRead = () => {
+      localStorage.removeItem('hasNewMessages');
+      setHasNewMessages(false);
+    };
+
+    if (localStorage.getItem('hasNewMessages') === 'true') {
+      setHasNewMessages(true);
+    }
+
+    window.addEventListener('newMessage', handleNewMessage);
+    window.addEventListener('messagesRead', handleMessagesRead);
+
+    return () => {
+      window.removeEventListener('newMessage', handleNewMessage);
+      window.removeEventListener('messagesRead', handleMessagesRead);
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname === '/messages') {
+      localStorage.removeItem('hasNewMessages');
+      setHasNewMessages(false);
+    }
+  }, [location.pathname]);
 
   const tabs = [
     { icon: <RiUserSettingsLine />, path: '/', label: t('navigation.services') },
     { icon: <FiPackage />, path: '/rentals', label: t('navigation.rentals') },
-    //{ icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
+    { icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
     { icon: <BsViewList />, path: '/my-items', label: t('navigation.my_items') },
     { icon: <VscAccount />, path: user ? '/dashboard' : '/account', label: t('navigation.account') },
   ];
@@ -34,6 +67,7 @@ function Navbar() {
           aria-label={tab.label}
         >
           {tab.icon}
+          {tab.path === '/messages' && hasNewMessages && <span className="notification-dot" />}
           <span className="nav-label">{tab.label}</span>
         </button>
       ))}

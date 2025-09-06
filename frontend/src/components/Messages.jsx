@@ -15,6 +15,11 @@ const Messages = ({ userId }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    localStorage.removeItem('hasNewMessages');
+    window.dispatchEvent(new Event('messagesRead'));
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
