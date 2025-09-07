@@ -4,7 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
 
-
 let apnProvider = null;
 if (process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID && process.env.APNS_KEY_PATH && process.env.APNS_BUNDLE_ID) {
   try {
@@ -79,7 +78,7 @@ class PushService {
         }
       }
     } catch (err) {
-      console.error('Push notification error', err
+
     }
   }
 }
