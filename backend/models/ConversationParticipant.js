@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const conversationParticipantSchema = new mongoose.Schema({
   conversationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation', required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  lastReadAt: { type: Date, default: new Date(0) },
+  lastReadAt: { type: Date, default: null },
 }, { timestamps: true });
 
-conversationParticipantSchema.index({ conversationId: 1, userId: 1 }, { unique: true });
+// Ensure fast lookups by user and conversation while preventing duplicates
+conversationParticipantSchema.index({ userId: 1, conversationId: 1 }, { unique: true });
+
 
 module.exports = mongoose.model('ConversationParticipant', conversationParticipantSchema);

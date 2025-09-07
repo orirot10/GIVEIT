@@ -1,10 +1,8 @@
 const express = require('express');
-const { protect } = require('../middleware/authMiddleware');
-const { getMessagesHttp, sendMessageHttp } = require('../controllers/messageController');
-
 const router = express.Router();
 
-router.get('/:conversationId', protect, getMessagesHttp);
-router.post('/', protect, sendMessageHttp);
+// Deprecated: messaging APIs now live under /api/conversations
+router.all('*', (_req, res) => res.status(410).json({ message: 'deprecated' }));
+
 
 module.exports = router;

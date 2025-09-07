@@ -3,8 +3,7 @@ const apn = require('apn');
 const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
-const ConversationParticipant = require('../models/ConversationParticipant');
-const Message = require('../models/Message');
+
 
 let apnProvider = null;
 if (process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID && process.env.APNS_KEY_PATH && process.env.APNS_BUNDLE_ID) {
@@ -22,74 +21,65 @@ if (process.env.APNS_KEY_ID && process.env.APNS_TEAM_ID && process.env.APNS_KEY_
   }
 }
 
-async function countUnreadTotal(userId) {
-  const participants = await ConversationParticipant.find({ userId });
-  let total = 0;
-  for (const p of participants) {
-    const count = await Message.countDocuments({
-      conversationId: p.conversationId,
-      senderId: { $ne: userId },
-      createdAt: { $gt: p.lastReadAt || new Date(0) },
-    });
-    total += count;
-  }
-  return total;
-}
-
 class PushService {
-  async sendMessageNotification(toUserId, fromUserId, messageContent) {
-    const toUser = await User.findById(toUserId);
-    const fromUser = await User.findById(fromUserId);
-    if (!toUser || !fromUser || !toUser.pushTokens || toUser.pushTokens.length === 0) {
-      return;
-    }
-    const unreadTotal = await countUnreadTotal(toUserId);
-    const senderName = `${fromUser.firstName || ''} ${fromUser.lastName || ''}`.trim() || 'Someone';
-    const truncated = messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent;
+  async sendMessageNotification(toUserId, fromUserId, messageContent, unreadTotal, conversationId) {
+    try {
+      const toUser = await User.findById(toUserId);
+      const fromUser = await User.findById(fromUserId);
+      if (!toUser || !fromUser || !toUser.pushTokens || toUser.pushTokens.length === 0) {
+        return;
+      }
+      const senderName = `${fromUser.firstName || ''} ${fromUser.lastName || ''}`.trim() || 'Someone';
+      const truncated = messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent;
 
-    for (const tokenInfo of toUser.pushTokens) {
-      if (tokenInfo.platform === 'android') {
-        const payload = {
-          token: tokenInfo.token,
-          data: {
-            title: senderName,
-            body: truncated,
-            senderId: fromUserId.toString(),
-            senderName,
-            type: 'message',
-            unread_total: unreadTotal.toString(),
-          },
-          android: {
-            notification: {
+      for (const tokenInfo of toUser.pushTokens) {
+        if (tokenInfo.platform === 'android') {
+          const payload = {
+            token: tokenInfo.token,
+            data: {
               title: senderName,
               body: truncated,
+              senderId: fromUserId.toString(),
+              senderName,
+              type: 'message',
+              conversation_id: conversationId.toString(),
+              unread_total: unreadTotal.toString(),
             },
-          },
-        };
-        try {
-          await admin.messaging().send(payload);
-        } catch (err) {
-          console.error('Error sending FCM message', err);
-        }
-      } else if (tokenInfo.platform === 'ios' && apnProvider) {
-        const note = new apn.Notification({
-          alert: { title: senderName, body: truncated },
-          badge: unreadTotal,
-          sound: 'default',
-          payload: {
-            senderId: fromUserId.toString(),
-            senderName,
-            type: 'message',
-            unread_total: unreadTotal,
-          },
-        });
-        note.topic = process.env.APNS_BUNDLE_ID;
-        try {
-          await apnProvider.send(note, tokenInfo.token);
-        } catch (err) {
-          console.error('Error sending APNs message', err);
+            android: {
+              notification: {
+                title: senderName,
+                body: truncated,
+              },
+            },
+          };
+          try {
+            await admin.messaging().send(payload);
+          } catch (err) {
+            console.error('Error sending FCM message', err);
+          }
+        } else if (tokenInfo.platform === 'ios' && apnProvider) {
+          const note = new apn.Notification({
+            alert: { title: senderName, body: truncated },
+            badge: unreadTotal,
+            sound: 'default',
+            payload: {
+              senderId: fromUserId.toString(),
+              senderName,
+              type: 'message',
+              conversation_id: conversationId.toString(),
+              unread_total: unreadTotal,
+            },
+          });
+          note.topic = process.env.APNS_BUNDLE_ID;
+          try {
+            await apnProvider.send(note, tokenInfo.token);
+          } catch (err) {
+            console.error('Error sending APNs message', err);
+          }
         }
       }
+    } catch (err) {
+      console.error('Push notification error', err
     }
   }
 }

@@ -17,7 +17,9 @@ const serviceRequestRoutes = require('./routes/serviceRequestRoutes');
 const userRoutes = require('./routes/userRoutes');
 const conversationRoutes = require('./routes/conversationRoutes');
 const messageRoutes = require('./routes/messageRoutes');
-const { sendMessage, getConversations, getMessages } = require('./controllers/messageController');
+const meRoutes = require('./routes/meRoutes');
+const { sendMessageSocket, getConversations, getMessagesSocket } = require('./controllers/messageController');
+
 const geocodeRoutes = require('./routes/geocodeRoutes');
 
 require('dotenv').config();
@@ -55,6 +57,9 @@ connectDB();
 app.get('/healthz', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 // Middleware
 app.use(requestLogger);
@@ -84,6 +89,7 @@ app.use('/api/services', mapTiming, serviceRoutes);
 app.use('/api/rental_requests', rentalRequestRoutes);
 app.use('/api/service_requests', serviceRequestRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/me', meRoutes);
 app.use('/api/test', require('./routes/testRoutes'));
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api/conversations', conversationRoutes);
@@ -110,7 +116,7 @@ io.on('connection', (socket) => {
 
   socket.on('getMessages', async (data) => {
     try {
-      await getMessages(socket, data);
+      await getMessagesSocket(socket, data);
     } catch (err) {
       console.error('Error fetching messages:', err);
       socket.emit('loadMessages', []);
@@ -119,7 +125,7 @@ io.on('connection', (socket) => {
 
   socket.on('sendMessage', async (data) => {
     try {
-      const message = await sendMessage(data);
+      const message = await sendMessageSocket(data);
       io.to(data.receiverId).emit('receiveMessage', message);
       io.to(data.senderId).emit('receiveMessage', message);
     } catch (err) {
@@ -136,10 +142,14 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 
-server.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
-  if (process.env.NODE_ENV === 'production' && process.env.API_URL) {
-    console.log(`Accessible via ${process.env.API_URL}`);
-  }
-});
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT}`);
+    if (process.env.NODE_ENV === 'production' && process.env.API_URL) {
+      console.log(`Accessible via ${process.env.API_URL}`);
+    }
+  });
+}
+
+module.exports = { app, server };
 
