@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuthContext } from './context/AuthContext';
+import { useAuthContext } from './context/AuthContext';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import GoogleMapsLoader from './components/GoogleMapsLoader';
@@ -25,16 +25,9 @@ import Terms from "./pages/Terms";
 import NotificationHandler from './components/NotificationHandler';
 import PermissionRequest from './components/PermissionRequest';
 import notificationService from './services/notificationService';
-import splashLogo from '../images/logogood.png';
-import WelcomeVideo from './components/WelcomeVideo';
 
 function App() {
   const { user } = useAuthContext();
-  const [showWelcome, setShowWelcome] = useState(true);
-
-  const handleWelcomeEnd = () => {
-    setShowWelcome(false);
-  };
 
   useEffect(() => {
     const initializeNotifications = async () => {
@@ -57,9 +50,6 @@ function App() {
     return () => clearTimeout(timer);
   }, [user]);
 
-  if (showWelcome) {
-    return <WelcomeVideo onVideoEnd={handleWelcomeEnd} />;
-  }
   return (
     <GoogleMapsLoader>
       <MapProvider>
