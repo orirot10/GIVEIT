@@ -22,7 +22,6 @@ const SearchBar = ({ searchQuery, setSearchQuery, onSearch, onClose, onClear }) 
   return (
     <div className="flex justify-center" style={{ padding: '8px 0' }}>
       <div className="relative w-[100%] max-w-md mx-auto" dir={isRTL ? 'rtl' : 'ltr'}>
-        <CiSearch className={`absolute top-1/2 -translate-y-1/2 text-gray-500 ${isRTL ? 'right-3' : 'left-3'}`} size={20} />
         <input
           type="text"
           placeholder={t('Search rentals or services ...')}
