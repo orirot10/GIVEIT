@@ -1,10 +1,12 @@
 const Conversation = require('../models/Conversation');
 const ConversationParticipant = require('../models/ConversationParticipant');
 const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+const ConversationParticipant = require('../models/ConversationParticipant');
 const User = require('../models/User');
 const pushService = require('../services/pushService');
 
-// helper to ensure conversation exists and participants created
+
 async function getOrCreateConversation(userId1, userId2) {
   const sorted = [userId1.toString(), userId2.toString()].sort();
   const pairKey = `${sorted[0]}:${sorted[1]}`;
@@ -52,12 +54,25 @@ exports.openConversation = async (req, res) => {
     res.json(conversation);
   } catch (err) {
     res.status(500).json({ message: 'Failed to open conversation' });
+
   }
-};
+  return conversation;
+}
+
+async function countUnread(conversationId, userId) {
+  const participant = await ConversationParticipant.findOne({ conversationId, userId });
+  const lastReadAt = participant?.lastReadAt || new Date(0);
+  return Message.countDocuments({
+    conversationId,
+    senderId: { $ne: userId },
+    createdAt: { $gt: lastReadAt },
+  });
+}
 
 exports.listConversations = async (req, res) => {
   try {
     const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+
     const parts = await ConversationParticipant.find({ userId }).populate('conversationId');
     const conversations = [];
     for (const part of parts) {
@@ -95,6 +110,7 @@ exports.getMessages = async (req, res) => {
       .skip(offset)
       .limit(limit);
     res.json(messages);
+
   } catch (err) {
     res.status(500).json({ message: 'Failed to get messages' });
   }
