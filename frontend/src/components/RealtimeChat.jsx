@@ -76,6 +76,7 @@ const RealtimeChat = ({ otherUserId, otherUserName, initialMessage, onMessagesRe
     if (messages.length > 0) {
       const lastMsg = messages[messages.length - 1];
       const lastTime = lastMsg.timestamp?.toMillis?.() || Date.now();
+
       onMessagesRead?.(lastTime);
     }
 
@@ -87,6 +88,7 @@ const RealtimeChat = ({ otherUserId, otherUserName, initialMessage, onMessagesRe
       }
     };
   }, [messages, onMessagesRead]);
+
 
   const sendMessage = async (e) => {
     e.preventDefault();

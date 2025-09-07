@@ -82,7 +82,10 @@ const ChatList = () => {
                   key={chat.id}
                   className="chat-item"
                   style={{ background: '#fff', border: '1px solid #607D8B', color: '#1C2526' }}
-                  onClick={() => setSelectedChat({ chat, otherUser })}
+                  onClick={() => {
+                    markChatRead(chat.id, lastTime);
+                    setSelectedChat({ chat, otherUser });
+                  }}
                 >
                   {isUnread && <span className="chat-unread-dot" />}
                   <h3 style={{ color: '#2E4057' }}>{otherUser.name}</h3>
