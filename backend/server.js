@@ -15,7 +15,9 @@ const serviceRoutes = require('./routes/serviceRoutes');
 const rentalRequestRoutes = require('./routes/rentalRequestRoutes');
 const serviceRequestRoutes = require('./routes/serviceRequestRoutes');
 const userRoutes = require('./routes/userRoutes');
-const { loadMessages, sendMessage, getConversations, getMessages } = require('./controllers/messageController');
+const conversationRoutes = require('./routes/conversationRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const { sendMessage, getConversations, getMessages } = require('./controllers/messageController');
 const geocodeRoutes = require('./routes/geocodeRoutes');
 
 require('dotenv').config();
@@ -84,6 +86,8 @@ app.use('/api/service_requests', serviceRequestRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/test', require('./routes/testRoutes'));
 app.use('/api/geocode', geocodeRoutes);
+app.use('/api/conversations', conversationRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Socket.IO
 io.on('connection', (socket) => {
