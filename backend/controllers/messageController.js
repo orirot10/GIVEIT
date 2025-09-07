@@ -1,186 +1,191 @@
+const ConversationModel = require('../models/Conversation');
+const ConversationParticipant = require('../models/ConversationParticipant');
 const Message = require('../models/Message');
 const User = require('../models/User');
-const mongoose = require('mongoose'); // Import mongoose to validate ObjectId
-const admin = require('firebase-admin');
+const pushService = require('../services/pushService');
 
-// Load all messages for a user (used in the join event)
-exports.loadMessages = async (userId) => {
+// helper to ensure conversation exists and participants created
+async function getOrCreateConversation(userId1, userId2) {
+  const sorted = [userId1.toString(), userId2.toString()].sort();
+  const pairKey = `${sorted[0]}:${sorted[1]}`;
+  let conversation = await ConversationModel.findOne({ pairKey });
+  if (!conversation) {
+    conversation = await ConversationModel.create({ participants: sorted });
+    await ConversationParticipant.create({ conversationId: conversation._id, userId: sorted[0] });
+    await ConversationParticipant.create({ conversationId: conversation._id, userId: sorted[1] });
+  }
+  return conversation;
+}
+
+async function countUnread(conversationId, userId) {
+  const participant = await ConversationParticipant.findOne({ conversationId, userId });
+  const lastReadAt = participant?.lastReadAt || new Date(0);
+  return Message.countDocuments({
+    conversationId,
+    senderId: { $ne: userId },
+    createdAt: { $gt: lastReadAt },
+  });
+}
+
+async function countUnreadTotal(userId) {
+  const parts = await ConversationParticipant.find({ userId });
+  let total = 0;
+  for (const part of parts) {
+    const lastReadAt = part.lastReadAt || new Date(0);
+    total += await Message.countDocuments({
+      conversationId: part.conversationId,
+      senderId: { $ne: userId },
+      createdAt: { $gt: lastReadAt },
+    });
+  }
+  return total;
+}
+
+exports.openConversation = async (req, res) => {
   try {
-    const messages = await Message.find({
-      $or: [{ senderId: userId }, { receiverId: userId }],
-    }).sort({ timestamp: 1 });
-    return messages;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const { participantId } = req.body;
+    if (!participantId) {
+      return res.status(400).json({ message: 'participantId required' });
+    }
+    const conversation = await getOrCreateConversation(userId, participantId);
+    res.json(conversation);
   } catch (err) {
-    throw new Error('Failed to load messages');
+    res.status(500).json({ message: 'Failed to open conversation' });
   }
 };
 
-// Fetch conversations for a user
+exports.listConversations = async (req, res) => {
+  try {
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const parts = await ConversationParticipant.find({ userId }).populate('conversationId');
+    const conversations = [];
+    for (const part of parts) {
+      const conv = part.conversationId;
+      const otherId = conv.participants.find(p => p.toString() !== userId.toString());
+      const otherUser = await User.findById(otherId);
+      const lastMessage = await Message.findOne({ conversationId: conv._id }).sort({ createdAt: -1 });
+      const unreadCount = await countUnread(conv._id, userId);
+      conversations.push({
+        id: conv._id,
+        participant: { id: otherId, name: otherUser ? `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() || otherUser.id : otherId },
+        lastMessage: lastMessage ? lastMessage.text : null,
+        lastMessageAt: lastMessage ? lastMessage.createdAt : null,
+        unreadCount,
+      });
+    }
+    res.json(conversations);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch conversations' });
+  }
+};
+
+exports.getMessages = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const conv = await ConversationModel.findById(conversationId);
+    if (!conv || !conv.participants.map(p=>p.toString()).includes(userId.toString())) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const messages = await Message.find({ conversationId })
+      .sort({ createdAt: 1 })
+      .skip(offset)
+      .limit(limit);
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get messages' });
+  }
+};
+
+exports.sendMessage = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const { text } = req.body;
+    const senderId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    if (!text) {
+      return res.status(400).json({ message: 'text required' });
+    }
+    const conv = await ConversationModel.findById(conversationId);
+    if (!conv || !conv.participants.map(p=>p.toString()).includes(senderId.toString())) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+    const message = await Message.create({ conversationId, senderId, text });
+    await ConversationParticipant.updateOne({ conversationId, userId: senderId }, { $set: { lastReadAt: new Date() } });
+    const receiverId = conv.participants.find(p => p.toString() !== senderId.toString());
+    const unreadTotal = await countUnreadTotal(receiverId);
+    await pushService.sendMessageNotification(receiverId, senderId, text, unreadTotal, conversationId);
+    res.json(message);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to send message' });
+  }
+};
+
+exports.markAsRead = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    await ConversationParticipant.updateOne({ conversationId, userId }, { $set: { lastReadAt: new Date() } });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to mark as read' });
+  }
+};
+
+exports.getUnreadTotal = async (req, res) => {
+  try {
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const total = await countUnreadTotal(userId);
+    res.json({ unread_total: total });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get unread total' });
+  }
+};
+
+exports.debugUnread = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const participant = await ConversationParticipant.findOne({ conversationId, userId });
+    const lastReadAt = participant?.lastReadAt || new Date(0);
+    const unreadCount = await countUnread(conversationId, userId);
+    res.json({ lastReadAt, unreadCount });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get debug info' });
+  }
+};
+
+module.exports._internal = { getOrCreateConversation, countUnread, countUnreadTotal };
+
+// --- Socket helpers for backward compatibility ---
 exports.getConversations = async (socket, userId) => {
   try {
-    console.log('Fetching conversations for user:', userId);
-
-    // Find all messages involving the user
-    const messages = await Message.find({
-      $or: [
-        { senderId: userId.toString() },
-        { receiverId: userId.toString() },
-      ],
-    }).sort({ timestamp: -1 });
-
-    console.log('Messages found:', messages);
-
-    if (messages.length === 0) {
-      console.log('No messages found for this user.');
-      socket.emit('loadConversations', []);
-      return;
-    }
-
-    // Group messages by conversation partner
-    const conversationsMap = new Map();
-    for (const msg of messages) {
-      console.log('Processing message:', msg);
-      const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      console.log('Partner ID:', partnerId);
-      if (!conversationsMap.has(partnerId)) {
-        conversationsMap.set(partnerId, {
-          receiverId: partnerId,
-          lastMessage: msg,
-        });
-      }
-    }
-
-    console.log('Conversations map:', Array.from(conversationsMap.entries()));
-
-    // Convert map to array and fetch receiver names
-    const conversations = await Promise.all(
-      Array.from(conversationsMap.values()).map(async (conv) => {
-        let receiverName = conv.receiverId; // Default to receiverId
-        try {
-          // Check if receiverId is a valid ObjectId
-          const isValidObjectId = mongoose.Types.ObjectId.isValid(conv.receiverId);
-          if (isValidObjectId) {
-            const receiver = await User.findById(conv.receiverId);
-            if (receiver) {
-              receiverName = `${receiver.firstName} ${receiver.lastName}`;
-            }
-          } else {
-            console.log(`Skipping User lookup for invalid ObjectId: ${conv.receiverId}`);
-            // Optionally, you could try to find the user by another field if needed
-            // For now, we'll just use the receiverId as the name
-          }
-        } catch (err) {
-          console.error(`Error fetching user ${conv.receiverId}:`, err);
-        }
-        return {
-          receiverId: conv.receiverId,
-          receiverName,
-          lastMessage: conv.lastMessage,
-        };
-      })
-    );
-
-    console.log('Conversations to send:', conversations);
-    socket.emit('loadConversations', conversations);
+    const req = { user: { _id: userId, mongoUser: { _id: userId } } };
+    const res = { json: (data) => socket.emit('loadConversations', data) };
+    await exports.listConversations(req, res);
   } catch (err) {
-    console.error('Error fetching conversations:', err);
     socket.emit('loadConversations', []);
   }
 };
 
-// Fetch messages for a specific conversation
-exports.getMessages = async (socket, { userId, receiverId }) => {
+exports.getMessagesSocket = async (socket, { userId, receiverId }) => {
   try {
-    const messages = await Message.find({
-      $or: [
-        { senderId: userId, receiverId },
-        { senderId: receiverId, receiverId: userId },
-      ],
-    }).sort({ timestamp: 1 });
-
+    const conversation = await getOrCreateConversation(userId, receiverId);
+    const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: 1 });
     socket.emit('loadMessages', messages);
   } catch (err) {
-    console.error('Error fetching messages:', err);
     socket.emit('loadMessages', []);
   }
 };
 
-// Send a message
-exports.sendMessage = async (messageData) => {
-  try {
-    const message = new Message({
-      ...messageData,
-      timestamp: new Date(),
-      isRead: false,
-    });
-    await message.save();
-    
-    // Send push notification
-    await sendPushNotification(messageData.receiverId, messageData.senderId, messageData.content);
-    
-    return message;
-  } catch (err) {
-    throw new Error('Failed to send message');
-  }
-};
-
-// Send push notification
-const sendPushNotification = async (receiverId, senderId, messageContent) => {
-  try {
-    console.log('🔔 Attempting to send push notification...');
-    const receiver = await User.findById(receiverId);
-    const sender = await User.findById(senderId);
-    
-    if (!receiver) {
-      console.log('❌ Receiver not found:', receiverId);
-      return;
-    }
-    
-    if (!receiver.fcmToken) {
-      console.log('❌ No FCM token for receiver:', receiverId);
-      return;
-    }
-    
-    if (!sender) {
-      console.log('❌ Sender not found:', senderId);
-      return;
-    }
-
-    const senderName = `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Someone';
-    const truncatedMessage = messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent;
-    
-    console.log(`📤 Sending notification to ${senderName} -> ${receiver.firstName}`);
-
-    const message = {
-      data: {
-        title: senderName,
-        body: truncatedMessage,
-        senderId: senderId.toString(),
-        senderName: senderName,
-        type: 'message'
-      },
-      android: {
-        priority: 'high',
-        notification: {
-          title: senderName,
-          body: truncatedMessage,
-          channelId: 'giveit_messages',
-          priority: 'high',
-          defaultSound: true,
-          defaultVibrateTimings: true,
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK'
-        }
-      },
-      token: receiver.fcmToken
-    };
-
-    const result = await admin.messaging().send(message);
-    console.log('✅ Push notification sent successfully:', result);
-  } catch (error) {
-    console.error('❌ Error sending push notification:', error);
-    if (error.code === 'messaging/registration-token-not-registered') {
-      console.log('🔄 Removing invalid FCM token for user:', receiverId);
-      await User.findByIdAndUpdate(receiverId, { $unset: { fcmToken: 1 } });
-    }
-  }
+exports.sendMessageSocket = async (data) => {
+  const { senderId, receiverId, text } = data;
+  const conversation = await getOrCreateConversation(senderId, receiverId);
+  const message = await Message.create({ conversationId: conversation._id, senderId, text });
+  await ConversationParticipant.updateOne({ conversationId: conversation._id, userId: senderId }, { $set: { lastReadAt: new Date() } });
+  const unreadTotal = await countUnreadTotal(receiverId);
+  await pushService.sendMessageNotification(receiverId, senderId, text, unreadTotal, conversation._id);
+  return { ...message.toObject(), receiverId };
 };

@@ -8,7 +8,7 @@ try {
   // Check if Firebase is already initialized
   if (admin.apps.length === 0) {
     // Get service account from environment variable
-    const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT;
+    const serviceAccountEnv = process.env.FIREBASE_CREDS_JSON || process.env.FIREBASE_SERVICE_ACCOUNT;
     
     if (serviceAccountEnv) {
       try {
@@ -25,7 +25,7 @@ try {
         firebaseInitialized = true;
       } catch (parseError) {
         console.error('Error parsing Firebase service account:', parseError.message);
-        console.error('Make sure FIREBASE_SERVICE_ACCOUNT is a valid JSON string with escaped newlines (\\n)');
+        console.error('Make sure FIREBASE_CREDS_JSON is a valid JSON string with escaped newlines (\\n)');
       }
     } else {
       // Try to use local service account file as fallback
