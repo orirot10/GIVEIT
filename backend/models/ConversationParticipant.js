@@ -9,4 +9,5 @@ const conversationParticipantSchema = new mongoose.Schema({
 // Ensure fast lookups by user and conversation while preventing duplicates
 conversationParticipantSchema.index({ userId: 1, conversationId: 1 }, { unique: true });
 
+
 module.exports = mongoose.model('ConversationParticipant', conversationParticipantSchema);

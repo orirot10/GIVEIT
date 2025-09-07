@@ -78,7 +78,7 @@ class PushService {
         }
       }
     } catch (err) {
-      console.error('Push notification error', err);
+
     }
   }
 }

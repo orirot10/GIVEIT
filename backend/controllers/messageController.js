@@ -1,6 +1,9 @@
 const ConversationModel = require('../models/Conversation');
+
 const ConversationParticipant = require('../models/ConversationParticipant');
 const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+const ConversationParticipant = require('../models/ConversationParticipant');
 const User = require('../models/User');
 const pushService = require('../services/pushService');
 
@@ -170,6 +173,7 @@ exports.getConversations = async (socket, userId) => {
   }
 };
 
+
 exports.getMessagesSocket = async (socket, { userId, receiverId }) => {
   try {
     const conversation = await getOrCreateConversation(userId, receiverId);
@@ -189,3 +193,4 @@ exports.sendMessageSocket = async (data) => {
   await pushService.sendMessageNotification(receiverId, senderId, text, unreadTotal, conversation._id);
   return { ...message.toObject(), receiverId };
 };
+
