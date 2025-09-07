@@ -1,86 +1,52 @@
 const Message = require('../models/Message');
+const Conversation = require('../models/Conversation');
+const ConversationParticipant = require('../models/ConversationParticipant');
 const User = require('../models/User');
-const mongoose = require('mongoose'); // Import mongoose to validate ObjectId
-const admin = require('firebase-admin');
+const pushService = require('../services/pushService');
 
-// Load all messages for a user (used in the join event)
-exports.loadMessages = async (userId) => {
-  try {
-    const messages = await Message.find({
-      $or: [{ senderId: userId }, { receiverId: userId }],
-    }).sort({ timestamp: 1 });
-    return messages;
-  } catch (err) {
-    throw new Error('Failed to load messages');
+async function getOrCreateConversation(userId1, userId2) {
+  const sorted = [userId1.toString(), userId2.toString()].sort();
+  const pairKey = `${sorted[0]}:${sorted[1]}`;
+  let conversation = await Conversation.findOne({ pairKey });
+  if (!conversation) {
+    conversation = await Conversation.create({ participants: sorted });
+    await ConversationParticipant.create({ conversationId: conversation._id, userId: sorted[0] });
+    await ConversationParticipant.create({ conversationId: conversation._id, userId: sorted[1] });
   }
-};
+  return conversation;
+}
 
-// Fetch conversations for a user
+async function countUnread(conversationId, userId) {
+  const participant = await ConversationParticipant.findOne({ conversationId, userId });
+  const lastReadAt = participant?.lastReadAt || new Date(0);
+  return Message.countDocuments({
+    conversationId,
+    senderId: { $ne: userId },
+    createdAt: { $gt: lastReadAt },
+  });
+}
+
 exports.getConversations = async (socket, userId) => {
   try {
-    console.log('Fetching conversations for user:', userId);
-
-    // Find all messages involving the user
-    const messages = await Message.find({
-      $or: [
-        { senderId: userId.toString() },
-        { receiverId: userId.toString() },
-      ],
-    }).sort({ timestamp: -1 });
-
-    console.log('Messages found:', messages);
-
-    if (messages.length === 0) {
-      console.log('No messages found for this user.');
-      socket.emit('loadConversations', []);
-      return;
+    const parts = await ConversationParticipant.find({ userId }).populate('conversationId');
+    const conversations = [];
+    for (const part of parts) {
+      const conv = part.conversationId;
+      const otherId = conv.participants.find(p => p.toString() !== userId.toString());
+      const otherUser = await User.findById(otherId);
+      const lastMessage = await Message.findOne({ conversationId: conv._id }).sort({ createdAt: -1 });
+      const unreadCount = await countUnread(conv._id, userId);
+      const receiverName = otherUser
+        ? `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() || otherUser.id
+        : otherId;
+      conversations.push({
+        conversationId: conv._id,
+        receiverId: otherId,
+        receiverName,
+        lastMessage,
+        unreadCount,
+      });
     }
-
-    // Group messages by conversation partner
-    const conversationsMap = new Map();
-    for (const msg of messages) {
-      console.log('Processing message:', msg);
-      const partnerId = msg.senderId === userId ? msg.receiverId : msg.senderId;
-      console.log('Partner ID:', partnerId);
-      if (!conversationsMap.has(partnerId)) {
-        conversationsMap.set(partnerId, {
-          receiverId: partnerId,
-          lastMessage: msg,
-        });
-      }
-    }
-
-    console.log('Conversations map:', Array.from(conversationsMap.entries()));
-
-    // Convert map to array and fetch receiver names
-    const conversations = await Promise.all(
-      Array.from(conversationsMap.values()).map(async (conv) => {
-        let receiverName = conv.receiverId; // Default to receiverId
-        try {
-          // Check if receiverId is a valid ObjectId
-          const isValidObjectId = mongoose.Types.ObjectId.isValid(conv.receiverId);
-          if (isValidObjectId) {
-            const receiver = await User.findById(conv.receiverId);
-            if (receiver) {
-              receiverName = `${receiver.firstName} ${receiver.lastName}`;
-            }
-          } else {
-            console.log(`Skipping User lookup for invalid ObjectId: ${conv.receiverId}`);
-            // Optionally, you could try to find the user by another field if needed
-            // For now, we'll just use the receiverId as the name
-          }
-        } catch (err) {
-          console.error(`Error fetching user ${conv.receiverId}:`, err);
-        }
-        return {
-          receiverId: conv.receiverId,
-          receiverName,
-          lastMessage: conv.lastMessage,
-        };
-      })
-    );
-
-    console.log('Conversations to send:', conversations);
     socket.emit('loadConversations', conversations);
   } catch (err) {
     console.error('Error fetching conversations:', err);
@@ -88,16 +54,37 @@ exports.getConversations = async (socket, userId) => {
   }
 };
 
-// Fetch messages for a specific conversation
+exports.listConversations = async (req, res) => {
+  try {
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const parts = await ConversationParticipant.find({ userId }).populate('conversationId');
+    const conversations = [];
+    for (const part of parts) {
+      const conv = part.conversationId;
+      const otherId = conv.participants.find(p => p.toString() !== userId.toString());
+      const otherUser = await User.findById(otherId);
+      const lastMessage = await Message.findOne({ conversationId: conv._id }).sort({ createdAt: -1 });
+      const unreadCount = await countUnread(conv._id, userId);
+      const receiverName = otherUser
+        ? `${otherUser.firstName || ''} ${otherUser.lastName || ''}`.trim() || otherUser.id
+        : otherId;
+      conversations.push({
+        conversationId: conv._id,
+        participant: { id: otherId, name: receiverName },
+        lastMessage,
+        unreadCount,
+      });
+    }
+    res.json(conversations);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch conversations' });
+  }
+};
+
 exports.getMessages = async (socket, { userId, receiverId }) => {
   try {
-    const messages = await Message.find({
-      $or: [
-        { senderId: userId, receiverId },
-        { senderId: receiverId, receiverId: userId },
-      ],
-    }).sort({ timestamp: 1 });
-
+    const conversation = await getOrCreateConversation(userId, receiverId);
+    const messages = await Message.find({ conversationId: conversation._id }).sort({ createdAt: 1 });
     socket.emit('loadMessages', messages);
   } catch (err) {
     console.error('Error fetching messages:', err);
@@ -105,82 +92,74 @@ exports.getMessages = async (socket, { userId, receiverId }) => {
   }
 };
 
-// Send a message
-exports.sendMessage = async (messageData) => {
+exports.getMessagesHttp = async (req, res) => {
   try {
-    const message = new Message({
-      ...messageData,
-      timestamp: new Date(),
-      isRead: false,
-    });
-    await message.save();
-    
-    // Send push notification
-    await sendPushNotification(messageData.receiverId, messageData.senderId, messageData.content);
-    
-    return message;
+    const { conversationId } = req.params;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation || !conversation.participants.map(p=>p.toString()).includes(userId.toString())) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+    const messages = await Message.find({ conversationId }).sort({ createdAt: 1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get messages' });
+  }
+};
+
+exports.sendMessage = async (data) => {
+  try {
+    const { senderId, receiverId, content } = data;
+    const conversation = await getOrCreateConversation(senderId, receiverId);
+    const message = await Message.create({ conversationId: conversation._id, senderId, content });
+    await ConversationParticipant.updateOne({ conversationId: conversation._id, userId: senderId }, { $set: { lastReadAt: new Date() } });
+    await pushService.sendMessageNotification(receiverId, senderId, content);
+    return { ...message.toObject(), receiverId };
   } catch (err) {
     throw new Error('Failed to send message');
   }
 };
 
-// Send push notification
-const sendPushNotification = async (receiverId, senderId, messageContent) => {
+exports.sendMessageHttp = async (req, res) => {
   try {
-    console.log('🔔 Attempting to send push notification...');
-    const receiver = await User.findById(receiverId);
-    const sender = await User.findById(senderId);
-    
-    if (!receiver) {
-      console.log('❌ Receiver not found:', receiverId);
-      return;
-    }
-    
-    if (!receiver.fcmToken) {
-      console.log('❌ No FCM token for receiver:', receiverId);
-      return;
-    }
-    
-    if (!sender) {
-      console.log('❌ Sender not found:', senderId);
-      return;
-    }
+    const senderId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const { receiverId, content } = req.body;
+    const conversation = await getOrCreateConversation(senderId, receiverId);
+    const message = await Message.create({ conversationId: conversation._id, senderId, content });
+    await ConversationParticipant.updateOne({ conversationId: conversation._id, userId: senderId }, { $set: { lastReadAt: new Date() } });
+    await pushService.sendMessageNotification(receiverId, senderId, content);
+    res.json(message);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to send message' });
+  }
+};
 
-    const senderName = `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Someone';
-    const truncatedMessage = messageContent.length > 100 ? messageContent.substring(0, 100) + '...' : messageContent;
-    
-    console.log(`📤 Sending notification to ${senderName} -> ${receiver.firstName}`);
+exports.markAsRead = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id; // extract user id
+    await ConversationParticipant.updateOne({ conversationId, userId }, { $set: { lastReadAt: new Date() } });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to mark as read' });
+  }
+};
 
-    const message = {
-      data: {
-        title: senderName,
-        body: truncatedMessage,
-        senderId: senderId.toString(),
-        senderName: senderName,
-        type: 'message'
-      },
-      android: {
-        priority: 'high',
-        notification: {
-          title: senderName,
-          body: truncatedMessage,
-          channelId: 'giveit_messages',
-          priority: 'high',
-          defaultSound: true,
-          defaultVibrateTimings: true,
-          clickAction: 'FLUTTER_NOTIFICATION_CLICK'
-        }
-      },
-      token: receiver.fcmToken
-    };
-
-    const result = await admin.messaging().send(message);
-    console.log('✅ Push notification sent successfully:', result);
-  } catch (error) {
-    console.error('❌ Error sending push notification:', error);
-    if (error.code === 'messaging/registration-token-not-registered') {
-      console.log('🔄 Removing invalid FCM token for user:', receiverId);
-      await User.findByIdAndUpdate(receiverId, { $unset: { fcmToken: 1 } });
+exports.unreadTotal = async (req, res) => {
+  try {
+    const userId = req.user.mongoUser?._id || req.user._id || req.user.id;
+    const participants = await ConversationParticipant.find({ userId });
+    let total = 0;
+    for (const p of participants) {
+      const count = await Message.countDocuments({
+        conversationId: p.conversationId,
+        senderId: { $ne: userId },
+        createdAt: { $gt: p.lastReadAt || new Date(0) },
+      });
+      total += count;
     }
+    res.json({ unreadTotal: total });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to get unread total' });
   }
 };
