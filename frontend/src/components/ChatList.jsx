@@ -4,6 +4,7 @@ import { db } from '../firebase';
 import { useAuthContext } from '../context/AuthContext';
 import RealtimeChat from './RealtimeChat';
 import { useTranslation } from 'react-i18next';
+import LoadingSpinner from './LoadingSpinner';
 
 const ChatList = () => {
   const { user } = useAuthContext();
@@ -63,7 +64,7 @@ const ChatList = () => {
     };
   };
 
-  if (loading) return <div>Loading chats...</div>;
+  if (loading) return <LoadingSpinner message={t('common.loading')} />;
 
   return (
     <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#607D8B' }}>

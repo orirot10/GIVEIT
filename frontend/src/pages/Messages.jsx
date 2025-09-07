@@ -7,11 +7,13 @@ import ChatList from '../components/ChatList';
 import RealtimeChat from '../components/RealtimeChat';
 import '../styles/Chat.css';
 //import './Messages.css';
+import { useTranslation } from 'react-i18next';
 
 function Messages() {
     const { user } = useAuthContext();
     const location = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [directChat, setDirectChat] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -74,7 +76,7 @@ function Messages() {
         <div className="messages-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px' }}>
                 <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>→</button>
-                <h2 style={{ margin: 0, fontFamily: 'Heebo, Arial, sans-serif' }}>חזור</h2>
+                <h2 style={{ margin: 0, fontFamily: 'Heebo, Arial, sans-serif' }}>{t('back')}</h2>
             </div>
             {directChat ? (
                 <div className="chat-view">
@@ -82,7 +84,7 @@ function Messages() {
                         onClick={() => setDirectChat(null)}
                         className="back-button"
                     >
-                        ← Back to Chats
+                        ← {t('back')}
                     </button>
                     <RealtimeChat 
                         otherUserId={directChat.otherUserId}
