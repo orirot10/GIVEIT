@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../../styles/components/Modal.css';
-import { getRentalTagOptions, getServiceTagOptions } from '../../constants/categories';
+import { rentalCategoryData, serviceCategoryData } from '../../constants/categories';
 import { geocodeAddress } from '../HomePage/geocode';
 
 const EditModal = ({ item, type, onSave, onCancel }) => {
@@ -9,6 +9,7 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
     const isRTL = i18n.language === 'he';
     const [form, setForm] = useState({
         ...item,
+        subcategory: item.subcategory || '',
         city: item.city || '',
         street: item.street || '',
         location: item.location || '',
@@ -39,10 +40,15 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
         onSave(updatedForm);
     };
 
-    const categoryOptions =
-        type === 'rental'
-            ? getRentalTagOptions(i18n.language)
-            : getServiceTagOptions(i18n.language);
+    const categoryData = type === 'rental' ? rentalCategoryData : serviceCategoryData;
+    const categoryOptions = categoryData.map(cat => ({ value: cat.value, label: cat[i18n.language] }));
+    const subcategoryOptions = form.category
+        ? (categoryData.find(c => c.value === form.category)?.subcategories || []).map(sub => ({ value: sub.value, label: sub[i18n.language] }))
+        : [];
+
+    const handleCategoryChange = (e) => {
+        setForm(prev => ({ ...prev, category: e.target.value, subcategory: '' }));
+    };
 
     return (
         <div className="modal">
@@ -61,7 +67,7 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                 />
 
                 <label htmlFor="category">{t('common.category')}</label>
-                <select name="category" value={form.category} onChange={handleChange}>
+                <select name="category" value={form.category} onChange={handleCategoryChange}>
                     <option value="">{t('common.select_category')}</option>
                     {categoryOptions.map((category) => (
                         <option key={category.value} value={category.value}>
@@ -69,6 +75,19 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                         </option>
                     ))}
                 </select>
+                {form.category && (
+                    <>
+                        <label htmlFor="subcategory">{t('forms.select_subcategory')}</label>
+                        <select name="subcategory" value={form.subcategory} onChange={handleChange}>
+                            <option value="">{t('forms.select_subcategory')}</option>
+                            {subcategoryOptions.map((sub) => (
+                                <option key={sub.value} value={sub.value}>
+                                    {sub.label}
+                                </option>
+                            ))}
+                        </select>
+                    </>
+                )}
 
                 <label htmlFor="phone">{t('common.phone')}</label>
                 <input name="phone" value={form.phone} onChange={handleChange} />

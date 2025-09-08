@@ -3,7 +3,7 @@ const { perf_map_v2 } = require('../config/flags');
 const redisClient = require('../services/redisClient');
 
 const uploadNewService = async (req, res) => {
-    const { title, description, category, price, pricePeriod, phone, city, street, images, lat, lng, status } = req.body;
+    const { title, description, category, subcategory, price, pricePeriod, phone, city, street, images, lat, lng, status } = req.body;
 
     if (!req.user) {
         return res.status(401).json({ error: 'Unauthorized. User data missing.' });
@@ -32,6 +32,7 @@ const uploadNewService = async (req, res) => {
             title,
             description,
             category,
+            subcategory,
             price: parseFloat(price),
             pricePeriod,
             phone,
@@ -113,7 +114,7 @@ const getServices = async (req, res) => {
 
             let query = perf_map_v2 ? { available: true } : { status: 'available' };
             let services = [];
-            let selectFields = 'firstName lastName email title description category price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
+            let selectFields = 'firstName lastName email title description category subcategory price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
             if (
                 minLat !== undefined && maxLat !== undefined &&
                 minLng !== undefined && maxLng !== undefined
@@ -164,13 +165,14 @@ const getUserServices = async (req, res) => {
 
 const editService = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, phone, city, street, lat, lng, status } = req.body;
+    const { title, description, category, subcategory, price, phone, city, street, lat, lng, status } = req.body;
 
     try {
         const updateData = {};
         if (title !== undefined) updateData.title = title;
         if (description !== undefined) updateData.description = description;
         if (category !== undefined) updateData.category = category;
+        if (subcategory !== undefined) updateData.subcategory = subcategory;
         if (price !== undefined) updateData.price = price;
         if (phone !== undefined) updateData.phone = phone;
         if (city !== undefined) updateData.city = city;
@@ -232,27 +234,35 @@ const rateService = async (req, res) => {
 
 const searchServices = async (req, res) => {
     try {
-    const query = req.query.query;
+        const { query, category, subcategory } = req.query;
 
-    if (!query) {
-        return res.status(400).json({ message: "Query parameter is required" });
-    }
+        if (!query) {
+            return res.status(400).json({ message: "Query parameter is required" });
+        }
 
-    // Use a case-insensitive and diacritic-insensitive regex for partial match (works for Hebrew/English)
-    const regex = new RegExp(query, "i");
+        const regex = new RegExp(query, "i");
+        const filter = { title: { $regex: regex }, status: 'available' };
+        if (category) {
+            const categoriesArray = Array.isArray(category) ? category : category.split(',');
+            filter.category = { $in: categoriesArray };
+        }
+        if (subcategory) {
+            const subcategoriesArray = Array.isArray(subcategory) ? subcategory : subcategory.split(',');
+            filter.subcategory = { $in: subcategoriesArray };
+        }
 
-    const services = await Service.find({ title: { $regex: regex }, status: 'available' });
+        const services = await Service.find(filter);
 
-    res.json(services);
+        res.json(services);
     } catch (err) {
-    console.error("Search services error:", err);
-    res.status(500).json({ message: "Server error during service search" });
+        console.error("Search services error:", err);
+        res.status(500).json({ message: "Server error during service search" });
     }
 };
 
 const filterServices = async (req, res) => {
     try {
-    const { category, minPrice, maxPrice } = req.query;
+    const { category, subcategory, minPrice, maxPrice } = req.query;
 
     const query = { status: 'available' };
 
@@ -263,6 +273,13 @@ const filterServices = async (req, res) => {
         query.category = { $in: categoriesArray };
     }
 
+    if (subcategory) {
+        const subcategoriesArray = Array.isArray(subcategory)
+        ? subcategory
+        : subcategory.split(',');
+        query.subcategory = { $in: subcategoriesArray };
+    }
+
     // Handle price range
     if (minPrice || maxPrice) {
         query.price = {};
@@ -270,7 +287,7 @@ const filterServices = async (req, res) => {
         if (maxPrice) query.price.$lte = parseFloat(maxPrice);
     }
 
-    const services = await Service.find(query).select('firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng rating ratingCount');
+    const services = await Service.find(query).select('firstName lastName email title description category subcategory price pricePeriod images phone status city street ownerId lat lng rating ratingCount');
     res.status(200).json(services);
     } catch (err) {
     res.status(500).json({ error: "Failed to filter services", details: err.message });

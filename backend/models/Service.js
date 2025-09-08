@@ -10,6 +10,7 @@ const serviceSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     category: { type: String, required: true },
+    subcategory: { type: String, required: true },
     price: { type: Number, required: true },
     pricePeriod: { type: String, default: 'use' },
     images: [{ type: String }],
@@ -49,6 +50,7 @@ serviceSchema.index(
 );
 // Add index for category filtering
 serviceSchema.index({ category: 1 });
+serviceSchema.index({ subcategory: 1 });
 // Add index for sorting by creation date
 serviceSchema.index({ createdAt: -1 });
 

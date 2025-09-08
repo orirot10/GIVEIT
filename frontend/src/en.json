@@ -176,6 +176,7 @@
     "title_placeholder": "Title",
     "description_placeholder": "Description",
     "select_category": "Select category",
+    "select_subcategory": "Select subcategory",
     "price_placeholder": "Price",
     "per_use": "Per Use",
     "per_hour": "Per Hour",
