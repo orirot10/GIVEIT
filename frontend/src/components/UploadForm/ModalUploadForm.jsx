@@ -49,7 +49,6 @@ const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
-const [imageUploadError, setImageUploadError] = useState(null);
 
 
 const handleChange = e => {
@@ -63,7 +62,6 @@ const handleCategoryChange = e => {
 
 const handleImageUpload = (urls) => {
     setImageUrls(urls.slice(0, 5)); // Limit to 5 images
-    setImageUploadError(null); // Clear any previous upload errors
 };
 
 const handleSubmit = async e => {
