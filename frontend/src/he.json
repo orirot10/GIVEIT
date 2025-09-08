@@ -95,7 +95,8 @@
         "conversations": "שיחות",
         "search_messages": "חפש הודעות...",
         "message_sent": "ההודעה נשלחה",
-        "message_error": "שליחת ההודעה נכשלה"
+        "message_error": "שליחת ההודעה נכשלה",
+        "back": "חזור"
     },
     "auth": {
         "email": "דואר אלקטרוני",

@@ -106,12 +106,12 @@ const ChatList = () => {
             className="back-button"
             style={{ background: 'linear-gradient(135deg, #607D8B, #2E4057)', color: '#fff' }}
           >
-            {t('back')}
+            {t('messages.back')}
           </button>
           <RealtimeChat
             otherUserId={selectedChat.otherUser.uid}
             otherUserName={selectedChat.otherUser.name}
-            onMessagesRead={(ts) => markChatRead(selectedChat.chat.id, ts)}
+            onMeדssagesRead={(ts) => markChatRead(selectedChat.chat.id, ts)}
           />
         </div>
       )}

@@ -91,7 +91,8 @@
     "conversations": "Conversations",
     "search_messages": "Search messages...",
     "message_sent": "Message sent",
-    "message_error": "Failed to send message"
+    "message_error": "Failed to send message",
+    "back": "Back"
   },
   "auth": {
     "email": "Email",

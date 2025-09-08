@@ -7,23 +7,28 @@ export const serviceCategoryData = [
     value: 'tutoring',
     en: 'Tutoring',
     he: 'שיעורים',
-    short: { en: 'Tut', he: 'שיעור' },
+    short: { en: 'Tut', he: 'שיעור פרטי' },
     subcategories: [
-      { value: 'math', en: 'Math', he: 'מתמטיקה', short: { en: 'Math', he: 'מתמטיקה' } },
-      { value: 'programming', en: 'Programming', he: 'תכנות', short: { en: 'Prog', he: 'תכנות' } },
-      { value: 'languages', en: 'Languages', he: 'שפות', short: { en: 'Lang', he: 'שפות' } },
-    ],
+  { value: 'statistics', en: 'Statistics', he: 'סטטיסטיקה', short: { en: 'Stats', he: 'סטטיסטיקה' } },
+  { value: 'economics', en: 'Economics', he: 'כלכלה', short: { en: 'Econ', he: 'כלכלה' } },
+  { value: 'psychology', en: 'Psychology', he: 'פסיכולוגיה', short: { en: 'Psych', he: 'פסיכולוגיה' } },
+  { value: 'biology', en: 'Biology', he: 'ביולוגיה', short: { en: 'Bio', he: 'ביולוגיה' } },
+  { value: 'physics', en: 'Physics', he: 'פיזיקה', short: { en: 'Phys', he: 'פיזיקה' } },
+  { value: 'chemistry', en: 'Chemistry', he: 'כימיה', short: { en: 'Chem', he: 'כימיה' } },
+  { value: 'literature', en: 'Literature', he: 'ספרות', short: { en: 'Lit', he: 'ספרות' } }
+],
   },
   {
     value: 'summaries',
     en: 'Summaries',
-    he: 'שיעורי בית',
-    short: { en: 'Summ', he: 'שיעור' },
+    he: 'ש.ב ',
+    short: { en: 'Summ', he: 'ש.ב' },
     subcategories: [
-      { value: 'notes', en: 'Notes', he: 'הערות', short: { en: 'Notes', he: 'הערות' } },
-      { value: 'seminar_papers', en: 'Seminar Papers', he: 'עבודות סמינריוניות', short: { en: 'Seminar', he: 'סמינר' } },
+      { value: 'notes', en: 'Notes', he: 'סיכומים', short: { en: 'Notes', he: 'סיכומים' } },
+      { value: 'seminar_papers', en: 'Seminar Papers', he: 'עבודות סמינריוניות', short: { en: 'Seminar', he: 'סינריון' } },
       { value: 'editing', en: 'Editing', he: 'עריכה', short: { en: 'Edit', he: 'עריכה' } },
-    ],
+    ]
+    ,
   },
   {
     value: 'transport',
