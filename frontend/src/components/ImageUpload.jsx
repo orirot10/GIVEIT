@@ -8,7 +8,9 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
   const [error, setError] = useState('');
 
   const handleFileUpload = async (event) => {
-    const files = Array.from(event.target.files);
+    // Preserve a reference to the input in case React reuses the event object
+    const input = event.target;
+    const files = Array.from(input.files);
     if (files.length === 0) return;
 
     const auth = getAuth();
@@ -65,7 +67,8 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
       setError(errorMessage);
     } finally {
       setUploading(false);
-      event.target.value = ''; // Reset input
+      // Reset the file input so the same file can be selected again
+      input.value = '';
     }
   };
 
