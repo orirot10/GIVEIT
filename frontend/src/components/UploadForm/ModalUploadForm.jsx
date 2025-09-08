@@ -15,8 +15,9 @@ submitButtonText,
 user,
 }) => {
 const navigate = useNavigate();
-const { t } = useTranslation();
+const { t, i18n } = useTranslation();
 const { getPricePeriodOptions } = usePricePeriodTranslation();
+const isRTL = i18n.language === 'he';
 
 const [form, setForm] = useState({
     title: '',
@@ -108,7 +109,7 @@ const handleSubmit = async e => {
 };
 
 return (
-    <div className="upload-form-container" style={{ fontFamily: 'Heebo, Arial, sans-serif' }}>
+    <div className="upload-form-container" style={{ fontFamily: 'Heebo, Arial, sans-serif' }} dir={isRTL ? 'rtl' : 'ltr'}>
         {success ? (
             <div className="alert alert-success shadow-lg flex flex-col items-center">
                 <span className="text-lg font-semibold">{successMessage}</span>
@@ -132,7 +133,9 @@ return (
                     <div className="form-group">
                         <select name="category" value={form.category} onChange={handleChange} className="select select-bordered w-full" required>
                             <option value="">{t('forms.select_category')}</option>
-                            {categories.map((cat, index) => <option key={index} value={cat}>{cat}</option>)}
+                            {categories.map((cat) => (
+                                <option key={cat.value} value={cat.value}>{cat.label}</option>
+                            ))}
                         </select>
                     </div>
                     <div className="form-group">

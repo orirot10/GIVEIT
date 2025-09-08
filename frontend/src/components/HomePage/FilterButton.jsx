@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { VscFilter } from "react-icons/vsc";
-import { rentalCategories, serviceCategories } from "../../constants/categories";
+import { getRentalFilterTags, getServiceFilterTags } from "../../constants/categories";
 import '../../styles/HomePage/FilterButton.css'
 import { CiCircleRemove } from "react-icons/ci";
 import { BiFilterAlt } from "react-icons/bi";
@@ -13,11 +12,15 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const availableCategories =
-    categoryType === "rental" ? rentalCategories : serviceCategories;
+    categoryType === "rental"
+      ? getRentalFilterTags(i18n.language)
+      : getServiceFilterTags(i18n.language);
 
   const toggleCategory = (cat) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat)
+        ? prev.filter((c) => c !== cat)
+        : [...prev, cat]
     );
   };
 
@@ -46,13 +49,13 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
               <div className="categories-container">
                 {availableCategories.map((cat) => (
                   <button
-                    key={cat}
-                    onClick={() => toggleCategory(cat)}
+                    key={cat.value}
+                    onClick={() => toggleCategory(cat.value)}
                     className={`category-btn ${
-                      selectedCategories.includes(cat) ? "selected" : ""
+                      selectedCategories.includes(cat.value) ? "selected" : ""
                     }`}
                   >
-                    {cat}
+                    {cat.label}
                   </button>
                 ))}
               </div>
