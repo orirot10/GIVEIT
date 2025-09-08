@@ -76,7 +76,6 @@ function Messages() {
         <div className="messages-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px' }}>
                 <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>→</button>
-                <h2 className="unified-header">{t('messages.conversations')}</h2>
             </div>
             {directChat ? (
                 <div className="chat-view">
