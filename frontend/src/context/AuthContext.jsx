@@ -217,7 +217,8 @@ export const AuthProvider = ({ children }) => {
       // Use native GoogleAuth plugin for mobile WebView, popup for desktop
       if (isMobileWebView()) {
         console.log('Using native Google sign-in for mobile');
-        
+
+        let user;
         try {
           // Ensure GoogleAuth is initialized
           await GoogleAuth.initialize({
@@ -233,9 +234,11 @@ export const AuthProvider = ({ children }) => {
             throw new Error('No ID token received from Google Auth');
           }
           
-          const credential = GoogleAuthProvider.credential(googleUser.authentication.idToken);
+          const credential = GoogleAuthProvider.credential(
+            googleUser.authentication.idToken,
+          );
           const userCredential = await signInWithCredential(auth, credential);
-          const user = userCredential.user;
+          user = userCredential.user;
           console.log('Firebase user created:', user.uid);
         } catch (googleError) {
           console.error('Native Google Auth error:', googleError);

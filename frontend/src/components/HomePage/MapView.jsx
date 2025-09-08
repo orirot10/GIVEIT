@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
-import { useJsApiLoader, GoogleMap, OverlayView } from "@react-google-maps/api";
+import { GoogleMap, OverlayView } from "@react-google-maps/api";
 import Popup from "../Shared/Popup";
 import { useMapContext } from "../../context/MapContext";
 

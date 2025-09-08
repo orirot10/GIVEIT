@@ -5,7 +5,7 @@ import { serviceCategoryData } from '../../constants/categories';
 
 const ServiceForm = () => {
     const { user } = useAuthContext();
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
     return (
