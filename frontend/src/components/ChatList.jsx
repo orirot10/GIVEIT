@@ -5,6 +5,7 @@ import { useAuthContext } from '../context/AuthContext';
 import RealtimeChat from './RealtimeChat';
 import { useTranslation } from 'react-i18next';
 import LoadingSpinner from './LoadingSpinner';
+import '../styles/unified-components.css';
 
 const ChatList = () => {
   const { user } = useAuthContext();
@@ -70,7 +71,7 @@ const ChatList = () => {
     <div className="chat-list-container" style={{ background: '#F4F6F8', color: '#607D8B' }}>
       {!selectedChat ? (
         <div className="chat-list">
-          <h2 className="main-title" style={{}}>{t('messages.conversations')}</h2>
+          <h2 className="unified-header">{t('messages.conversations')}</h2>
           {chats.length === 0 ? (
             <p style={{ color: '#607D8B' }}>No conversations yet</p>
           ) : (
@@ -81,17 +82,17 @@ const ChatList = () => {
               return (
                 <div
                   key={chat.id}
-                  className="chat-item"
-                  style={{ background: '#fff', border: '1px solid #607D8B', color: '#1C2526' }}
+                  className={`unified-card accent-${(chat.id.length % 4) + 1}`}
                   onClick={() => {
                     markChatRead(chat.id, lastTime);
                     setSelectedChat({ chat, otherUser });
                   }}
+                  style={{ cursor: 'pointer' }}
                 >
-                  {isUnread && <span className="chat-unread-dot" />}
-                  <h3 style={{ color: '#2E4057' }}>{otherUser.name}</h3>
-                  <p style={{ color: '#607D8B' }}>{chat.lastMessage}</p>
-                  <small style={{ color: '#607D8B' }}>
+                  {isUnread && <span className="notification-dot" />}
+                  <h3 className="unified-title">{otherUser.name}</h3>
+                  <p className="unified-subtitle">{chat.lastMessage}</p>
+                  <small className="unified-timestamp">
                     {chat.lastMessageTime?.toDate?.()?.toLocaleString()}
                   </small>
                 </div>

@@ -26,8 +26,10 @@
     align-items: center;
     justify-content: center;
     flex: 1;
-    font-size: 30px;
-    padding: 6px 0;
+    font-size: 24px;
+    padding: 8px 4px;
+    min-height: 60px;
+    transition: var(--transition-smooth);
 }
 
 .nav-tab {
@@ -38,31 +40,52 @@
     align-items: center;
     justify-content: center;
     flex: 1;
-    font-size: 30px;
-    padding: 6px 0;
+    font-size: 24px;
+    padding: 8px 4px;
+    min-height: 60px;
     border-bottom: 2px solid transparent;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
     gap: 0.25rem;
     position: relative;
+    color: var(--text-light);
+}
+
+.nav-tab:hover {
+    color: var(--primary-color);
+    transform: translateY(-2px);
 }
 
 .nav-tab.active {
-    position: relative;
+    color: var(--primary-color);
 }
 
 .nav-tab.active::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    height: 4px;
-    width: 40px; 
-    background-color: #000000; 
+    bottom: 4px;
+    height: 3px;
+    width: 32px; 
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
     border-radius: 2px;
+    animation: slideInTop 0.3s ease-out;
+}
+
+@keyframes slideInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .nav-label {
     font-size: 0.75rem;
     margin-top: 0.25rem;
+    font-weight: 500;
+    text-align: center;
 }
 
 /* RTL Support */
@@ -87,10 +110,17 @@
 
 .notification-dot {
     position: absolute;
-    top: 6px;
-    right: 18px;
+    top: 8px;
+    right: 20px;
     width: 8px;
     height: 8px;
-    background-color: #ff0000;
+    background-color: #c62828;
     border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
 }

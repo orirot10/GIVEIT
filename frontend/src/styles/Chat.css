@@ -177,12 +177,13 @@
 
 /* Enhanced Chat List Container */
 .chat-list-container {
-  width: 100%; /* Full width of the parent container */
-  max-width: 90vw; /* Maximum width is 90% of the viewport width */
+  width: 100%;
+  max-width: 430px;
   margin: 0 auto;
-  padding: 1.25rem;
+  padding: 1rem;
   min-height: 100vh;
-  box-sizing: border-box; /* Ensure padding doesn't increase width */
+  background-color: var(--bg-light);
+  box-sizing: border-box;
 }
 
 
@@ -193,103 +194,13 @@
   gap: 1rem;
 }
 
-/* Enhanced Chat Items with Card Design */
+/* Legacy chat item styles - now handled by unified-components.css */
 .chat-item {
-  padding: 1.5rem;
-  background: #fff;
-  border: 1px solid var(--neutral-accent);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  box-shadow: var(--shadow-subtle);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+  /* Styles moved to unified-card class */
 }
 
 .chat-unread-dot {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 8px;
-  height: 8px;
-  background: #ff0000;
-  border-radius: 50%;
-}
-
-/* Accent Border System */
-.chat-item:nth-child(4n+1)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(135deg, var(--accent-1), #ff8e8e);
-}
-
-.chat-item:nth-child(4n+2)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(135deg, var(--accent-2), #7ed3d1);
-}
-
-.chat-item:nth-child(4n+3)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(135deg, var(--accent-3), #70c5e6);
-}
-
-.chat-item:nth-child(4n)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(135deg, var(--accent-4), #b5d8c7);
-}
-
-/* Hover Effects */
-.chat-item:hover {
-  box-shadow: var(--shadow-hover);
-}
-
-/* Typography Improvements */
-.chat-item h3 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-color);
-  transition: color 0.3s ease;
-}
-
-.chat-item:hover h3 {
-  color: var(--primary-color);
-}
-
-.chat-item p {
-  margin: 0 0 0.5rem 0;
-  color: var(--neutral-accent);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  font-weight: 500;
-}
-
-/* Subtle Timestamps */
-.chat-item small {
-  color: var(--neutral-accent);
-  font-size: 0.8rem;
-  font-weight: 400;
-  opacity: 0.8;
+  /* Styles moved to notification-dot class */
 }
 
 /* Status Indicators - Removed */

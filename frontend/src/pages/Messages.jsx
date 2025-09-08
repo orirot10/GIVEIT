@@ -6,7 +6,7 @@ import { db } from '../firebase';
 import ChatList from '../components/ChatList';
 import RealtimeChat from '../components/RealtimeChat';
 import '../styles/Chat.css';
-//import './Messages.css';
+import '../styles/unified-components.css';
 import { useTranslation } from 'react-i18next';
 
 function Messages() {
@@ -76,7 +76,7 @@ function Messages() {
         <div className="messages-container">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px' }}>
                 <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#2E4057' }}>→</button>
-                <h2 style={{ margin: 0, fontFamily: 'Heebo, Arial, sans-serif' }}>{t('')}</h2>
+                <h2 className="unified-header">{t('messages.conversations')}</h2>
             </div>
             {directChat ? (
                 <div className="chat-view">

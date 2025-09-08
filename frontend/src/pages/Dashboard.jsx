@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/Dashboard.css';
+import '../styles/unified-components.css';
 import { useAuthContext } from '../context/AuthContext';
 import ListingForm from '../components/ListingForm';
 import NotificationTest from '../components/NotificationTest';
@@ -49,7 +50,7 @@ function Dashboard() {
         <div className="dashboard-container custom-dashboard-bg" dir={isRTL ? 'rtl' : 'ltr'}>
 <div className="dashboard-header" style={{ position: 'relative', zIndex: 10, marginTop: '20px'}}>
 
-                <h2 className="dashboard-username">{t('dashboard.welcome_message')}, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
+                <h2 className="unified-header">{t('dashboard.welcome_message')}, {user.displayName || `${user.firstName || ''} ${user.lastName || ''}`}</h2>
                 {(user.city || user.address) && (
                     <div className="dashboard-address">
                         {user.city || user.address}
