@@ -7,6 +7,7 @@ const rentalSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     category: { type: String, required: true },
+    subcategory: { type: String, required: true },
     price: { type: Number, required: true },
     pricePeriod: { type: String, default: 'use' },
     images: [{ type: String }], // Firebase Storage URLs or local paths
@@ -47,6 +48,7 @@ rentalSchema.index(
 );
 // Add index for category filtering
 rentalSchema.index({ category: 1 });
+rentalSchema.index({ subcategory: 1 });
 // Add index for sorting by creation date
 rentalSchema.index({ createdAt: -1 });
 

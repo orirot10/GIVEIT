@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { getRentalFilterTags, getServiceFilterTags } from "../../constants/categories";
+import {
+  getRentalCategoryFilterTags,
+  getServiceCategoryFilterTags,
+} from "../../constants/categories";
 import '../../styles/HomePage/FilterButton.css'
 import { CiCircleRemove } from "react-icons/ci";
 import { BiFilterAlt } from "react-icons/bi";
@@ -13,8 +16,8 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
 
   const availableCategories =
     categoryType === "rental"
-      ? getRentalFilterTags(i18n.language)
-      : getServiceFilterTags(i18n.language);
+      ? getRentalCategoryFilterTags(i18n.language)
+      : getServiceCategoryFilterTags(i18n.language);
 
   const toggleCategory = (cat) => {
     setSelectedCategories((prev) =>

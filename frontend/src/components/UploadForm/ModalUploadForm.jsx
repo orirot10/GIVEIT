@@ -7,22 +7,33 @@ import { geocodeAddress } from '../HomePage/geocode';
 import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
 const ModalUploadForm = ({
-titleText,
-categories,
-submitUrl,
-successMessage,
-submitButtonText,
-user,
+    titleText,
+    categoryData,
+    submitUrl,
+    successMessage,
+    submitButtonText,
+    user,
 }) => {
 const navigate = useNavigate();
 const { t, i18n } = useTranslation();
 const { getPricePeriodOptions } = usePricePeriodTranslation();
 const isRTL = i18n.language === 'he';
 
+const categoryOptions = categoryData.map((cat) => ({
+    value: cat.value,
+    label: cat[i18n.language],
+}));
+
+const getSubcategoryOptions = (catValue) => {
+    const cat = categoryData.find((c) => c.value === catValue);
+    return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub[i18n.language] })) : [];
+};
+
 const [form, setForm] = useState({
     title: '',
     description: '',
     category: '',
+    subcategory: '',
     price: '',
     pricePeriod: 'use',
     firstName: user?.firstName || user?.displayName?.split(' ')[0] || '',
@@ -32,6 +43,8 @@ const [form, setForm] = useState({
     street: user?.street || ''
 });
 
+const subcategoryOptions = getSubcategoryOptions(form.category);
+
 const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
@@ -40,6 +53,11 @@ const [isSubmitting, setIsSubmitting] = useState(false);
 
 const handleChange = e => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+};
+
+const handleCategoryChange = e => {
+    const value = e.target.value;
+    setForm(prev => ({ ...prev, category: value, subcategory: '' }));
 };
 
 const handleImageUpload = (urls) => {
@@ -70,6 +88,12 @@ const handleSubmit = async e => {
         }
 
         const token = await currentUser.getIdToken(true);
+
+        // Validate category/subcategory
+        const cat = categoryData.find(c => c.value === form.category);
+        if (!cat || !cat.subcategories.some(s => s.value === form.subcategory)) {
+            throw new Error('Invalid category selection');
+        }
 
         // Geocode address
         const coords = await geocodeAddress(form.street, form.city);
@@ -131,13 +155,23 @@ return (
                         <textarea name="description" placeholder={t('forms.description_placeholder')} value={form.description} onChange={handleChange} className="textarea textarea-bordered w-full" required />
                     </div>
                     <div className="form-group">
-                        <select name="category" value={form.category} onChange={handleChange} className="select select-bordered w-full" required>
+                        <select name="category" value={form.category} onChange={handleCategoryChange} className="select select-bordered w-full" required>
                             <option value="">{t('forms.select_category')}</option>
-                            {categories.map((cat) => (
+                            {categoryOptions.map((cat) => (
                                 <option key={cat.value} value={cat.value}>{cat.label}</option>
                             ))}
                         </select>
                     </div>
+                    {form.category && (
+                        <div className="form-group">
+                            <select name="subcategory" value={form.subcategory} onChange={handleChange} className="select select-bordered w-full" required>
+                                <option value="">{t('forms.select_subcategory')}</option>
+                                {subcategoryOptions.map((sub) => (
+                                    <option key={sub.value} value={sub.value}>{sub.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div className="form-group">
                         <input name="price" type="number" placeholder={t('forms.price_placeholder')} value={form.price} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>

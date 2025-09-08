@@ -8,6 +8,7 @@ const uploadNewRental = async (req, res) => {
     title,
     description,
     category,
+    subcategory,
     price,
     pricePeriod,
     firstName,
@@ -48,6 +49,7 @@ const uploadNewRental = async (req, res) => {
         title,
         description,
         category,
+        subcategory,
         price: parseFloat(price),
         pricePeriod,
         images: imagePaths,
@@ -132,7 +134,7 @@ const getRentals = async (req, res) => {
             // Fallback to existing logic
             let query = perf_map_v2 ? { available: true } : { status: 'available' };
             let rentals = [];
-            let selectFields = 'firstName lastName email title description category price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
+            let selectFields = 'firstName lastName email title description category subcategory price pricePeriod images phone status available city street ownerId lat lng rating ratingCount';
             if (
                 minLat !== undefined && maxLat !== undefined &&
                 minLng !== undefined && maxLng !== undefined
@@ -196,13 +198,14 @@ const getUserRentals = async (req, res) => {
 // Edit a rental
 const editRental = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, images, phone, city, street, lat, lng, status } = req.body;
+    const { title, description, category, subcategory, price, images, phone, city, street, lat, lng, status } = req.body;
 
     try {
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
     if (category !== undefined) updateData.category = category;
+    if (subcategory !== undefined) updateData.subcategory = subcategory;
     if (price !== undefined) updateData.price = price;
     if (images !== undefined) updateData.images = images;
     if (phone !== undefined) updateData.phone = phone;
@@ -266,34 +269,37 @@ const rateRental = async (req, res) => {
 
 const searchRentals = async (req, res) => {
     try {
-    const { query } = req.query;
+        const { query, category, subcategory } = req.query;
 
-    if (!query || query.trim() === "") {
-        return res.status(400).json({ message: "Query is required." });
-    }
+        if (!query || query.trim() === "") {
+            return res.status(400).json({ message: "Query is required." });
+        }
 
-    // Split words for ordered search
-    const words = query.trim().split(/\s+/);
+        const words = query.trim().split(/\s+/);
+        const regexPattern = words.join(".*");
+        const regex = new RegExp(regexPattern, "i");
 
-    // Create a case-insensitive, ordered regex pattern
-    const regexPattern = words.join(".*"); // e.g. "bike red" => /bike.*red/
-    const regex = new RegExp(regexPattern, "i");
+        const filter = { title: { $regex: regex }, status: 'available' };
+        if (category) {
+            const categoriesArray = Array.isArray(category) ? category : category.split(',');
+            filter.category = { $in: categoriesArray };
+        }
+        if (subcategory) {
+            const subcategoriesArray = Array.isArray(subcategory) ? subcategory : subcategory.split(',');
+            filter.subcategory = { $in: subcategoriesArray };
+        }
 
-    const results = await Rental.find({
-        title: { $regex: regex },
-        status: 'available',
-    });
-
-    res.status(200).json(results);
+        const results = await Rental.find(filter);
+        res.status(200).json(results);
     } catch (err) {
-    console.error("Search error:", err);
-    res.status(500).json({ message: "Server error during search." });
+        console.error("Search error:", err);
+        res.status(500).json({ message: "Server error during search." });
     }
 };
 
 const filterRentals = async (req, res) => {
     try {
-    const { category, minPrice, maxPrice } = req.query;
+    const { category, subcategory, minPrice, maxPrice } = req.query;
 
     const query = { status: 'available' };
     
@@ -302,6 +308,13 @@ const filterRentals = async (req, res) => {
         ? category
         : category.split(',');
         query.category = { $in: categoriesArray };
+    }
+
+    if (subcategory) {
+        const subcategoriesArray = Array.isArray(subcategory)
+        ? subcategory
+        : subcategory.split(',');
+        query.subcategory = { $in: subcategoriesArray };
     }
 
     // Handle price range

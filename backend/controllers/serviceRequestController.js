@@ -9,6 +9,7 @@ const uploadNewServiceRequest = async (req, res) => {
         title,
         description,
         category,
+        subcategory,
         price,
         phone,
         city,
@@ -46,6 +47,7 @@ const uploadNewServiceRequest = async (req, res) => {
             title,
             description,
             category,
+            subcategory,
             price,
             images: imagePaths,
             phone,
@@ -70,7 +72,7 @@ const getServiceRequests = async (req, res) => {
         let query = {};
         let services = [];
         // Only select fields needed for the map/popup
-        let selectFields = 'firstName lastName email title description category price images phone status city street ownerId lat lng type';
+        let selectFields = 'firstName lastName email title description category subcategory price images phone status city street ownerId lat lng type';
         // Bounding box filter (fast, uses index)
         if (
             minLat !== undefined && maxLat !== undefined &&
@@ -205,7 +207,7 @@ const searchServiceRequests = async (req, res) => {
 
 const filterServiceRequests = async (req, res) => {
     try {
-        const { category, minPrice, maxPrice } = req.query;
+        const { category, subcategory, minPrice, maxPrice } = req.query;
 
         const query = {};
 
@@ -214,6 +216,12 @@ const filterServiceRequests = async (req, res) => {
                 ? category
                 : category.split(',');
             query.category = { $in: categoriesArray };
+        }
+        if (subcategory) {
+            const subcategoriesArray = Array.isArray(subcategory)
+                ? subcategory
+                : subcategory.split(',');
+            query.subcategory = { $in: subcategoriesArray };
         }
 
         // Handle price range

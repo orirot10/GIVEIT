@@ -10,7 +10,12 @@ import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
-import { getRentalFilterTags, getServiceFilterTags } from "../../constants/categories";
+import {
+    getRentalCategoryFilterTags,
+    getServiceCategoryFilterTags,
+    getRentalSubcategoryFilterTags,
+    getServiceSubcategoryFilterTags
+} from "../../constants/categories";
 import { useNavigate } from 'react-router-dom';
 import { useMapContext } from '../../context/MapContext';
 
@@ -426,7 +431,8 @@ const GenericMapPage = ({ apiUrl }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [hasInitialLoad, setHasInitialLoad] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedSubcategory, setSelectedSubcategory] = useState('');
     const [showGentleLoading, setShowGentleLoading] = useState(false);
     const [pullToRefresh, setPullToRefresh] = useState({ isRefreshing: false, startY: 0 });
 
@@ -516,7 +522,8 @@ const GenericMapPage = ({ apiUrl }) => {
         try {
             const currentApiUrl = getApiUrl();
             const { northEast, southWest } = bounds;
-            const boundsKey = JSON.stringify(bounds) + contentType + (selectedCategory || '');
+            const boundsKey =
+                JSON.stringify(bounds) + contentType + (selectedCategory || '') + (selectedSubcategory || '');
             const storageKey = `mapCache_${boundsKey}`;
 
             if (cacheRef.current.has(boundsKey)) {
@@ -566,7 +573,7 @@ const GenericMapPage = ({ apiUrl }) => {
         } finally {
             abortControllerRef.current = null;
         }
-    }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory]);
+    }, [getApiUrl, mapItemsToCoords, contentType, selectedCategory, selectedSubcategory]);
 
 
 
@@ -587,12 +594,13 @@ const GenericMapPage = ({ apiUrl }) => {
             // Force refresh by clearing the bounds
             lastFetchedBounds.current = null;
             
-            if (selectedCategory) {
-                // Refresh with category filter
+            if (selectedCategory || selectedSubcategory) {
+                // Refresh with category/subcategory filter
                 const currentApiUrl = getApiUrl();
                 const { northEast, southWest } = mapBounds;
                 const params = new URLSearchParams();
-                params.append('category', selectedCategory);
+                if (selectedCategory) params.append('category', selectedCategory);
+                if (selectedSubcategory) params.append('subcategory', selectedSubcategory);
                 params.append('minLat', southWest.lat);
                 params.append('maxLat', northEast.lat);
                 params.append('minLng', southWest.lng);
@@ -656,7 +664,7 @@ const GenericMapPage = ({ apiUrl }) => {
                     setLoading(false);
                 });
         }
-    }, [mapBounds, contentType, selectedCategory, userLocation, getApiUrl, mapItemsToCoords, fetchItemsWithinBounds]);
+    }, [mapBounds, contentType, selectedCategory, selectedSubcategory, userLocation, getApiUrl, mapItemsToCoords, fetchItemsWithinBounds]);
 
     // Pull-to-refresh functionality for mobile
     useEffect(() => {
@@ -743,9 +751,10 @@ const GenericMapPage = ({ apiUrl }) => {
         };
     }, [refreshMapData]);
 
-    // Reset selected category whenever content type changes
+    // Reset selected category/subcategory whenever content type changes
     useEffect(() => {
-        setSelectedCategory(null);
+        setSelectedCategory('');
+        setSelectedSubcategory('');
     }, [contentType]);
 
     // Get user location on mount
@@ -840,7 +849,8 @@ const GenericMapPage = ({ apiUrl }) => {
     useEffect(() => {
         if (!mapBounds || (searchQuery && searchQuery.trim() !== "")) return;
 
-        const boundsKey = JSON.stringify(mapBounds) + contentType + (selectedCategory || '');
+        const boundsKey =
+            JSON.stringify(mapBounds) + contentType + (selectedCategory || '') + (selectedSubcategory || '');
         if (lastFetchedBounds.current === boundsKey) return;
 
         if (boundsTimeout.current) clearTimeout(boundsTimeout.current);
@@ -848,12 +858,13 @@ const GenericMapPage = ({ apiUrl }) => {
         boundsTimeout.current = setTimeout(() => {
             setLoading(true);
             setError(null);
-            if (selectedCategory) {
-                // If a category filter is active, apply it to the new bounds
+            if (selectedCategory || selectedSubcategory) {
+                // If a filter is active, apply it to the new bounds
                 const currentApiUrl = getApiUrl();
                 const { northEast, southWest } = mapBounds;
                 const params = new URLSearchParams();
-                params.append('category', selectedCategory);
+                if (selectedCategory) params.append('category', selectedCategory);
+                if (selectedSubcategory) params.append('subcategory', selectedSubcategory);
                 params.append('minLat', southWest.lat);
                 params.append('maxLat', northEast.lat);
                 params.append('minLng', southWest.lng);
@@ -893,7 +904,7 @@ const GenericMapPage = ({ apiUrl }) => {
                 clearTimeout(boundsTimeout.current);
             }
         };
-    }, [mapBounds, contentType, searchQuery, fetchItemsWithinBounds, selectedCategory, getApiUrl, mapItemsToCoords]);
+    }, [mapBounds, contentType, searchQuery, fetchItemsWithinBounds, selectedCategory, selectedSubcategory, getApiUrl, mapItemsToCoords]);
 
     // Search handler
     const handleSearch = useCallback(() => {
@@ -901,16 +912,18 @@ const GenericMapPage = ({ apiUrl }) => {
         setLoading(true);
         setError(null);
         
-        searchItems({ 
-            apiUrl: currentApiUrl, 
-            searchQuery, 
-            setAllItems, 
+        searchItems({
+            apiUrl: currentApiUrl,
+            searchQuery,
+            category: selectedCategory,
+            subcategory: selectedSubcategory,
+            setAllItems,
             setLocations: (items) => {
                 const withCoords = mapItemsToCoords(items);
                 setLocations(withCoords);
             }
         }).finally(() => setLoading(false));
-    }, [getApiUrl, searchQuery, mapItemsToCoords]);
+    }, [getApiUrl, searchQuery, selectedCategory, selectedSubcategory, mapItemsToCoords]);
 
     // Clear filters handler
     const handleClearFilters = useCallback(() => {
@@ -968,48 +981,33 @@ const GenericMapPage = ({ apiUrl }) => {
 
 
 
-    // Get available categories based on contentType
+    // Get available categories and subcategories based on contentType
     const availableCategories = useMemo(() => {
         return contentType.includes('rental')
-            ? getRentalFilterTags(i18n.language)
-            : getServiceFilterTags(i18n.language);
+            ? getRentalCategoryFilterTags(i18n.language)
+            : getServiceCategoryFilterTags(i18n.language);
     }, [contentType, i18n.language]);
 
-    // Category label click handler
+    const availableSubcategories = useMemo(() => {
+        if (!selectedCategory) return [];
+        return contentType.includes('rental')
+            ? getRentalSubcategoryFilterTags(selectedCategory, i18n.language)
+            : getServiceSubcategoryFilterTags(selectedCategory, i18n.language);
+    }, [selectedCategory, contentType, i18n.language]);
+
+    // Category and subcategory click handlers
     const handleCategoryLabelClick = (cat) => {
         if (selectedCategory === cat) {
-            setSelectedCategory(null);
+            setSelectedCategory('');
+            setSelectedSubcategory('');
         } else {
             setSelectedCategory(cat);
-            // Filter by category only
-            const currentApiUrl = getApiUrl();
-            setLoading(true);
-            setError(null);
-            const params = new URLSearchParams();
-            params.append('category', cat);
-            if (userLocation) {
-                params.append('lat', userLocation.lat);
-                params.append('lng', userLocation.lng);
-                params.append('radius', DEFAULT_RADIUS);
-            }
-            const url = `${currentApiUrl}/filter?${params.toString()}`;
-            fetch(url)
-                .then((res) => {
-                    if (!res.ok) throw new Error('Failed to apply filters');
-                    return res.json();
-                })
-                .then((data) => {
-                    setAllItems(data);
-                    const withCoords = mapItemsToCoords(data);
-                    setLocations(withCoords);
-                    setError(null);
-                })
-                .catch((err) => {
-                    console.error('Filter error:', err);
-                    setError('Failed to apply filters');
-                })
-                .finally(() => setLoading(false));
+            setSelectedSubcategory('');
         }
+    };
+
+    const handleSubcategoryLabelClick = (sub) => {
+        setSelectedSubcategory(selectedSubcategory === sub ? '' : sub);
     };
 
     // Scroll to top on mount and when view/contentType changes
@@ -1341,6 +1339,19 @@ const GenericMapPage = ({ apiUrl }) => {
                                             </span>
                                         ))}
                                     </div>
+                                    {selectedCategory && (
+                                        <div className="floating-category-labels">
+                                            {availableSubcategories.map((sub) => (
+                                                <span
+                                                    key={sub.value}
+                                                    className={`category-label${selectedSubcategory === sub.value ? ' selected' : ''}`}
+                                                    onClick={() => handleSubcategoryLabelClick(sub.value)}
+                                                >
+                                                    {sub.label}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

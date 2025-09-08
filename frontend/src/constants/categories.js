@@ -4,66 +4,80 @@
 // ---------------------- Service Categories ----------------------
 export const serviceCategoryData = [
   {
+    value: 'tutoring',
     en: 'Tutoring',
     he: 'שיעורים',
-    tags: [
-      { en: 'Math', he: 'מתמטיקה', short: { en: 'Math', he: 'מתמטיקה' } },
-      { en: 'Programming', he: 'תכנות', short: { en: 'Prog', he: 'תכנות' } },
-      { en: 'Languages', he: 'שפות', short: { en: 'Lang', he: 'שפות' } },
+    short: { en: 'Tut', he: 'שיעור' },
+    subcategories: [
+      { value: 'math', en: 'Math', he: 'מתמטיקה', short: { en: 'Math', he: 'מתמטיקה' } },
+      { value: 'programming', en: 'Programming', he: 'תכנות', short: { en: 'Prog', he: 'תכנות' } },
+      { value: 'languages', en: 'Languages', he: 'שפות', short: { en: 'Lang', he: 'שפות' } },
     ],
   },
   {
+    value: 'summaries',
     en: 'Summaries',
     he: 'שיעורי בית',
-    tags: [
-      { en: 'Notes', he: 'סיכומים', short: { en: 'Notes', he: 'סיכומים' } },
-      { en: 'Seminar Papers', he: 'עבודות סמינר', short: { en: 'Seminar', he: 'סמינר' } },
-      { en: 'Editing', he: 'עריכה', short: { en: 'Edit', he: 'עריכה' } },
+    short: { en: 'Summ', he: 'שיעור' },
+    subcategories: [
+      { value: 'notes', en: 'Notes', he: 'הערות', short: { en: 'Notes', he: 'הערות' } },
+      { value: 'seminar_papers', en: 'Seminar Papers', he: 'עבודות סמינריוניות', short: { en: 'Seminar', he: 'סמינר' } },
+      { value: 'editing', en: 'Editing', he: 'עריכה', short: { en: 'Edit', he: 'עריכה' } },
     ],
   },
   {
+    value: 'transport',
     en: 'Transport',
     he: 'הובלה',
-    tags: [
-      { en: 'Small Moves', he: 'הובלות קטנות', short: { en: 'Moves', he: 'הובלה' } },
-      { en: 'Carpool', he: 'קארפול', short: { en: 'Carpool', he: 'קארפול' } },
-      { en: 'Errands', he: 'שליחויות', short: { en: 'Errands', he: 'שליח' } },
+    short: { en: 'Trans', he: 'הובלה' },
+    subcategories: [
+      { value: 'small_moves', en: 'Small Moves', he: 'הובלות קטנות', short: { en: 'Moves', he: 'קטנות' } },
+      { value: 'carpool', en: 'Carpool', he: 'הסעות', short: { en: 'Carpool', he: 'הסעות' } },
+      { value: 'errands', en: 'Errands', he: 'סידורים', short: { en: 'Errands', he: 'סידורים' } },
     ],
   },
   {
+    value: 'care',
     en: 'Care',
     he: 'טיפול',
-    tags: [
-      { en: 'Pets', he: 'חיות', short: { en: 'Pets', he: 'חיות' } },
-      { en: 'Plants', he: 'צמחים', short: { en: 'Plants', he: 'צמחים' } },
-      { en: 'Cleaning', he: 'ניקיון', short: { en: 'Clean', he: 'ניקיון' } },
+    short: { en: 'Care', he: 'טיפול' },
+    subcategories: [
+      { value: 'pet_care', en: 'Pet Care', he: 'טיפול בחיות', short: { en: 'Pets', he: 'חיות' } },
+      { value: 'plant_care', en: 'Plant Care', he: 'טיפול בצמחים', short: { en: 'Plants', he: 'צמחים' } },
+      { value: 'cleaning', en: 'Cleaning', he: 'ניקיון', short: { en: 'Clean', he: 'ניקיון' } },
     ],
   },
   {
+    value: 'tech_repairs',
     en: 'Tech Repairs',
     he: 'תיקונים',
-    tags: [
-      { en: 'Computers', he: 'מחשבים', short: { en: 'PCs', he: 'מחשבים' } },
-      { en: 'Phones', he: 'טלפונים', short: { en: 'Phones', he: 'טלפונים' } },
-      { en: 'Software Help', he: 'עזרה בתוכנה', short: { en: 'Software', he: 'תוכנה' } },
+    short: { en: 'Repair', he: 'תיקון' },
+    subcategories: [
+      { value: 'computers', en: 'Computers', he: 'מחשבים', short: { en: 'PCs', he: 'מחשבים' } },
+      { value: 'phones', en: 'Phones', he: 'טלפונים', short: { en: 'Phones', he: 'טלפונים' } },
+      { value: 'software_help', en: 'Software Help', he: 'תמיכת תוכנה', short: { en: 'Software', he: 'תוכנה' } },
     ],
   },
   {
+    value: 'events',
     en: 'Events',
     he: 'אירועים',
-    tags: [
-      { en: 'Photography', he: 'צילום', short: { en: 'Photo', he: 'צילום' } },
-      { en: 'Music/DJ', he: 'מוזיקה/תקליטן', short: { en: 'Music', he: 'מוזיקה' } },
-      { en: 'Organization', he: 'ארגון', short: { en: 'Org', he: 'ארגון' } },
+    short: { en: 'Events', he: 'אירוע' },
+    subcategories: [
+      { value: 'photography', en: 'Photography', he: 'צילום', short: { en: 'Photo', he: 'צילום' } },
+      { value: 'music_dj', en: 'Music/DJ', he: 'מוזיקה ודי-ג\'יי', short: { en: 'Music', he: 'מוזיקה' } },
+      { value: 'event_planning', en: 'Event Planning', he: 'ארגון אירועים', short: { en: 'Plan', he: 'ארגון' } },
     ],
   },
   {
+    value: 'beauty_fitness',
     en: 'Beauty & Fitness',
     he: 'יופי וכושר',
-    tags: [
-      { en: 'Hair', he: 'שיער', short: { en: 'Hair', he: 'שיער' } },
-      { en: 'Cosmetics', he: 'קוסמטיקה', short: { en: 'Cosmo', he: 'קוסמטיקה' } },
-      { en: 'Gym Coaching', he: 'אימון כושר', short: { en: 'Gym', he: 'אימון' } },
+    short: { en: 'Beauty', he: 'יופי' },
+    subcategories: [
+      { value: 'hair', en: 'Hair', he: 'שיער', short: { en: 'Hair', he: 'שיער' } },
+      { value: 'cosmetics', en: 'Cosmetics', he: 'קוסמטיקה', short: { en: 'Cosmo', he: 'קוסמ' } },
+      { value: 'gym_coaching', en: 'Gym Coaching', he: 'אימון כושר', short: { en: 'Gym', he: 'כושר' } },
     ],
   },
 ];
@@ -71,90 +85,114 @@ export const serviceCategoryData = [
 // ---------------------- Rental Categories ----------------------
 export const rentalCategoryData = [
   {
+    value: 'study_equipment',
     en: 'Study Equipment',
     he: 'ציוד לימודי',
-    tags: [
-      { en: 'Laptop', he: 'מחשב נייד', short: { en: 'Laptop', he: 'מחשב' } },
-      { en: 'Projector', he: 'מקרן', short: { en: 'Proj', he: 'מקרן' } },
-      { en: 'Calculator', he: 'מחשבון', short: { en: 'Calc', he: 'מחשבון' } },
-      { en: 'Books', he: 'ספרים', short: { en: 'Books', he: 'ספרים' } },
+    short: { en: 'Study', he: 'לימוד' },
+    subcategories: [
+      { value: 'laptop', en: 'Laptop', he: 'מחשב נייד', short: { en: 'Laptop', he: 'מחשב' } },
+      { value: 'projector', en: 'Projector', he: 'מקרן', short: { en: 'Proj', he: 'מקרן' } },
+      { value: 'calculator', en: 'Calculator', he: 'מחשבון', short: { en: 'Calc', he: 'מחשבון' } },
+      { value: 'books', en: 'Books', he: 'ספרים', short: { en: 'Books', he: 'ספרים' } },
     ],
   },
   {
+    value: 'sports_equipment',
     en: 'Sports Equipment',
     he: 'ציוד ספורט',
-    tags: [
-      { en: 'Balls', he: 'כדורים', short: { en: 'Balls', he: 'כדורים' } },
-      { en: 'Yoga Mat', he: 'מזרן יוגה', short: { en: 'Yoga', he: 'יוגה' } },
-      { en: 'Weights', he: 'משקולות', short: { en: 'Weights', he: 'משק' } },
-      { en: 'Rackets', he: 'מחבטים', short: { en: 'Rackets', he: 'מחבט' } },
+    short: { en: 'Sport', he: 'ספורט' },
+    subcategories: [
+      { value: 'balls', en: 'Balls', he: 'כדורים', short: { en: 'Balls', he: 'כדורים' } },
+      { value: 'yoga_mat', en: 'Yoga Mat', he: 'מזרן יוגה', short: { en: 'Yoga', he: 'יוגה' } },
+      { value: 'weights', en: 'Weights', he: 'משקולות', short: { en: 'Weights', he: 'משק' } },
+      { value: 'rackets', en: 'Rackets', he: 'מחבטות', short: { en: 'Rackets', he: 'מחבט' } },
     ],
   },
   {
+    value: 'home_items',
     en: 'Home Items',
     he: 'ציוד ביתי',
-    tags: [
-      { en: 'Kitchen Tools', he: 'כלי מטבח', short: { en: 'Kitchen', he: 'מטבח' } },
-      { en: 'Vacuum', he: 'שואב אבק', short: { en: 'Vacuum', he: 'שואב' } },
-      { en: 'Small Tools', he: 'כלי עבודה קטנים', short: { en: 'Tools', he: 'כלים' } },
+    short: { en: 'Home', he: 'ביתי' },
+    subcategories: [
+      { value: 'kitchen_tools', en: 'Kitchen Tools', he: 'כלי מטבח', short: { en: 'Kitchen', he: 'מטבח' } },
+      { value: 'vacuum', en: 'Vacuum', he: 'שואב אבק', short: { en: 'Vacuum', he: 'שואב' } },
+      { value: 'small_tools', en: 'Small Tools', he: 'כלים קטנים', short: { en: 'Tools', he: 'כלים' } },
     ],
   },
   {
+    value: 'transport',
     en: 'Transport',
     he: 'תחבורה קלה',
-    tags: [
-      { en: 'Bicycle', he: 'אופניים', short: { en: 'Bike', he: 'אופניים' } },
-      { en: 'Scooter', he: 'קורקינט', short: { en: 'Scooter', he: 'קורק' } },
-      { en: 'Skateboard', he: 'סקייטבורד', short: { en: 'Skate', he: 'סקייט' } },
+    short: { en: 'Trans', he: 'תחבורה' },
+    subcategories: [
+      { value: 'bicycle', en: 'Bicycle', he: 'אופניים', short: { en: 'Bike', he: 'אופניים' } },
+      { value: 'scooter', en: 'Scooter', he: 'קורקינט', short: { en: 'Scooter', he: 'קורק' } },
+      { value: 'skateboard', en: 'Skateboard', he: 'סקייטבורד', short: { en: 'Skate', he: 'סקייט' } },
     ],
   },
   {
+    value: 'event_gear',
     en: 'Event Gear',
     he: 'ציוד אירועים',
-    tags: [
-      { en: 'Speakers', he: 'רמקולים', short: { en: 'Speak', he: 'רמקול' } },
-      { en: 'Lights', he: 'אורות', short: { en: 'Lights', he: 'אורות' } },
-      { en: 'Cameras', he: 'מצלמות', short: { en: 'Camera', he: 'מצלמה' } },
-      { en: 'Board Games', he: 'משחקי שולחן', short: { en: 'Games', he: 'משחק' } },
+    short: { en: 'Event', he: 'אירוע' },
+    subcategories: [
+      { value: 'speakers', en: 'Speakers', he: 'רמקולים', short: { en: 'Speak', he: 'רמקול' } },
+      { value: 'lights', en: 'Lights', he: 'תאורה', short: { en: 'Lights', he: 'תאורה' } },
+      { value: 'cameras', en: 'Cameras', he: 'מצלמות', short: { en: 'Camera', he: 'מצלמה' } },
+      { value: 'games', en: 'Games', he: 'משחקים', short: { en: 'Games', he: 'משחק' } },
     ],
   },
   {
+    value: 'entertainment',
     en: 'Entertainment',
     he: 'פנאי ובידור',
-    tags: [
-      { en: 'Console', he: 'קונסולה', short: { en: 'Console', he: 'קונסולה' } },
-      { en: 'Novels', he: 'ספרי קריאה', short: { en: 'Novels', he: 'ספרים' } },
-      { en: 'Camping Gear', he: 'ציוד קמפינג', short: { en: 'Camping', he: 'קמפינג' } },
+    short: { en: 'Fun', he: 'פנאי' },
+    subcategories: [
+      { value: 'gaming_console', en: 'Gaming Console', he: 'קונסולת משחקים', short: { en: 'Console', he: 'קונסולה' } },
+      { value: 'novels', en: 'Novels', he: 'ספרי קריאה', short: { en: 'Novels', he: 'ספרים' } },
+      { value: 'camping_gear', en: 'Camping Gear', he: 'ציוד קמפינג', short: { en: 'Camping', he: 'קמפינג' } },
     ],
   },
 ];
 
 // ---------------------- Helper Functions ----------------------
 
-const flattenTags = (data) =>
-  data.flatMap((cat) => cat.tags.map((tag) => ({ ...tag })));
+const flattenSubcategories = (data) =>
+  data.flatMap((cat) => cat.subcategories.map((sub) => ({ ...sub })));
 
-export const getServiceTagOptions = (lang = 'en') =>
-  serviceCategoryData.flatMap((cat) =>
-    cat.tags.map((tag) => ({ value: tag.en, label: tag[lang] }))
-  );
+export const getServiceCategoryOptions = (lang = 'en') =>
+  serviceCategoryData.map((cat) => ({ value: cat.value, label: cat[lang] }));
 
-export const getRentalTagOptions = (lang = 'en') =>
-  rentalCategoryData.flatMap((cat) =>
-    cat.tags.map((tag) => ({ value: tag.en, label: tag[lang] }))
-  );
+export const getRentalCategoryOptions = (lang = 'en') =>
+  rentalCategoryData.map((cat) => ({ value: cat.value, label: cat[lang] }));
 
-export const getServiceFilterTags = (lang = 'en') =>
-  serviceCategoryData.flatMap((cat) =>
-    cat.tags.map((tag) => ({ value: tag.en, label: tag.short[lang] }))
-  );
+export const getServiceSubcategoryOptions = (category, lang = 'en') => {
+  const cat = serviceCategoryData.find((c) => c.value === category);
+  return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub[lang] })) : [];
+};
 
-export const getRentalFilterTags = (lang = 'en') =>
-  rentalCategoryData.flatMap((cat) =>
-    cat.tags.map((tag) => ({ value: tag.en, label: tag.short[lang] }))
-  );
+export const getRentalSubcategoryOptions = (category, lang = 'en') => {
+  const cat = rentalCategoryData.find((c) => c.value === category);
+  return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub[lang] })) : [];
+};
 
-// Export flattened tag lists (English values) for backend use if needed
-export const serviceTags = flattenTags(serviceCategoryData);
-export const rentalTags = flattenTags(rentalCategoryData);
+export const getServiceCategoryFilterTags = (lang = 'en') =>
+  serviceCategoryData.map((cat) => ({ value: cat.value, label: cat.short[lang] }));
+
+export const getRentalCategoryFilterTags = (lang = 'en') =>
+  rentalCategoryData.map((cat) => ({ value: cat.value, label: cat.short[lang] }));
+
+export const getServiceSubcategoryFilterTags = (category, lang = 'en') => {
+  const cat = serviceCategoryData.find((c) => c.value === category);
+  return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub.short[lang] })) : [];
+};
+
+export const getRentalSubcategoryFilterTags = (category, lang = 'en') => {
+  const cat = rentalCategoryData.find((c) => c.value === category);
+  return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub.short[lang] })) : [];
+};
+
+// Export flattened subcategory lists for backend use if needed
+export const serviceSubcategories = flattenSubcategories(serviceCategoryData);
+export const rentalSubcategories = flattenSubcategories(rentalCategoryData);
 
