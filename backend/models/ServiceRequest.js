@@ -8,6 +8,7 @@ const serviceRequestSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     category: { type: String, required: true },
+    subcategory: { type: String, required: true },
     price: { type: Number, required: true },
     images: [{ type: String }], // URLs or paths
     phone: { type: String, required: true },

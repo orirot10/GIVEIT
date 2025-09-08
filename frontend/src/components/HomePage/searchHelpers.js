@@ -1,13 +1,15 @@
 import { geocodeAddress } from "./geocode";
 
-export const handleSearch = async ({ apiUrl, searchQuery, setAllItems, setLocations }) => {
+export const handleSearch = async ({ apiUrl, searchQuery, category, subcategory, setAllItems, setLocations }) => {
 try {
-    let fetchUrl = apiUrl;
-
+    let params = new URLSearchParams();
     if (searchQuery.trim()) {
-    // If search query is not empty, use the search endpoint
-    fetchUrl = `${apiUrl}/search?query=${encodeURIComponent(searchQuery)}`;
+        params.append('query', searchQuery);
     }
+    if (category) params.append('category', category);
+    if (subcategory) params.append('subcategory', subcategory);
+
+    const fetchUrl = params.toString() ? `${apiUrl}/search?${params.toString()}` : apiUrl;
 
     const res = await fetch(fetchUrl);
     const results = await res.json();

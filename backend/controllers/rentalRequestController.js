@@ -9,6 +9,7 @@ const uploadNewRentalRequest = async (req, res) => {
         title,
         description,
         category,
+        subcategory,
         price,
         pricePeriod,
         phone,
@@ -48,6 +49,7 @@ const uploadNewRentalRequest = async (req, res) => {
             title,
             description,
             category,
+            subcategory,
             price,
             pricePeriod,
             images: imagePaths,
@@ -74,7 +76,7 @@ const getRentalRequests = async (req, res) => {
         let query = {};
         let requests = [];
         // Only select fields needed for the map/popup
-        let selectFields = 'firstName lastName email title description category price pricePeriod images phone status city street ownerId lat lng';
+        let selectFields = 'firstName lastName email title description category subcategory price pricePeriod images phone status city street ownerId lat lng';
         // Bounding box filter (fast, uses index)
         if (
             minLat !== undefined && maxLat !== undefined &&
@@ -165,22 +167,27 @@ const getUserRentalRequests = async (req, res) => {
 // Search rental requests
 const searchRentalRequests = async (req, res) => {
     try {
-        const { query } = req.query;
+        const { query, category, subcategory } = req.query;
 
         if (!query || query.trim() === "") {
             return res.status(400).json({ message: "Query is required." });
         }
 
-        // Split words for ordered search
         const words = query.trim().split(/\s+/);
-
-        // Create a case-insensitive, ordered regex pattern
-        const regexPattern = words.join(".*"); // e.g. "bike red" => /bike.*red/
+        const regexPattern = words.join(".*");
         const regex = new RegExp(regexPattern, "i");
 
-        const results = await RentalRequest.find({
-            title: { $regex: regex },
-        });
+        const filter = { title: { $regex: regex } };
+        if (category) {
+            const categoriesArray = Array.isArray(category) ? category : category.split(',');
+            filter.category = { $in: categoriesArray };
+        }
+        if (subcategory) {
+            const subcategoriesArray = Array.isArray(subcategory) ? subcategory : subcategory.split(',');
+            filter.subcategory = { $in: subcategoriesArray };
+        }
+
+        const results = await RentalRequest.find(filter);
 
         res.status(200).json(results);
     } catch (err) {
@@ -192,7 +199,7 @@ const searchRentalRequests = async (req, res) => {
 // Filter rental requests
 const filterRentalRequests = async (req, res) => {
     try {
-        const { category, minPrice, maxPrice } = req.query;
+        const { category, subcategory, minPrice, maxPrice } = req.query;
 
         const query = {};
         
@@ -201,6 +208,12 @@ const filterRentalRequests = async (req, res) => {
                 ? category
                 : category.split(',');
             query.category = { $in: categoriesArray };
+        }
+        if (subcategory) {
+            const subcategoriesArray = Array.isArray(subcategory)
+                ? subcategory
+                : subcategory.split(',');
+            query.subcategory = { $in: subcategoriesArray };
         }
 
         // Handle price range
@@ -234,11 +247,11 @@ const deleteRentalRequest = async (req, res) => {
 // Edit a rental request
 const editRentalRequest = async (req, res) => {
     const { id } = req.params;
-    const { title, description, category, price, pricePeriod, images, phone, status, city, street, lat, lng } = req.body;
+    const { title, description, category, subcategory, price, pricePeriod, images, phone, status, city, street, lat, lng } = req.body;
     try {
         const updated = await RentalRequest.findByIdAndUpdate(
             id,
-            { title, description, category, price, pricePeriod, images, phone, status, city, street, lat, lng },
+            { title, description, category, subcategory, price, pricePeriod, images, phone, status, city, street, lat, lng },
             { new: true }
         );
         if (!updated) return res.status(404).json({ error: 'Rental request not found' });

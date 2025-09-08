@@ -1,7 +1,7 @@
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import ModalUploadForm from './ModalUploadForm';
-import { getRentalTagOptions } from '../../constants/categories';
+import { rentalCategoryData } from '../../constants/categories';
 
 const RentalForm = () => {
     const { user } = useAuthContext();
@@ -12,7 +12,7 @@ const RentalForm = () => {
         <ModalUploadForm
             user={user}
             titleText={t('forms.offer_rental_title')}
-            categories={getRentalTagOptions(i18n.language)}
+            categoryData={rentalCategoryData}
             submitUrl={`${baseUrl}/api/rentals`}
             successMessage={t('forms.offer_rental_success')}
             submitButtonText={t('forms.submit_offer')}
