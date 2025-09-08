@@ -49,6 +49,7 @@ const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
+const [imageUploadError, setImageUploadError] = useState(null);
 
 
 const handleChange = e => {
@@ -62,6 +63,7 @@ const handleCategoryChange = e => {
 
 const handleImageUpload = (urls) => {
     setImageUrls(urls.slice(0, 5)); // Limit to 5 images
+    setImageUploadError(null); // Clear any previous upload errors
 };
 
 const handleSubmit = async e => {
@@ -102,7 +104,7 @@ const handleSubmit = async e => {
             ...form,
             firstName: form.firstName || 'Anonymous',
             lastName: form.lastName || '',
-            images: imageUrls,
+            images: imageUrls || [], // Ensure images is always an array
             lat: coords ? coords.lat : undefined,
             lng: coords ? coords.lng : undefined
         };
@@ -196,7 +198,16 @@ return (
                         {imageUrls.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {imageUrls.map((url, index) => (
-                                    <img key={index} src={url} alt={`preview ${index}`} className="w-16 h-16 object-cover rounded" />
+                                    <div key={index} className="relative">
+                                        <img src={url} alt={`preview ${index}`} className="w-16 h-16 object-cover rounded" />
+                                        <button
+                                            type="button"
+                                            onClick={() => setImageUrls(prev => prev.filter((_, i) => i !== index))}
+                                            className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         )}
