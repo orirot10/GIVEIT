@@ -10,6 +10,7 @@ import SearchBar from "./SearchBar";
 import '../../styles/HomePage/GenericMapPage.css';
 import { handleSearch as searchItems } from "./searchHelpers";
 import { useTranslation } from 'react-i18next';
+import { getRentalFilterTags, getServiceFilterTags } from "../../constants/categories";
 import { useNavigate } from 'react-router-dom';
 import { useMapContext } from '../../context/MapContext';
 
@@ -969,37 +970,10 @@ const GenericMapPage = ({ apiUrl }) => {
 
     // Get available categories based on contentType
     const availableCategories = useMemo(() => {
-        return contentType.includes('rental') ?
-            [
-                'Tools',
-                'Electronics',
-                'Vehicles',
-                'Sports',
-                'Furniture',
-                'Clothes',
-                'Other',
-            ] : [
-                'Repair',
-                'Cleaning',
-                'Tutoring',
-                'Moving',
-                'Pet Care',
-                'Beauty',
-                'Other',
-            ];
-    }, [contentType]);
-
-    // Get translated label for each category
-    const getCategoryLabel = (cat) => {
-        if (i18n.language === 'he') {
-            if (contentType.includes('rental')) {
-                return t(`categories.rental.${cat}`);
-            } else {
-                return t(`categories.service.${cat}`);
-            }
-        }
-        return cat;
-    };
+        return contentType.includes('rental')
+            ? getRentalFilterTags(i18n.language)
+            : getServiceFilterTags(i18n.language);
+    }, [contentType, i18n.language]);
 
     // Category label click handler
     const handleCategoryLabelClick = (cat) => {
@@ -1359,11 +1333,11 @@ const GenericMapPage = ({ apiUrl }) => {
                                     <div className="floating-category-labels">
                                         {availableCategories.map((cat) => (
                                             <span
-                                                key={cat}
-                                                className={`category-label${selectedCategory === cat ? ' selected' : ''}`}
-                                                onClick={() => handleCategoryLabelClick(cat)}
+                                                key={cat.value}
+                                                className={`category-label${selectedCategory === cat.value ? ' selected' : ''}`}
+                                                onClick={() => handleCategoryLabelClick(cat.value)}
                                             >
-                                                {getCategoryLabel(cat)}
+                                                {cat.label}
                                             </span>
                                         ))}
                                     </div>

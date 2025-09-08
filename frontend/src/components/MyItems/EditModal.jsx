@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../../styles/components/Modal.css';
-import { rentalCategories, serviceCategories } from '../../constants/categories';
+import { getRentalTagOptions, getServiceTagOptions } from '../../constants/categories';
 import { geocodeAddress } from '../HomePage/geocode';
 
 const EditModal = ({ item, type, onSave, onCancel }) => {
@@ -39,7 +39,10 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
         onSave(updatedForm);
     };
 
-    const categoryOptions = type === 'rental' ? rentalCategories : serviceCategories;
+    const categoryOptions =
+        type === 'rental'
+            ? getRentalTagOptions(i18n.language)
+            : getServiceTagOptions(i18n.language);
 
     return (
         <div className="modal">
@@ -61,8 +64,8 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                 <select name="category" value={form.category} onChange={handleChange}>
                     <option value="">{t('common.select_category')}</option>
                     {categoryOptions.map((category) => (
-                        <option key={category} value={category}>
-                            {category}
+                        <option key={category.value} value={category.value}>
+                            {category.label}
                         </option>
                     ))}
                 </select>
