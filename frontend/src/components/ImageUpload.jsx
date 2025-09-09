@@ -62,13 +62,21 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
               const currentProgress = ((uploadedBytes + snapshot.bytesTransferred) / totalBytes) * 100;
               setProgress(Math.round(currentProgress));
             },
-            reject,
+            (error) => {
+              console.error('Upload task error:', error);
+              reject(error);
+            },
             async () => {
-              uploadedBytes += file.size;
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              urls.push(url);
-              setProgress(Math.round((uploadedBytes / totalBytes) * 100));
-              resolve();
+              try {
+                uploadedBytes += file.size;
+                const url = await getDownloadURL(uploadTask.snapshot.ref);
+                urls.push(url);
+                setProgress(Math.round((uploadedBytes / totalBytes) * 100));
+                resolve();
+              } catch (error) {
+                console.error('Error getting download URL:', error);
+                reject(error);
+              }
             }
           );
         });
