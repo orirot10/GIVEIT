@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase';
 import { getAuth } from 'firebase/auth';
 
 const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [progress, setProgress] = useState(0);
 
   const handleFileUpload = async (event) => {
     // Preserve a reference to the input in case React reuses the event object
@@ -37,20 +38,40 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
 
     setUploading(true);
     setError('');
+    setProgress(0);
 
     try {
       // Get fresh token
       await auth.currentUser.getIdToken(true);
       
       const urls = [];
+      const totalBytes = validFiles.reduce((sum, f) => sum + f.size, 0);
+      let uploadedBytes = 0;
+
       for (const file of validFiles) {
         const timestamp = Date.now() + Math.random();
         const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
         const storageRef = ref(storage, `images/${auth.currentUser.uid}/${fileName}`);
-        
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
-        urls.push(url);
+
+        await new Promise((resolve, reject) => {
+          const uploadTask = uploadBytesResumable(storageRef, file);
+
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const currentProgress = ((uploadedBytes + snapshot.bytesTransferred) / totalBytes) * 100;
+              setProgress(Math.round(currentProgress));
+            },
+            reject,
+            async () => {
+              uploadedBytes += file.size;
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+              urls.push(url);
+              setProgress(Math.round((uploadedBytes / totalBytes) * 100));
+              resolve();
+            }
+          );
+        });
       }
 
       onImageUpload(urls);
@@ -90,6 +111,14 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
         onChange={handleFileUpload}
         disabled={uploading}
       />
+      {uploading && (
+        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+          <div
+            className="bg-blue-600 h-2.5 rounded-full"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      )}
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       <p className="mt-1 text-xs text-gray-500">Max 5MB per image, up to 5 images</p>
     </div>
