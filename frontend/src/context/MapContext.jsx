@@ -7,9 +7,24 @@ export const MapProvider = ({ children }) => {
   const mapRef = useRef(null);
   const [locations, setLocations] = useState([]);
   const [contentType, setContentType] = useState('services');
+  const [mapBounds, setMapBounds] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
 
   return (
-    <MapContext.Provider value={{ mapRef, locations, setLocations, contentType, setContentType }}>
+    <MapContext.Provider value={{ 
+      mapRef, 
+      locations, 
+      setLocations, 
+      contentType, 
+      setContentType,
+      mapBounds,
+      setMapBounds,
+      userLocation,
+      setUserLocation,
+      isMapLoaded,
+      setIsMapLoaded
+    }}>
       {children}
     </MapContext.Provider>
   );

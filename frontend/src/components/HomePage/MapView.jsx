@@ -78,7 +78,7 @@ const defaultCenter = {
 
 
 
-const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType }) => {
+const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType, isPersistent = false }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapLoadError, setMapLoadError] = useState(false);
@@ -348,10 +348,11 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
         <div
             className="w-full relative"
             style={{
-                marginBottom: '40px',
-                paddingTop: '80px',
+                marginBottom: isPersistent ? '0' : '40px',
+                paddingTop: isPersistent ? '0' : '80px',
                 height: '100%',
-                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                pointerEvents: isPersistent ? 'auto' : 'auto'
             }}
         >
 
