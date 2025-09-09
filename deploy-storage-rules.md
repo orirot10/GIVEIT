@@ -21,8 +21,8 @@ To fix the image upload issue, you need to deploy the storage rules to Firebase:
 
 4. Deploy the storage rules:
    ```bash
-   firebase deploy --only storage
-   ```
+ firebase deploy --only storage
+  ```
 
 ## Alternative: Manual Setup
 
@@ -49,3 +49,13 @@ service firebase.storage {
   }
 }
 ```
+
+## Configure CORS
+
+To ensure images can be requested directly from the browser, configure Cross-Origin Resource Sharing (CORS) for your storage bucket. A sample configuration is provided in `storage.cors.json`:
+
+```
+gsutil cors set storage.cors.json gs://<your-bucket-name>
+```
+
+This allows anonymous `GET` requests from any origin for files under `images/**`.

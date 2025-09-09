@@ -20,6 +20,11 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
     const { user } = useAuthContext();
 
     const endpoint = type === 'rental' ? 'rentals' : 'services';
+    const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
+    const firstImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : null;
+    const imageUrl = firstImage
+        ? (firstImage.startsWith('http') ? firstImage : `${baseUrl}${firstImage}`)
+        : '';
 
     const handleToggleStatus = () => {
         setActive(!active);
@@ -75,11 +80,10 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                 onMouseOut={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(60,72,88,0.10)'; e.currentTarget.style.transform = 'none'; }}
             >
                 <div>
-                    {Array.isArray(item.images) && item.images.length > 0 && item.images[0] ? (
+                    {imageUrl ? (
                         <img
-                            src={`https://giveit-backend.onrender.com${item.images[0]}`}
+                            src={imageUrl}
                             alt={item.title}
-                           
                             onError={e => { e.target.onerror = null; e.target.src = ''; e.target.parentNode.innerHTML = placeholderSVG; }}
                         />
                     ) : (
@@ -129,11 +133,10 @@ const ModalCard = ({ item, onDeleteSuccess, onEditSuccess, type = 'rental' }) =>
                         <button onClick={() => setShowDetails(false)} aria-label="close">✖️</button>
                         <h2>{item.title}</h2>
                         <div>
-                            {Array.isArray(item.images) && item.images.length > 0 && item.images[0] ? (
+                            {imageUrl ? (
                                 <img
-                                    src={`https://giveit-backend.onrender.com${item.images[0]}`}
+                                    src={imageUrl}
                                     alt={item.title}
-                                   
                                     onError={e => { e.target.onerror = null; e.target.src = ''; e.target.parentNode.innerHTML = placeholderSVG; }}
                                 />
                             ) : (

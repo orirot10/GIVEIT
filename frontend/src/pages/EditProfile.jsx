@@ -112,9 +112,10 @@ function EditProfile() {
     };
 
     const handleImageUpload = (imageUrl) => {
+        const url = Array.isArray(imageUrl) ? imageUrl[0] : imageUrl;
         setFormData(prev => ({
             ...prev,
-            photoURL: imageUrl
+            photoURL: url
         }));
     };
 

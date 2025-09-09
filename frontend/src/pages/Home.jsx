@@ -222,15 +222,31 @@ const Home = () => {
                 onClick={() => setSelectedItem(item)}
                 className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="aspect-w-16 aspect-h-9">
-                  <img
-                    src={item.images?.[0] ? `${import.meta.env.VITE_API_URL}${item.images[0]}` : '/placeholder.jpg'}
-                    alt={item.title}
-                    className="w-full h-48 object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/placeholder.jpg';
-                    }}
-                  />
+                  {item.images?.[0] ? (
+                    (() => {
+                      const firstImage = item.images[0];
+                      const imageSrc = firstImage.startsWith('http')
+                        ? firstImage
+                        : `${import.meta.env.VITE_API_URL}${firstImage}`;
+                      return (
+                        <img
+                          src={imageSrc}
+                          alt={item.title}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '/placeholder.jpg';
+                          }}
+                        />
+                      );
+                    })()
+                  ) : (
+                    <img
+                      src="/placeholder.jpg"
+                      alt="placeholder"
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
                 </div>
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-2">

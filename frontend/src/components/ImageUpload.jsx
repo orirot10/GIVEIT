@@ -70,8 +70,11 @@ const ImageUpload = ({ onImageUpload, onUploadStart, onUploadError, multiple = f
             async () => {
               try {
                 uploadedBytes += file.size;
-                const url = await getDownloadURL(uploadTask.snapshot.ref);
-                urls.push(url);
+                // Retrieve a publicly accessible download URL that includes
+                // the `alt=media` and access `token` query parameters so the
+                // image can be rendered directly in an <img> tag.
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                urls.push(downloadURL);
                 setProgress(Math.round((uploadedBytes / totalBytes) * 100));
                 resolve();
               } catch (error) {
