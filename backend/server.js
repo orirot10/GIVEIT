@@ -63,10 +63,14 @@ app.get('/health', (req, res) => {
 
 // Middleware
 app.use(requestLogger);
-app.use(cors({
+const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
-}));
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
