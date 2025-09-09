@@ -78,7 +78,7 @@ const defaultCenter = {
 
 
 
-const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType, isPersistent = false }) => {
+const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapLoadError, setMapLoadError] = useState(false);
