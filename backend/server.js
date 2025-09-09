@@ -66,11 +66,16 @@ app.use(requestLogger);
 const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 // Handle preflight requests
-app.options('*', cors(corsOptions));
+
+app.options('*', cors(corsOptions), (req, res) => res.sendStatus(200));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
