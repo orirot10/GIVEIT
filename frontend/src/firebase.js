@@ -11,7 +11,11 @@ const firebaseConfig = {
   storageBucket: "givitori.appspot.com", // תקן כאן, זה לא "firebasestorage.app"
   messagingSenderId: "552189348251",
   appId: "1:552189348251:web:482bdf4500beebe934b93e",
-  measurementId: "G-BQYJMH3X"
+  // measurementId is optional: if provided via env it will be used, otherwise
+  // Firebase will fetch it automatically to avoid mismatches.
+  ...(import.meta.env.VITE_FIREBASE_MEASUREMENT_ID && {
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  }),
 };
 
 // ✅ Initialize Firebase only once
