@@ -191,6 +191,8 @@
     "city_placeholder": "City",
     "street_placeholder": "Street",
     "submitting": "Submitting...",
+    "uploading_images": "Uploading images...",
+    "upload_failed": "Upload failed",
     "close": "Close",
     "cancel": "Cancel"
   },

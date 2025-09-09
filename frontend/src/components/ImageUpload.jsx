@@ -3,7 +3,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase';
 import { getAuth } from 'firebase/auth';
 
-const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) => {
+const ImageUpload = ({ onImageUpload, onUploadStart, onUploadError, multiple = false, accept = 'image/*' }) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [progress, setProgress] = useState(0);
@@ -39,6 +39,7 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
     setUploading(true);
     setError('');
     setProgress(0);
+    onUploadStart?.();
 
     try {
       // Get fresh token
@@ -94,6 +95,7 @@ const ImageUpload = ({ onImageUpload, multiple = false, accept = 'image/*' }) =>
         errorMessage = 'Please log in again and try uploading.';
       }
       setError(errorMessage);
+      onUploadError?.(errorMessage);
     } finally {
       setUploading(false);
       // Reset the file input so the same file can be selected again

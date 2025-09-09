@@ -49,6 +49,7 @@ const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
 const [error, setError] = useState(null);
 const [isSubmitting, setIsSubmitting] = useState(false);
+const [uploadStatus, setUploadStatus] = useState({ isUploading: false, error: null });
 
 
 const handleChange = e => {
@@ -62,6 +63,15 @@ const handleCategoryChange = e => {
 
 const handleImageUpload = (urls) => {
     setImageUrls(urls.slice(0, 5)); // Limit to 5 images
+    setUploadStatus({ isUploading: false, error: null });
+};
+
+const handleUploadStart = () => {
+    setUploadStatus({ isUploading: true, error: null });
+};
+
+const handleUploadError = (error) => {
+    setUploadStatus({ isUploading: false, error });
 };
 
 const handleSubmit = async e => {
@@ -190,9 +200,21 @@ return (
                         <label className="block text-sm font-medium mb-2">{t('forms.images_label')}</label>
                         <ImageUpload 
                             onImageUpload={handleImageUpload}
+                            onUploadStart={handleUploadStart}
+                            onUploadError={handleUploadError}
                             multiple={true}
                             accept="image/*"
                         />
+                        {uploadStatus.isUploading && (
+                            <div className="mt-2 text-blue-600 text-sm">
+                                {t('forms.uploading_images')}
+                            </div>
+                        )}
+                        {uploadStatus.error && (
+                            <div className="mt-2 text-red-600 text-sm">
+                                {t('forms.upload_failed')}: {uploadStatus.error}
+                            </div>
+                        )}
                         {imageUrls.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-2">
                                 {imageUrls.map((url, index) => (
@@ -228,7 +250,7 @@ return (
                     </div>
 
                     <div className="button-group flex justify-center gap-4 mt-6">
-                        <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting}>
+                        <button type="submit" className="btn btn-primary px-6" disabled={isSubmitting || uploadStatus.isUploading}>
                             {isSubmitting ? t('forms.submitting') : submitButtonText}
                         </button>
                         <button type="button" className="btn btn-outline px-6" onClick={() => navigate('/')}>{t('forms.cancel')}</button>

@@ -205,6 +205,8 @@
         "city_placeholder": "עיר",
         "street_placeholder": "רחוב",
         "submitting": "שולח...",
+        "uploading_images": "מעלה תמונות...",
+        "upload_failed": "העלאה נכשלה",
         "close": "סגור",
         "cancel": "ביטול",
         "country_placeholder": "מדינה"
