@@ -24,16 +24,10 @@ const categoryOptions = categoryData.map((cat) => ({
     label: cat[i18n.language],
 }));
 
-const getSubcategoryOptions = (catValue) => {
-    const cat = categoryData.find((c) => c.value === catValue);
-    return cat ? cat.subcategories.map((sub) => ({ value: sub.value, label: sub[i18n.language] })) : [];
-};
-
 const [form, setForm] = useState({
     title: '',
     description: '',
     category: '',
-    subcategory: '',
     price: '',
     pricePeriod: 'use',
     firstName: user?.firstName || user?.displayName?.split(' ')[0] || '',
@@ -42,8 +36,6 @@ const [form, setForm] = useState({
     city: user?.city || '',
     street: user?.street || ''
 });
-
-const subcategoryOptions = getSubcategoryOptions(form.category);
 
 const [imageUrls, setImageUrls] = useState([]);
 const [success, setSuccess] = useState(false);
@@ -58,7 +50,7 @@ const handleChange = e => {
 
 const handleCategoryChange = e => {
     const value = e.target.value;
-    setForm(prev => ({ ...prev, category: value, subcategory: '' }));
+    setForm(prev => ({ ...prev, category: value }));
 };
 
 const handleImageUpload = (urls) => {
@@ -99,9 +91,9 @@ const handleSubmit = async e => {
 
         const token = await currentUser.getIdToken(true);
 
-        // Validate category/subcategory
+        // Validate category
         const cat = categoryData.find(c => c.value === form.category);
-        if (!cat || !cat.subcategories.some(s => s.value === form.subcategory)) {
+        if (!cat) {
             throw new Error('Invalid category selection');
         }
 
@@ -172,16 +164,6 @@ return (
                             ))}
                         </select>
                     </div>
-                    {form.category && (
-                        <div className="form-group">
-                            <select name="subcategory" value={form.subcategory} onChange={handleChange} className="select select-bordered w-full" required>
-                                <option value="">{t('forms.select_subcategory')}</option>
-                                {subcategoryOptions.map((sub) => (
-                                    <option key={sub.value} value={sub.value}>{sub.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
                     <div className="form-group">
                         <input name="price" type="number" placeholder={t('forms.price_placeholder')} value={form.price} onChange={handleChange} className="input input-bordered w-full" required />
                     </div>

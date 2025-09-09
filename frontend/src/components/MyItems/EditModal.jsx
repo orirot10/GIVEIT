@@ -7,9 +7,9 @@ import { geocodeAddress } from '../HomePage/geocode';
 const EditModal = ({ item, type, onSave, onCancel }) => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.language === 'he';
+    const { subcategory: _unused, ...rest } = item;
     const [form, setForm] = useState({
-        ...item,
-        subcategory: item.subcategory || '',
+        ...rest,
         city: item.city || '',
         street: item.street || '',
         location: item.location || '',
@@ -42,12 +42,9 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
 
     const categoryData = type === 'rental' ? rentalCategoryData : serviceCategoryData;
     const categoryOptions = categoryData.map(cat => ({ value: cat.value, label: cat[i18n.language] }));
-    const subcategoryOptions = form.category
-        ? (categoryData.find(c => c.value === form.category)?.subcategories || []).map(sub => ({ value: sub.value, label: sub[i18n.language] }))
-        : [];
 
     const handleCategoryChange = (e) => {
-        setForm(prev => ({ ...prev, category: e.target.value, subcategory: '' }));
+        setForm(prev => ({ ...prev, category: e.target.value }));
     };
 
     return (
@@ -75,19 +72,6 @@ const EditModal = ({ item, type, onSave, onCancel }) => {
                         </option>
                     ))}
                 </select>
-                {form.category && (
-                    <>
-                        <label htmlFor="subcategory">{t('forms.select_subcategory')}</label>
-                        <select name="subcategory" value={form.subcategory} onChange={handleChange}>
-                            <option value="">{t('forms.select_subcategory')}</option>
-                            {subcategoryOptions.map((sub) => (
-                                <option key={sub.value} value={sub.value}>
-                                    {sub.label}
-                                </option>
-                            ))}
-                        </select>
-                    </>
-                )}
 
                 <label htmlFor="phone">{t('common.phone')}</label>
                 <input name="phone" value={form.phone} onChange={handleChange} />
