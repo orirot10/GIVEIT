@@ -3,7 +3,6 @@ import Header from './Header'; // if you have a header component
 import { Outlet } from 'react-router-dom';
 import PageWrapper from './PageWrapper';
 import PersistentMap from './PersistentMap';
-import PageOverlay from './PageOverlay';
 
 const Layout = () => {
     return (
@@ -13,9 +12,7 @@ const Layout = () => {
                 <Navbar />
                 {/* <Header /> */}
                 <main className="flex-grow">
-                    <PageOverlay>
-                        <Outlet />
-                    </PageOverlay>
+                    <Outlet />
                 </main>
             </div>
         </PageWrapper>

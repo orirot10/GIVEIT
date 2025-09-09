@@ -348,11 +348,10 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType,
         <div
             className="w-full relative"
             style={{
-                marginBottom: isPersistent ? '0' : '40px',
-                paddingTop: isPersistent ? '0' : '80px',
+                marginBottom: '40px',
+                paddingTop: '80px',
                 height: '100%',
-                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
-                pointerEvents: isPersistent ? 'auto' : 'auto'
+                fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
             }}
         >
 

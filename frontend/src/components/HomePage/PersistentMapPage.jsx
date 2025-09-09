@@ -476,7 +476,7 @@ const PersistentMapPage = ({ apiUrl }) => {
             position: 'relative',
             marginTop: '0px',
             background: 'transparent',
-            pointerEvents: 'none'
+            pointerEvents: 'auto'
         }}>
             {/* CSS Animations */}
             <style>{`

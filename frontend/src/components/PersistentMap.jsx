@@ -30,7 +30,7 @@ const PersistentMap = () => {
         width: '100vw',
         height: '100vh',
         zIndex: 1,
-        pointerEvents: 'auto'
+        pointerEvents: 'none'
       }}
     >
       <Suspense fallback={null}>
