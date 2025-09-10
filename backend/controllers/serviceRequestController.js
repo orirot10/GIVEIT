@@ -47,7 +47,7 @@ const uploadNewServiceRequest = async (req, res) => {
             title,
             description,
             category,
-            subcategory,
+            subcategory: subcategory || undefined,
             price,
             images: imagePaths,
             phone,

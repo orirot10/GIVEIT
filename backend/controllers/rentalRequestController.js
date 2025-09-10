@@ -49,7 +49,7 @@ const uploadNewRentalRequest = async (req, res) => {
             title,
             description,
             category,
-            subcategory,
+            subcategory: subcategory || undefined,
             price,
             pricePeriod,
             images: imagePaths,

@@ -7,7 +7,7 @@ const rentalSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String },
     category: { type: String, required: true },
-    subcategory: { type: String, required: true },
+    subcategory: { type: String },
     price: { type: Number, required: true },
     pricePeriod: { type: String, default: 'use' },
     images: [{ type: String }], // Firebase Storage URLs or local paths

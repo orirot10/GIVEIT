@@ -32,7 +32,7 @@ const uploadNewService = async (req, res) => {
             title,
             description,
             category,
-            subcategory,
+            subcategory: subcategory || undefined,
             price: parseFloat(price),
             pricePeriod,
             phone,
