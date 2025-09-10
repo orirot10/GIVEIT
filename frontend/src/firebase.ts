@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
@@ -25,6 +25,44 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
+
+/**
+ * Upload an image file to Firebase Storage and return its download URL.
+ *
+ * @param file - The image file to upload
+ * @param userId - UID of the current user
+ * @param onProgress - Optional callback for upload progress (bytesTransferred, totalBytes)
+ */
+export async function uploadImage(
+  file: File,
+  userId: string,
+  onProgress?: (bytesTransferred: number, totalBytes: number) => void
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const filePath = `images/${userId}/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, filePath);
+
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      snapshot => {
+        onProgress?.(snapshot.bytesTransferred, snapshot.totalBytes);
+      },
+      error => {
+        reject(error);
+      },
+      async () => {
+        try {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(url);
+        } catch (err) {
+          reject(err);
+        }
+      }
+    );
+  });
+}
 
 // ✅ Initialize analytics if supported
 let analytics = null;

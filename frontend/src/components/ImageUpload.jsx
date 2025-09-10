@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
 import { getAuth } from 'firebase/auth';
+import { uploadImage } from '../firebase';
 
 const ImageUpload = ({ onImageUpload, onUploadStart, onUploadError, multiple = false, accept = 'image/*' }) => {
   const [uploading, setUploading] = useState(false);
@@ -50,40 +49,13 @@ const ImageUpload = ({ onImageUpload, onUploadStart, onUploadError, multiple = f
       let uploadedBytes = 0;
 
       for (const file of validFiles) {
-        const timestamp = Date.now() + Math.random();
-        const fileName = `${timestamp}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-        const storageRef = ref(storage, `images/${auth.currentUser.uid}/${fileName}`);
-
-        await new Promise((resolve, reject) => {
-          const uploadTask = uploadBytesResumable(storageRef, file);
-
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              const currentProgress = ((uploadedBytes + snapshot.bytesTransferred) / totalBytes) * 100;
-              setProgress(Math.round(currentProgress));
-            },
-            (error) => {
-              console.error('Upload task error:', error);
-              reject(error);
-            },
-            async () => {
-              try {
-                uploadedBytes += file.size;
-                // Retrieve a publicly accessible download URL that includes
-                // the `alt=media` and access `token` query parameters so the
-                // image can be rendered directly in an <img> tag.
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                urls.push(downloadURL);
-                setProgress(Math.round((uploadedBytes / totalBytes) * 100));
-                resolve();
-              } catch (error) {
-                console.error('Error getting download URL:', error);
-                reject(error);
-              }
-            }
-          );
+        const url = await uploadImage(file, auth.currentUser.uid, (bytesTransferred) => {
+          const currentProgress = ((uploadedBytes + bytesTransferred) / totalBytes) * 100;
+          setProgress(Math.round(currentProgress));
         });
+        uploadedBytes += file.size;
+        setProgress(Math.round((uploadedBytes / totalBytes) * 100));
+        urls.push(url);
       }
 
       onImageUpload(urls);
