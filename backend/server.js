@@ -66,9 +66,19 @@ app.use(requestLogger);
 const corsOptions = {
   origin: allowedOrigins,
   credentials: true,
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'x-goog-resumable',
+    'x-goog-content-length-range',
+    'x-goog-meta-*',
+    'content-range'
+  ],
+  exposedHeaders: [
+    'x-goog-resumable',
+    'x-goog-content-length-range'
+  ],
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
