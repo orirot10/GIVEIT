@@ -5,7 +5,7 @@ const serviceAccount = require('./backend/config/serviceAccountKey.json');
 // Initialize Firebase Admin
 initializeApp({
   credential: cert(serviceAccount),
-  storageBucket: 'giveit-3003.appspot.com'
+  storageBucket: 'givitori.firebasestorage.app'
 });
 
 async function setCorsConfiguration() {

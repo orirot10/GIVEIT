@@ -6,9 +6,9 @@ import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCZpXDxunDa9dHHO6bz2v4ncKTOmEpUwWM",
-  authDomain: "giveit-3003.firebaseapp.com",
-  projectId: "giveit-3003",
-  storageBucket: "giveit-3003.appspot.com",
+  authDomain: "givitori.firebaseapp.com",
+  projectId: "givitori",
+  storageBucket: "givitori.firebasestorage.app",
   messagingSenderId: "552189348251",
   appId: "1:552189348251:web:482bdf4500beebe934b93e",
   // measurementId is optional: if provided via env it will be used, otherwise
