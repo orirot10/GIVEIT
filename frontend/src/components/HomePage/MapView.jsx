@@ -82,9 +82,8 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
     const [selectedItem, setSelectedItem] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [mapLoadError, setMapLoadError] = useState(false);
-    const [isMapLoaded, setIsMapLoaded] = useState(false);
     const [isAndroid, setIsAndroid] = useState(false);
-    const { mapRef } = useMapContext();
+    const { mapRef, isMapLoaded, setIsMapLoaded } = useMapContext();
     const hasSetInitialLocation = useRef(false);
     const memoizedLocations = useMemo(() => locations, [locations]);
 
