@@ -730,7 +730,7 @@ const Popup = ({ item, onClose, contentType }) => {
           )}
           {sanitizedPhone && (
             <a
-              href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
+              href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`היי, פונה אליך בעקבות המודעה באפליקציית GIVIT לגבי  ${title}`)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center rounded-full text-white"

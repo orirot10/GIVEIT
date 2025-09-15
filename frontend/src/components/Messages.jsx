@@ -43,7 +43,7 @@ const Messages = ({ userId }) => {
   const sendInitialSystemMessage = useCallback(
     async (receiverId, itemTitle) => {
       if (!userId || !receiverId || !itemTitle) return;
-      const content = `Hi! I'm interested in your item: "${itemTitle}"`;
+      const content = `היי, פונה אליך בעקות המודעה באפלייקצית GIVIT לגבי  "${itemTitle}"`;
       console.log(`Sending initial message to ${receiverId}: ${content}`);
       const messageData = {
         senderId: userId,
