@@ -36,6 +36,7 @@ export default function App() {
           />
           <Stack.Screen name="Messages" component={Messages} />
           <Stack.Screen name="Main2" component={Main2} options={{ title: 'Explore' }} />
+
           <Stack.Screen name="Rentals" component={RentalsMapPage} />
           <Stack.Screen name="Services" component={ServicesMapPage} />
           <Stack.Screen name="Account" component={Account} />
