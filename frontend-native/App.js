@@ -8,6 +8,7 @@ import Account from './src/screens/Account';
 import Dashboard from './src/screens/Dashboard';
 import EditProfile from './src/screens/EditProfile';
 import Home from './src/screens/Home';
+import Main2 from './src/screens/Main2';
 import Messages from './src/screens/Messages';
 import Login from './src/screens/Login';
 
@@ -20,6 +21,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Messages" component={Messages} />
+          <Stack.Screen name="Main2" component={Main2} />
           <Stack.Screen name="Rentals" component={RentalsMapPage} />
           <Stack.Screen name="Services" component={ServicesMapPage} />
           <Stack.Screen name="Account" component={Account} />
