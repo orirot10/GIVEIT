@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BsViewList } from "react-icons/bs";
 import { VscAccount } from "react-icons/vsc";
 import { AiOutlineMessage } from "react-icons/ai";
+import { HiOutlineMap } from 'react-icons/hi';
 import '../styles/components/Navbar.css';
 import { useAuthContext } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -51,6 +52,7 @@ function Navbar() {
 
   const tabs = [
     { icon: <RiUserSettingsLine />, path: '/', label: t('navigation.services') },
+    { icon: <HiOutlineMap />, path: '/map', label: t('navigation.map') },
     { icon: <FiPackage />, path: '/rentals', label: t('navigation.rentals') },
     { icon: <AiOutlineMessage />, path: '/messages', label: t('navigation.messages') },
     { icon: <BsViewList />, path: '/my-items', label: t('navigation.my_items') },

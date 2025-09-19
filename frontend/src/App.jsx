@@ -9,6 +9,7 @@ import ErrorBoundary from './ErrorBoundary';
 import Layout from './components/Layout';
 import RentalsMapPage from './components/HomePage/RentalsMapPage';
 import ServicesMapPage from './components/HomePage/ServicesMapPage';
+import PersistentMapPage from './components/HomePage/PersistentMapPage';
 import { MapProvider } from './context/MapContext';
 import Account from './pages/account';
 import Dashboard from './pages/Dashboard';
@@ -29,6 +30,7 @@ import notificationService from './services/notificationService';
 
 function App() {
   const { user } = useAuthContext();
+  const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
 
   useEffect(() => {
     const initializeNotifications = async () => {
@@ -66,6 +68,10 @@ function App() {
                   <Route path="/" element={<ServicesMapPage />} />
                   <Route path="/services" element={<ServicesMapPage />} />
                   <Route path="/rentals" element={<RentalsMapPage />} />
+                  <Route
+                    path="/map"
+                    element={<PersistentMapPage apiUrl={`${apiBaseUrl}/api/rentals`} />}
+                  />
                   <Route path="/account" element={user ? <Navigate to="/dashboard" /> : <Account />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/edit-profile" element={<EditProfile />} />
