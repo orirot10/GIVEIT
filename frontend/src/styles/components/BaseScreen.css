@@ -1,0 +1,37 @@
+.base-screen {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.base-screen header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Ensure smooth transitions */
+.base-screen .transition-all {
+  transition: all 0.2s ease;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .base-screen header .flex-1 {
+    max-width: 200px;
+  }
+  
+  .base-screen header .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .base-screen header .flex-1 {
+    max-width: 150px;
+  }
+  
+  .base-screen header img {
+    height: 2rem;
+  }
+}

@@ -1,0 +1,138 @@
+/* Active Filters Container */
+.active-filters {
+  padding: 8px 16px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
+.active-filters-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+/* Filter Tags Container */
+.filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Individual Filter Tag */
+.filter-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 20px;
+  font-size: var(--font-body-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-subtle);
+  animation: slideIn 0.2s ease-out;
+}
+
+.filter-tag-label {
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filter-tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.filter-tag-remove:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Clear All Button */
+.clear-all-btn {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--text-secondary);
+  border-radius: 16px;
+  color: var(--text-secondary);
+  font-size: var(--font-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.clear-all-btn:hover {
+  background: var(--text-secondary);
+  color: white;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* RTL Support */
+.active-filters.rtl {
+  direction: rtl;
+}
+
+.active-filters.rtl .filter-tags {
+  flex-direction: row-reverse;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .active-filters {
+    padding: 6px 12px;
+  }
+  
+  .active-filters-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .filter-tags {
+    justify-content: flex-start;
+  }
+  
+  .filter-tag-label {
+    max-width: 100px;
+  }
+  
+  .clear-all-btn {
+    align-self: flex-end;
+  }
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 768px) {
+  .filter-tag-label {
+    max-width: 100px;
+  }
+}
