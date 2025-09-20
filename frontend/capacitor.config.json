@@ -24,10 +24,17 @@
       "apiKey": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
     },
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     },
     "GoogleAuth": {
-      "scopes": ["profile", "email"],
+      "scopes": [
+        "profile",
+        "email"
+      ],
       "serverClientId": "552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com",
       "forceCodeForRefreshToken": true
     }

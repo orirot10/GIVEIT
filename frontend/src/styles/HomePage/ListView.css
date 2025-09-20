@@ -1,167 +1,271 @@
-/* Parent container of list */
+/* Design System Variables */
+:root {
+  --primary-50: #f0fdfa;
+  --primary-100: #ccfbf1;
+  --primary-500: #14b8a6;
+  --primary-600: #0d9488;
+  --primary-700: #0f766e;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+}
+
+/* Parent container */
 .list-container-wrapper {
-    width: 100%;
-    max-width: 1400px; /* Increased max-width */
-    margin: 0 auto; /* Center the container */
-    max-height: 70vh; /* Limit height for better scrolling */
-
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  max-height: 70vh;
+  font-family: 'Assistant', 'David Libre', Arial, sans-serif;
 }
 
-/* List container styles */
+/* List container */
 .list-container {
-    display: grid; /* Use grid for better layout control */
-    grid-template-columns: 1fr; /* Single column for table-like rows */
-    /*gap: 0.5rem;  Tighter gap */
-    padding: 0;
-    flex-grow: 1;
-    contain: layout style paint;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0;
 }
 
-/* Styling for rental card (list items) - Table-like row */
+/* Card (HORIZONTAL by default) */
 .rental-card {
-    background-color: #fff;
-    border-radius: 12px; /* Match chat-item */
-    padding: 1.5rem;
-    margin: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Match chat-item shadow-subtle */
-    border: 1px solid #607D8B; /* Use neutral accent */
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    min-height: auto;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-}
-
-/* Accent Border System for variety */
-.rental-card:nth-child(4n+1)::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, #FFCA28, #ff8e8e);
-}
-.rental-card:nth-child(4n+2)::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, #2E4057, #7ed3d1);
-}
-.rental-card:nth-child(4n+3)::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, #607D8B, #70c5e6);
-}
-.rental-card:nth-child(4n)::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(135deg, #E57373, #b5d8c7);
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--neutral-200);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;                /* horizontal layout */
+  flex-direction: row;          /* image left, content right */
+  align-items: center;          /* vertical alignment */
+  gap: 20px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .rental-card:hover {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); /* Match chat-item shadow-hover */
-    transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px);
+  border-color: var(--primary-200);
 }
 
-/* Image container with fixed aspect ratio */
-.rental-image-container {
-    position: relative;
-    width: 80px;  /* Fixed width */
-    height: 80px; /* Fixed height */
-    flex-shrink: 0; /* Prevent image from shrinking */
-    background-color: #f3f4f6; /* Placeholder color */
-    border-radius: 0.5rem;
-    overflow: hidden;
+/* Image LEFT */
+.rental-thumbnail {
+  flex: 0 0 140px;              /* fixed width */
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--neutral-100);
+  position: relative;
 }
 
-.rental-card-content {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 0; /* Allow content to shrink and wrap */
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
 }
 
-.rental-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    transition: opacity 0.3s ease;
+.thumbnail-image.loading { opacity: 0; }
+.thumbnail-image.loaded  { opacity: 1; }
+
+.thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-100);
 }
 
-/* Loading state for images */
-.rental-image.loading {
-    opacity: 0;
+.placeholder-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--neutral-400);
 }
 
-.rental-image.loaded {
-    opacity: 1;
+/* Content RIGHT (stacked nicely) */
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
-.rental-title {
-    font-size: 1rem; /* Smaller font */
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.25rem;
-    line-height: 1.2;
-    white-space: nowrap; /* Prevent wrapping */
-    overflow: hidden;
-    text-overflow: ellipsis; /* Add ellipsis for long titles */
+/* Header Row */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.rental-description {
-    font-size: 0.8rem; /* Smaller font */
-    color: #4b5563;
-    margin-bottom: 0.25rem;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0;
+  line-height: 1.3;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.rental-info {
-    font-size: 0.8rem; /* Smaller font */
-    color: #374151;
-    margin-bottom: 0;
-    line-height: 1.2;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* Category Tag */
+.category-tag {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.category-tag.offer   { background: var(--success); color: #fff; }
+.category-tag.request { background: var(--primary-700); color: #fff; }
+
+/* Price */
+.card-price {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--success);
+  margin: 0;
+}
+.price-period {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--neutral-600);
+  margin-left: 4px;
 }
 
-/* Add loading skeleton animation */
+/* Rating */
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rating-stars { display: flex; gap: 2px; }
+.star { width: 14px; height: 14px; }
+.star.filled { color: #fbbf24; }
+.star.empty  { color: var(--neutral-300); }
+.rating-text {
+  font-size: 14px;
+  color: var(--neutral-600);
+  font-weight: 500;
+}
+
+/* Meta */
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.owner-info,
+.location-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.meta-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--primary-500);
+  flex-shrink: 0;
+}
+.owner-name,
+.location-text {
+  font-size: 14px;
+  color: var(--neutral-700);
+  font-weight: 500;
+}
+
+/* Description */
+.card-description {
+  background: var(--neutral-50);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  border: 1px solid var(--neutral-200);
+}
+.description-text {
+  font-size: 14px;
+  color: var(--neutral-600);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Loading shimmer (optional) */
 @keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
 }
 
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 0.25rem;
+/* Responsive */
+@media (max-width: 768px) {
+  .rental-card {
+    align-items: flex-start;       /* keep side-by-side but top aligned */
+    gap: 16px;
+    padding: 16px;
+  }
+  .rental-thumbnail {
+    flex-basis: 120px;
+    width: 120px;
+    height: 120px;
+  }
+  .card-title { font-size: 16px; }
+  .card-price { font-size: 20px; }
+  .card-meta  { gap: 12px; }
+}
+
+@media (max-width: 480px) {
+  .rental-card {
+    flex-direction: column;        /* stack on narrow screens */
+    align-items: center;
+    text-align: center;
+  }
+  .rental-thumbnail {
+    width: 100%;
+    height: 200px;
+    flex-basis: auto;
+  }
+  .card-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-meta { justify-content: center; }
 }
