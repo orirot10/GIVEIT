@@ -151,6 +151,32 @@
   color: #357ae8;
 }
 
+.login-form__links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.login-form__link {
+  color: #4285F4;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login-form__link:hover,
+.login-form__link:focus {
+  color: #357ae8;
+  text-decoration: underline;
+}
+
+.login-form__links-separator {
+  color: #999;
+}
+
 /* Responsive adjustments for login form */
 @media (max-width: 768px) {
   .login-form {
