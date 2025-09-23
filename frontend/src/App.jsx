@@ -23,6 +23,7 @@ import ServiceForm from './components/UploadForm/ServiceForm';
 import RequestServiceForm from './components/RequestService/RequestServiceForm';
 import MobileAuthHandler from './components/Auth/MobileAuthHandler';
 import Terms from "./pages/Terms";
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import NotificationHandler from './components/NotificationHandler';
 import PermissionRequest from './components/PermissionRequest';
 import notificationService from './services/notificationService';
@@ -78,6 +79,7 @@ function App() {
                   <Route path="/offer-service" element={<ServiceForm />} />
                   <Route path="/request-service" element={<RequestServiceForm />} />
                   <Route path="/terms" element={<Terms />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
                   <Route path="/auth-handler" element={<MobileAuthHandler />} />
                </Route>
