@@ -219,5 +219,9 @@
   "terms": {
     "title": "Terms of Service & Privacy Policy",
     "content": "Add your terms of service and privacy policy content here."
+  },
+  "privacyPolicy": {
+    "title": "Privacy Policy",
+    "link": "Privacy Policy"
   }
 }
