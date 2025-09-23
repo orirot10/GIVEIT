@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import '../../styles/components/GoogleAuth.css';
@@ -165,8 +165,18 @@ const LoginForm = () => {
                     {t('navigation.sign_up')}
                 </button>
             </p>
+
+            <div className="login-form__links">
+                <Link to="/terms" className="login-form__link">
+                    {t('terms.title')}
+                </Link>
+                <span className="login-form__links-separator" aria-hidden="true">•</span>
+                <Link to="/privacy-policy" className="login-form__link">
+                    {t('privacyPolicy.link', { defaultValue: 'Privacy Policy' })}
+                </Link>
+            </div>
         </form>
-    );  
+    );
 };
 
 export default LoginForm;

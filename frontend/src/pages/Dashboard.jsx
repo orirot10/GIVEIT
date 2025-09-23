@@ -43,7 +43,23 @@ function Dashboard() {
     };
 
     if (!user) {
-        return <div dir={isRTL ? 'rtl' : 'ltr'}>{t('auth.login_required')}</div>;
+        return (
+            <div className="dashboard-container custom-dashboard-bg" dir={isRTL ? 'rtl' : 'ltr'}>
+                <div className="dashboard-guest-message">
+                    <p className="dashboard-guest-text">
+                        {t('auth.login_required', { defaultValue: 'Please log in to access your dashboard.' })}
+                    </p>
+                    <div className="dashboard-footer">
+                        <Link to="/terms" className="dashboard-link">
+                            {t('terms.title')}
+                        </Link>
+                        <Link to="/privacy-policy" className="dashboard-link">
+                            {t('privacyPolicy.link', { defaultValue: 'Privacy Policy' })}
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -99,7 +115,10 @@ function Dashboard() {
                 </div>
             </div>
             <div className="dashboard-footer">
-                <Link to="/terms" className="dashboard-terms-link">{t('terms.title')}</Link>
+                <Link to="/terms" className="dashboard-link">{t('terms.title')}</Link>
+                <Link to="/privacy-policy" className="dashboard-link">
+                    {t('privacyPolicy.link', { defaultValue: 'Privacy Policy' })}
+                </Link>
             </div>
             
             {/* Notification Test - Remove in production */}
