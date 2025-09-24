@@ -318,7 +318,7 @@ const Popup = ({ item, onClose, contentType }) => {
     >
       <div
         ref={popupRef}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-xs max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         style={{
           borderRadius: DESIGN_TOKENS.borderRadius.lg,
           boxShadow: DESIGN_TOKENS.shadows.xl,
@@ -695,13 +695,13 @@ const Popup = ({ item, onClose, contentType }) => {
         </div>
 
         {/* Call-to-Action Button */}
-        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-2 border-t">
+        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-1 border-t">
           <button
-            className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-full shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
+            className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
             style={{
               background: DESIGN_TOKENS.colors.primary[500],
               height: '44px',
-              borderRadius: DESIGN_TOKENS.borderRadius.full,
+              borderRadius: DESIGN_TOKENS.borderRadius.md,
               fontSize: DESIGN_TOKENS.typography.fontSize.sm,
               fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
               color: 'white',
@@ -717,12 +717,14 @@ const Popup = ({ item, onClose, contentType }) => {
           {sanitizedPhone && (
             <a
               href={`tel:${sanitizedPhone}`}
-              className="w-full text-center border border-current text-primary-500 rounded-full block"
+              className="w-full text-center border border-current text-white rounded-lg block"
               style={{
                 height: '44px',
                 lineHeight: '44px',
                 fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                borderColor: DESIGN_TOKENS.colors.primary[500]
+                borderColor: '#ef4444',
+                backgroundColor: '#ef4444',
+                borderRadius: DESIGN_TOKENS.borderRadius.md
               }}
             >
               התקשר
@@ -733,11 +735,11 @@ const Popup = ({ item, onClose, contentType }) => {
               href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center rounded-full text-white"
+              className="w-full flex items-center justify-center rounded-lg text-white"
               style={{
                 height: '44px',
                 fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                borderRadius: DESIGN_TOKENS.borderRadius.full,
+                borderRadius: DESIGN_TOKENS.borderRadius.md,
                 background: '#25D366'
               }}
             >
