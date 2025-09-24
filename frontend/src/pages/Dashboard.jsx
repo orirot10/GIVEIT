@@ -50,9 +50,7 @@ function Dashboard() {
                         {t('auth.login_required', { defaultValue: 'Please log in to access your dashboard.' })}
                     </p>
                     <div className="dashboard-footer">
-                        <Link to="/terms" className="dashboard-link">
-                            {t('terms.title')}
-                        </Link>
+  
                         <Link to="/privacy-policy" className="dashboard-link">
                             {t('privacyPolicy.link', { defaultValue: 'Privacy Policy' })}
                         </Link>
@@ -115,7 +113,6 @@ function Dashboard() {
                 </div>
             </div>
             <div className="dashboard-footer">
-                <Link to="/terms" className="dashboard-link">{t('terms.title')}</Link>
                 <Link to="/privacy-policy" className="dashboard-link">
                     {t('privacyPolicy.link', { defaultValue: 'Privacy Policy' })}
                 </Link>
