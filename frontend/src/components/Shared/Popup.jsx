@@ -328,19 +328,19 @@ const Popup = ({ item, onClose, contentType }) => {
       >
         {/* Header Bar */}
         <div 
-          className="relative flex items-center justify-between px-3"
+          className="relative flex items-center justify-center px-3"
           style={{
             background: (contentType?.includes('request') || item.type?.includes('request')) ? '#0f766e' : '#10b981',
-            height: '40px',
+            height: '50px',
             borderTopLeftRadius: DESIGN_TOKENS.borderRadius.lg,
             borderTopRightRadius: DESIGN_TOKENS.borderRadius.lg
           }}
         >
           <h1
-            className="header-title text-sm font-semibold text-white break-words flex-1 pr-4"
+            className="header-title text-lg font-bold text-white break-words text-center"
             style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+              fontSize: DESIGN_TOKENS.typography.fontSize.lg,
+              fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
               color: 'white',
               lineHeight: '1.1',
               display: '-webkit-box',
@@ -355,19 +355,18 @@ const Popup = ({ item, onClose, contentType }) => {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="close-button flex-shrink-0 w-8 h-8 flex items-center justify-center text-white hover:text-gray-200 transition-all duration-200 rounded-full hover:bg-white/20 active:scale-95"
+            className="close-button absolute left-0.5 flex items-center justify-center text-white hover:text-gray-200 transition-all duration-200 rounded-full hover:bg-white/20 active:scale-95"
             style={{
-              width: '24px',
-              height: '24px',
-              minWidth: '24px'
+              width: '40px',
+              height: '40px'
             }}
             aria-label="Close popup"
           >
-            <XMarkIcon className="h-3 w-3" />
+            <XMarkIcon className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-hidden">
         {/* Hero Image Section */}
         {resolvedImageUrls.length > 0 && (
           <div className="relative shadow-sm" style={{ aspectRatio: '3/2', boxShadow: DESIGN_TOKENS.shadows.md }}>
@@ -438,264 +437,228 @@ const Popup = ({ item, onClose, contentType }) => {
           </div>
         )}
 
+        {/* Separator Line */}
+        {resolvedImageUrls.length > 0 && (
+          <div 
+            style={{
+              height: '0.5px',
+              backgroundColor: DESIGN_TOKENS.colors.neutral[200],
+              margin: '0 24px'
+            }}
+          />
+        )}
+
         {/* Description */}
         {description && (
-          <div className="p-2 pb-1">
-            <p
-              className="description-text text-gray-700 break-words whitespace-pre-line"
+          <>
+            <div 
               style={{
-                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                color: DESIGN_TOKENS.colors.neutral[700],
-                lineHeight: 1.25,
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
+                height: '0.5px',
+                backgroundColor: DESIGN_TOKENS.colors.neutral[200],
+                margin: '8px 24px'
               }}
-            >
-              {description}
-            </p>
-          </div>
+            />
+            <div className="p-2 pb-1">
+              <p
+                className="description-text text-gray-700 break-words whitespace-pre-line"
+                style={{
+                  fontSize: DESIGN_TOKENS.typography.fontSize.base,
+                  color: DESIGN_TOKENS.colors.neutral[700],
+                  lineHeight: 1.25,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}
+              >
+                {description}
+              </p>
+            </div>
+          </>
         )}
 
                 {/* Info Rows */}
         <div className="px-3 space-y-0" dir="rtl">
-            {isRateable && (
-              <div className="info-section">
-                <div
-                  className="info-row flex items-center py-1.5"
-                  style={{ paddingTop: DESIGN_TOKENS.spacing.xs, paddingBottom: DESIGN_TOKENS.spacing.xs }}
-                >
-                  <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
-                    <FaStar className="h-3 w-3" style={{ color: DESIGN_TOKENS.colors.primary[500] }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p 
-                      className="text-xs text-gray-500 font-medium mb-0"
-                      style={{
-                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                        color: DESIGN_TOKENS.colors.neutral[500],
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                        lineHeight: 1.2
-                      }}
-                    >
-                      דירוג
-                    </p>
-                    <div className="flex items-center">
-                      <span style={{ fontSize: DESIGN_TOKENS.typography.fontSize.sm, fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, color: DESIGN_TOKENS.colors.neutral[800] }}>
-                        {currentRating.toFixed(1)} ({ratingCount})
-                      </span>
-                      <div className="flex-1 flex items-center justify-center">
-                        {[1,2,3,4,5].map(star => (
-                          <FaStar
-                            key={star}
-                            className={`h-1.5 w-1.5 ${hasRated ? '' : 'cursor-pointer'}`}
-                            style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 2 }}
-                            onClick={() => { if (!hasRated) setSelectedRating(star); }}
-                          />
-                        ))}
-                        {!hasRated && (
-                          <button
-                            onClick={handleRate}
-                            disabled={selectedRating === 0}
-                            className="ml-2 text-s font-bold text-blue-600 disabled:text-gray-400 disabled:font-normal"
-                          >
-                               &nbsp; דרג   
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           {/* Price Section */}
           {price !== null && (
             <div className="info-section">
               <div 
-                className="info-row flex items-center py-1.5"
-                style={{ 
-                  paddingTop: DESIGN_TOKENS.spacing.xs, 
-                  paddingBottom: DESIGN_TOKENS.spacing.xs,
-                  borderTop: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`
+                style={{
+                  height: '0.5px',
+                  backgroundColor: DESIGN_TOKENS.colors.neutral[200],
+                  margin: '8px 24px'
                 }}
-              >
-                <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
-                  <CurrencyDollarIcon 
-                    className="h-3 w-3" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p 
-                    className="text-xs text-gray-500 font-medium mb-0"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      color: DESIGN_TOKENS.colors.neutral[500],
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                      lineHeight: 1.2
-                    }}
-                  >
-                    מחיר
-                  </p>
-                  <p
-                    className="text-sm font-bold text-gray-800 break-words"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                      color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: 1.2
-                    }}
-                  >
-                    ₪{price} <span className="font-semibold text-gray-600">{translatePricePeriod(pricePeriod)}</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Owner Section */}
-          {ownerName && ownerName !== 'N/A' && (
-            <div className="info-section">
+              />
               <div 
-                className="info-row flex items-center py-1.5"
+                className="info-row flex justify-center py-1.5"
                 style={{ 
                   paddingTop: DESIGN_TOKENS.spacing.xs, 
-                  paddingBottom: DESIGN_TOKENS.spacing.xs,
-                  borderTop: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`
+                  paddingBottom: DESIGN_TOKENS.spacing.xs
                 }}
               >
-                <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
-                  <UserIcon 
-                    className="h-3 w-3" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p 
-                    className="text-xs text-gray-500 font-medium mb-0"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      color: DESIGN_TOKENS.colors.neutral[500],
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                      lineHeight: 1.2
-                    }}
-                  >
-                    בעלים
-                  </p>
-                  <p
-                    className="text-sm font-semibold text-gray-800 break-words"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                      color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: 1.2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
-                  >
-                    {ownerName}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Location Section */}
-          {address && (
-            <div className="info-section">
-              <div 
-                className="info-row flex items-center py-1.5"
-                style={{ 
-                  paddingTop: DESIGN_TOKENS.spacing.xs, 
-                  paddingBottom: DESIGN_TOKENS.spacing.xs,
-                  borderTop: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`
-                }}
-              >
-                <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
-                  <MapPinIcon 
-                    className="h-3 w-3" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p 
-                    className="text-xs text-gray-500 font-medium mb-0"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      color: DESIGN_TOKENS.colors.neutral[500],
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.medium,
-                      lineHeight: 1.2
-                    }}
-                  >
-                    מיקום
-                  </p>
-                  <p
-                    className="text-sm font-semibold text-gray-800 break-words"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                      color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: 1.2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
-                  >
-                    {address}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          
-          {/* Contact Section */}
-          <div className="info-section">
-            <div 
-              className="info-row flex items-center py-1.5"
-              style={{ 
-                paddingTop: DESIGN_TOKENS.spacing.xs, 
-                paddingBottom: DESIGN_TOKENS.spacing.xs,
-                borderTop: `1px solid ${DESIGN_TOKENS.colors.neutral[200]}`
-              }}
-            >
-              <div className="flex-shrink-0 w-3 h-3 flex items-center justify-center mr-1.5">
-                <PhoneIcon 
-                  className="h-3 w-3" 
-                  style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p    >
-                 מספר טלפון
-                </p>
-                <a
-   href={`tel:${sanitizedPhone}`}
-
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
+                <p
+                  className="text-lg font-bold text-center"
                   style={{
-                    fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                    fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                    fontSize: DESIGN_TOKENS.typography.fontSize.lg,
+                    fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
+                    color: DESIGN_TOKENS.colors.primary[600],
                     lineHeight: 1.2
                   }}
                 >
-                  {displayPhone}
-                </a>
-
+                  ₪{price} <span className="font-semibold" style={{ color: DESIGN_TOKENS.colors.primary[500] }}>{translatePricePeriod(pricePeriod)}</span>
+                </p>
               </div>
+            </div>
+          )}
+          
+          {/* Rating Section */}
+          {isRateable && (
+            <div className="info-section">
+              <div 
+                style={{
+                  height: '0.5px',
+                  backgroundColor: DESIGN_TOKENS.colors.neutral[200],
+                  margin: '8px 24px'
+                }}
+              />
+              <div
+                className="info-row flex justify-center py-1.5"
+                style={{ 
+                  paddingTop: DESIGN_TOKENS.spacing.xs, 
+                  paddingBottom: DESIGN_TOKENS.spacing.xs
+                }}
+              >
+                <div className="flex flex-col items-center">
+                  <div className="flex items-center mb-1">
+                    <span style={{ fontSize: DESIGN_TOKENS.typography.fontSize.xs, fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, color: DESIGN_TOKENS.colors.neutral[800] }}>
+                      {currentRating.toFixed(1)} ({ratingCount})
+                    </span>
+                  </div>
+                  <div className="flex items-center">
+                    {[1,2,3,4,5].map(star => (
+                      <FaStar
+                        key={star}
+                        className={`h-2 w-2 ${hasRated ? '' : 'cursor-pointer'}`}
+                        style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 3 }}
+                        onClick={() => { if (!hasRated) setSelectedRating(star); }}
+                      />
+                    ))}
+                    {!hasRated && (
+                      <button
+                        onClick={handleRate}
+                        disabled={selectedRating === 0}
+                        className="ml-1 text-md font-bold text-blue-600 disabled:text-gray-400 disabled:font-normal"
+                      >
+                        דרג
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Combined Contact Info Row */}
+          <div className="info-section">
+            <div 
+              style={{
+                height: '0.5px',
+                backgroundColor: DESIGN_TOKENS.colors.neutral[200],
+                margin: '8px 24px'
+              }}
+            />
+            <div 
+              className="info-row flex items-center py-1.5 space-x-4"
+              style={{ 
+                paddingTop: DESIGN_TOKENS.spacing.xs, 
+                paddingBottom: DESIGN_TOKENS.spacing.xs
+              }}
+            >
+              {/* Phone */}
+              <div className="flex items-center flex-1">
+                <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
+                  <PhoneIcon 
+                    className="h-2 w-2" 
+                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <a
+                    href={`tel:${sanitizedPhone}`}
+                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
+                    style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {displayPhone}
+                  </a>
+                </div>
+              </div>
+              
+              {/* Owner */}
+              {ownerName && ownerName !== 'N/A' && (
+                <div className="flex items-center flex-1">
+                  <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
+                    <UserIcon 
+                      className="h-2 w-2" 
+                      style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className="text-xs font-semibold text-gray-800 break-words"
+                      style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                        color: DESIGN_TOKENS.colors.neutral[800],
+                        lineHeight: 1.2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {ownerName}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Location */}
+              {address && (
+                <div className="flex items-center flex-1">
+                  <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
+                    <MapPinIcon 
+                      className="h-2 w-2" 
+                      style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p
+                      className="text-xs font-semibold text-gray-800 break-words"
+                      style={{
+                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                        color: DESIGN_TOKENS.colors.neutral[800],
+                        lineHeight: 1.2,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {address}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
         </div>
 
         {/* Call-to-Action Button */}
-        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-1 border-t">
+        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-2 border-t">
           <button
             className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
             style={{
@@ -715,37 +678,37 @@ const Popup = ({ item, onClose, contentType }) => {
             <span className="text-sm">התחל שיחה בצ'אט</span>
           </button>
           {sanitizedPhone && (
-            <a
-              href={`tel:${sanitizedPhone}`}
-              className="w-full text-center border border-current text-white rounded-lg block"
-              style={{
-                height: '44px',
-                lineHeight: '44px',
-                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                borderColor: '#ef4444',
-                backgroundColor: '#ef4444',
-                borderRadius: DESIGN_TOKENS.borderRadius.md
-              }}
-            >
-              התקשר
-            </a>
-          )}
-          {sanitizedPhone && (
-            <a
-              href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center rounded-lg text-white"
-              style={{
-                height: '44px',
-                fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                borderRadius: DESIGN_TOKENS.borderRadius.md,
-                background: '#25D366'
-              }}
-            >
-              <FaWhatsapp className="h-2 w-2 ml-1" />
-              <span className="text-sm"> whatsapp </span>
-            </a>
+            <div className="flex space-x-1">
+              <a
+                href={`tel:${sanitizedPhone}`}
+                className="flex-1 text-center border border-current text-white rounded-lg block"
+                style={{
+                  height: '44px',
+                  lineHeight: '44px',
+                  fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                  borderColor: '#ef4444',
+                  backgroundColor: '#ef4444',
+                  borderRadius: DESIGN_TOKENS.borderRadius.md
+                }}
+              >
+                התקשר
+              </a>
+              <a
+                href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center rounded-lg text-white"
+                style={{
+                  height: '44px',
+                  fontSize: DESIGN_TOKENS.typography.fontSize.sm,
+                  borderRadius: DESIGN_TOKENS.borderRadius.md,
+                  background: '#25D366'
+                }}
+              >
+                <FaWhatsapp className="h-2 w-2 ml-1" />
+                <span className="text-sm"> whatsapp </span>
+              </a>
+            </div>
           )}
         </div>
       </div>
