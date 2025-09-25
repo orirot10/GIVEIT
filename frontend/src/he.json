@@ -208,7 +208,8 @@
     "upload_failed": "העלאה נכשלה",
     "close": "סגור",
     "cancel": "ביטול",
-    "country_placeholder": "מדינה"
+    "country_placeholder": "מדינה",
+    "redirecting_home": "מעביר לעמוד הבית..."
   },
   "categories": {
     "rental": {

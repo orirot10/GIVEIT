@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ImageUpload from '../ImageUpload';
@@ -126,6 +126,10 @@ const handleSubmit = async e => {
         }
 
         setSuccess(true);
+        // Navigate to home page after 2 seconds
+        setTimeout(() => {
+            navigate('/');
+        }, 2000);
     } catch (err) {
         console.error('Submission error:', err);
         setError(err.message || 'Failed to submit form');
@@ -137,9 +141,10 @@ const handleSubmit = async e => {
 return (
     <div className="upload-form-container" style={{ fontFamily: 'Heebo, Arial, sans-serif' }} dir={isRTL ? 'rtl' : 'ltr'}>
         {success ? (
-            <div className="alert alert-success shadow-lg flex flex-col items-center">
+            <div className="alert alert-success shadow-lg flex flex-col items-center animate-bounce">
+                <div className="text-4xl mb-2">✅</div>
                 <span className="text-lg font-semibold">{successMessage}</span>
-                <button className="btn btn-primary mt-4" onClick={() => navigate('/')}>{t('forms.close')}</button>
+                <div className="text-sm mt-2 opacity-70">{t('forms.redirecting_home')}</div>
             </div>
         ) : (
             <>

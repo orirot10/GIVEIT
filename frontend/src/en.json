@@ -194,7 +194,8 @@
     "uploading_images": "Uploading images...",
     "upload_failed": "Upload failed",
     "close": "Close",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "redirecting_home": "Redirecting to home page..."
   },
   "categories": {
     "rental": {
