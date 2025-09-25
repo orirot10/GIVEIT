@@ -21,6 +21,10 @@ const PRICE_PERIOD_TRANSLATIONS = {
   'month': {
     en: 'month',
     he: 'לחודש'
+  },
+  'selling': {
+    en: 'selling',
+    he: 'מכירה'
   }
 };
 

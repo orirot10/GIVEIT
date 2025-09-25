@@ -10,5 +10,10 @@ service firebase.storage {
     match /images/{allPaths=**} {
       allow read: if true;
     }
+    
+    // Allow OPTIONS requests for CORS preflight
+    match /{allPaths=**} {
+      allow read: if request.method == 'OPTIONS';
+    }
   }
 }
