@@ -644,9 +644,9 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
                 <div
                     className="brand-map-pin flex items-center justify-center rounded-full shadow-lg border-2 border-white map-pin-hover"
                     style={{
-                        width: 40,
-                        height: 40,
-                        background: getMarkerColor(item),
+                        width: 50,
+                        height: 50,
+                        background: '#bfdbfe',
                         position: 'relative',
                         boxShadow: DESIGN_TOKENS.shadows.lg,
                         transition: 'all 0.2s ease'
@@ -662,20 +662,22 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
                     }}
                 >
                     <span
-                        className="text-white font-bold"
                         style={{
-                            fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                            fontSize: '13px',
                             fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                            lineHeight: '40px',
+                            color: '#0b6052ff',
                             width: '100%',
                             textAlign: 'center',
                             overflow: 'hidden',
-                            whiteSpace: 'nowrap',
-                            textOverflow: 'ellipsis',
-                            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            lineHeight: '13px',
+                            fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
+                            padding: '2px'
                         }}
                     >
-                        {item.title ? item.title.split(' ')[0] : "?"}
+                        {item.title ? item.title.split(' ').slice(0, 2).join(' ') : "?"}
                     </span>
                 </div>
                 {item.price !== null && item.price !== undefined && (
