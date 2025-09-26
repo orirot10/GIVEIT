@@ -196,7 +196,13 @@ const Controls = React.memo(({
     setContentType, 
     tabs,
     onAddListing,
-    onMessages
+    availableCategories,
+    availableSubcategories,
+    selectedCategory,
+    selectedSubcategory,
+    handleCategoryLabelClick,
+    handleSubcategoryLabelClick,
+    handleSearch
 }) => {
     const [showSearchBar, setShowSearchBar] = useState(false);
 
@@ -205,8 +211,6 @@ const Controls = React.memo(({
     const handleCloseSearch = () => {
         setShowSearchBar(false);
         setSearchQuery("");
-        setSelectedCategory('');
-        setSelectedSubcategory('');
         onClearFilters();
     };
 
@@ -291,36 +295,13 @@ const Controls = React.memo(({
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                 </button>
-                <button
-                    onClick={onMessages}
-                    className="messages-button"
-                    style={{
-                        background: 'transparent',
-                        color: '#000000',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '40px',
-                        height: '40px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                    onMouseOver={e => e.currentTarget.style.color = '#333333'}
-                    onMouseOut={e => e.currentTarget.style.color = '#000000'}
-                    aria-label="Messages"
-                >
-                    <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                    >
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                </button>
+                <FilterButton
+                    availableCategories={availableCategories}
+                    selectedCategory={selectedCategory}
+                    onCategoryChange={handleCategoryLabelClick}
+                    onApplyFilters={handleSearch}
+                    onClearFilters={onClearFilters}
+                />
             </div>
             <div className={`search-bar-wrapper ${showSearchBar ? 'open' : ''}`}>
                 <SearchBar
@@ -1328,7 +1309,13 @@ const GenericMapPage = ({ apiUrl }) => {
                                         setContentType={setContentType}
                                         tabs={tabs}
                                         onAddListing={handleAddListing}
-                                        onMessages={handleMessages}
+                                        availableCategories={availableCategories}
+                                        availableSubcategories={availableSubcategories}
+                                        selectedCategory={selectedCategory}
+                                        selectedSubcategory={selectedSubcategory}
+                                        handleCategoryLabelClick={handleCategoryLabelClick}
+                                        handleSubcategoryLabelClick={handleSubcategoryLabelClick}
+                                        handleSearch={handleSearch}
                                     />
                                     <div className="floating-category-labels">
                                         {availableCategories.map((cat) => (
@@ -1384,7 +1371,13 @@ const GenericMapPage = ({ apiUrl }) => {
                             setContentType={setContentType}
                             tabs={tabs}
                             onAddListing={handleAddListing}
-                            onMessages={handleMessages}
+                            availableCategories={availableCategories}
+                            availableSubcategories={availableSubcategories}
+                            selectedCategory={selectedCategory}
+                            selectedSubcategory={selectedSubcategory}
+                            handleCategoryLabelClick={handleCategoryLabelClick}
+                            handleSubcategoryLabelClick={handleSubcategoryLabelClick}
+                            handleSearch={handleSearch}
                         />
                     </div>
                     <div style={{

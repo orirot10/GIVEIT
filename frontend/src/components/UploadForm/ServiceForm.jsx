@@ -1,7 +1,9 @@
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import ModalUploadForm from './ModalUploadForm';
-import { serviceCategoryData } from '../../constants/categories';
+import { serviceCategoryData, extraServiceCategoryData } from '../../constants/categories';
+
+const allServiceCategories = [...serviceCategoryData, ...extraServiceCategoryData];
 
 const ServiceForm = () => {
     const { user } = useAuthContext();
@@ -12,7 +14,7 @@ const ServiceForm = () => {
         <ModalUploadForm
             user={user}
             titleText={t('forms.offer_service_title')}
-            categoryData={serviceCategoryData}
+            categoryData={allServiceCategories}
             submitUrl={`${baseUrl}/api/services/with-urls`}
             successMessage={t('forms.offer_service_success')}
             submitButtonText={t('forms.submit_offer')}

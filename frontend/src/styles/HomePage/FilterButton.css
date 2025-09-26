@@ -47,7 +47,7 @@
     font-weight: 600;
     margin-bottom: 16px;
     text-align: center;
-    color: #dfe6ef;
+    color: #000000;
 }
 
 .section {
@@ -57,6 +57,7 @@
 .section-title {
     font-weight: 500;
     margin-bottom: 8px;
+    color: #000000;
 }
 
 .categories-container {
@@ -80,7 +81,7 @@
     border-radius: 9999px;
     border: 1px solid #ccc;
     background-color: white;
-    color: #d4caca;
+    color: #000000;
     cursor: pointer;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
@@ -108,7 +109,7 @@
 
 .filter-action-btn {
     background-color: #2E4057;
-    color: #fff;
+    color: #ffffff;
     padding: 8px 16px;
     border-radius: 6px;
     border: none;
@@ -124,12 +125,12 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    background-color: transparent;  /* No background */
-    border: none;  /* Remove the border */
-    color: #444;  /* Set the icon color */
-    font-size: 24px;  /* Adjust the size of the 'x' icon */
+    background-color: transparent;
+    border: none;
+    color: #444;
+    font-size: 36px;
     cursor: pointer;
-    padding: 0;  /* Remove padding so the icon is not pushed away */
+    padding: 0;
 }
 
 .close-btn:hover {

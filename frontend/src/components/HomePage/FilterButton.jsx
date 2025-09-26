@@ -8,36 +8,52 @@ import { CiCircleRemove } from "react-icons/ci";
 import { BiFilterAlt } from "react-icons/bi";
 import { useTranslation } from 'react-i18next';
 
-const FilterButton = ({ onApplyFilters, categoryType }) => {
+const FilterButton = ({ 
+  availableCategories,
+  selectedCategory,
+  onCategoryChange,
+  onApplyFilters,
+  onClearFilters
+}) => {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === 'he';
   const [showModal, setShowModal] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const availableCategories =
-    categoryType === "rental"
-      ? getRentalCategoryFilterTags(i18n.language)
-      : getServiceCategoryFilterTags(i18n.language);
-
-  const toggleCategory = (cat) => {
-    setSelectedCategories((prev) =>
-      prev.includes(cat)
-        ? prev.filter((c) => c !== cat)
-        : [...prev, cat]
-    );
+  const handleCategoryClick = (categoryValue) => {
+    onCategoryChange(categoryValue);
   };
 
   const handleApply = () => {
-    onApplyFilters({ 
-      categories: selectedCategories
-    });
+    onApplyFilters();
+    setShowModal(false);
+  };
+
+  const handleClear = () => {
+    onCategoryChange(''); // Reset category selection
+    onClearFilters();
     setShowModal(false);
   };
 
   return (
     <>
-      <button className="search-filter-style filter-button-large"
+      <button
         onClick={() => setShowModal(true)}
+        className="filter-button"
+        style={{
+          background: 'transparent',
+          color: '#000000',
+          border: 'none',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+        onMouseOver={e => e.currentTarget.style.color = '#333333'}
+        onMouseOut={e => e.currentTarget.style.color = '#000000'}
+        aria-label="Filter"
       >
         <BiFilterAlt style={{ fontSize: "20px" }} />
       </button>
@@ -53,9 +69,9 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
                 {availableCategories.map((cat) => (
                   <button
                     key={cat.value}
-                    onClick={() => toggleCategory(cat.value)}
+                    onClick={() => handleCategoryClick(cat.value)}
                     className={`category-btn ${
-                      selectedCategories.includes(cat.value) ? "selected" : ""
+                      selectedCategory === cat.value ? "selected" : ""
                     }`}
                   >
                     {cat.label}
@@ -64,6 +80,13 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
               </div>
             </div>
 
+            <button
+              className="close-btn"
+              onClick={() => setShowModal(false)}
+            >
+              <CiCircleRemove />
+            </button>
+            
             <div className="button-group">
               <button 
                 className="filter-action-btn" 
@@ -71,11 +94,11 @@ const FilterButton = ({ onApplyFilters, categoryType }) => {
               >
                 {t('common.filter')}
               </button>
-              <button
-                className="close-btn"
-                onClick={() => setShowModal(false)}
+              <button 
+                className="filter-action-btn" 
+                onClick={handleClear}
               >
-                <CiCircleRemove />
+                {t('common.clear')}
               </button>
             </div>
           </div>
