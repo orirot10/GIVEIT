@@ -12,7 +12,8 @@ try {
     const fetchUrl = params.toString() ? `${apiUrl}/search?${params.toString()}` : apiUrl;
 
     const res = await fetch(fetchUrl);
-    const results = await res.json();
+    const data = await res.json();
+    const results = Array.isArray(data) ? data : [];
 
     setAllItems(results);
 
