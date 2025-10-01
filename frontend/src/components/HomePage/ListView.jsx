@@ -22,7 +22,7 @@ const ListView = ({ rentals = [], contentType }) => {
   return (
     <div className="list-container-wrapper">
       <div className="list-container">
-        {(rentals || []).map((rental) => {
+        {Array.isArray(rentals) ? rentals.map((rental) => {
           const firstImage = rental.images && rental.images[0];
           const imageSrc = firstImage
             ? firstImage.startsWith("http")
@@ -124,7 +124,7 @@ const ListView = ({ rentals = [], contentType }) => {
               </div>
             </div>
           );
-        })}
+        }) : null}
       </div>
 
       {selectedItem && (
