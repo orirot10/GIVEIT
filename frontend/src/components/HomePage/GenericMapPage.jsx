@@ -540,7 +540,8 @@ const GenericMapPage = ({ apiUrl }) => {
                 throw new Error(`Failed to fetch items: ${res.status}`);
             }
 
-            const items = await res.json();
+            const data = await res.json();
+            const items = Array.isArray(data) ? data : [];
             cacheRef.current.set(boundsKey, items);
             sessionStorage.setItem(storageKey, JSON.stringify(items));
             setAllItems(items);
@@ -596,8 +597,9 @@ const GenericMapPage = ({ apiUrl }) => {
                         return res.json();
                     })
                     .then((data) => {
-                        setAllItems(data);
-                        const withCoords = mapItemsToCoords(data);
+                        const items = Array.isArray(data) ? data : [];
+                        setAllItems(items);
+                        const withCoords = mapItemsToCoords(items);
                         setLocations(withCoords);
                         setError(null);
                     })
@@ -634,8 +636,9 @@ const GenericMapPage = ({ apiUrl }) => {
                     return res.json();
                 })
                 .then((data) => {
-                    setAllItems(data);
-                    const withCoords = mapItemsToCoords(data);
+                    const items = Array.isArray(data) ? data : [];
+                    setAllItems(items);
+                    const withCoords = mapItemsToCoords(items);
                     setLocations(withCoords);
                     setError(null);
                 })
@@ -796,7 +799,8 @@ const GenericMapPage = ({ apiUrl }) => {
                     throw new Error(`Failed to fetch initial data: ${res.status}`);
                 }
                 
-                const items = await res.json();
+                const data = await res.json();
+                const items = Array.isArray(data) ? data : [];
                 
                 setAllItems(items);
                 const withCoords = mapItemsToCoords(items);
@@ -859,8 +863,9 @@ const GenericMapPage = ({ apiUrl }) => {
                         return res.json();
                     })
                     .then((data) => {
-                        setAllItems(data);
-                        const withCoords = mapItemsToCoords(data);
+                        const items = Array.isArray(data) ? data : [];
+                        setAllItems(items);
+                        const withCoords = mapItemsToCoords(items);
                         setLocations(withCoords);
                         setError(null);
                     })
@@ -930,8 +935,9 @@ const GenericMapPage = ({ apiUrl }) => {
                 return res.json();
             })
             .then((data) => {
-                setAllItems(data);
-                const withCoords = mapItemsToCoords(data);
+                const items = Array.isArray(data) ? data : [];
+                setAllItems(items);
+                const withCoords = mapItemsToCoords(items);
                 setLocations(withCoords);
                 setError(null);
             })
