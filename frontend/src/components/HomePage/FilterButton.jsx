@@ -24,7 +24,6 @@ const FilterButton = ({
   };
 
   const handleApply = () => {
-    onApplyFilters();
     setShowModal(false);
   };
 
