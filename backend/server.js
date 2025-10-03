@@ -37,7 +37,10 @@ if (perf_map_v2) {
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  "https://givit-web.com",
+  "https://www.givit-web.com",
   'https://localhost', // ← חשוב ל-Capacitor!
+  
   'capacitor://localhost',
   process.env.FRONTEND_URL || 'https://giveit-frontend.onrender.com',
 ];
