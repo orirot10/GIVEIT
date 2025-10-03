@@ -27,9 +27,7 @@ public class MainActivity extends BridgeActivity {
             webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null);
             
             // Optimize for maps
-            settings.setRenderPriority(WebSettings.RenderPriority.HIGH);
             settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-            settings.setAppCacheEnabled(true);
             settings.setDomStorageEnabled(true);
             settings.setDatabaseEnabled(true);
             
