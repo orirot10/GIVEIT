@@ -15,3 +15,12 @@
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
+
+# Google Maps optimizations
+-keep class com.google.android.gms.maps.** { *; }
+-keep interface com.google.android.gms.maps.** { *; }
+-dontwarn com.google.android.gms.maps.**
+
+# WebView optimizations
+-keep class android.webkit.** { *; }
+-dontwarn android.webkit.**

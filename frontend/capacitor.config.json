@@ -44,7 +44,11 @@
     "allowMixedContent": true,
     "captureInput": true,
     "webContentsOpaque": false,
-    "backgroundColor": "#ffffff"
+    "backgroundColor": "#ffffff",
+    "hardwareAccelerated": true,
+    "loggingBehavior": "none",
+    "appendUserAgent": "GivitApp/1.0",
+    "overrideUserAgent": "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36 GivitApp/1.0"
   },
   "ios": {
     "webContentsDebuggingEnabled": true,

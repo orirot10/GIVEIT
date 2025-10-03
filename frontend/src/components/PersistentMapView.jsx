@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { GoogleMap } from '@react-google-maps/api';
 import LayerManager from './LayerManager';
 import Popup from './Shared/Popup';
+import useAndroidMapOptimization from '../hooks/useAndroidMapOptimization';
 
 // CRITICAL: Preserve exact container style - no modifications allowed
 const containerStyle = {
@@ -50,6 +51,8 @@ const PersistentMapView = ({ data, isFetching, contentType, mapHeight = "420px" 
   const mapRef = useRef(null);
   const [selectedItem, setSelectedItem] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  
+  const { isAndroid } = useAndroidMapOptimization(mapRef);
 
   const handleMarkerClick = useCallback((item) => {
     setSelectedItem(item);
@@ -62,8 +65,21 @@ const PersistentMapView = ({ data, isFetching, contentType, mapHeight = "420px" 
     styles: [
       { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
       { featureType: "transit", elementType: "labels", stylers: [{ visibility: "off" }] }
-    ]
-  }), []);
+    ],
+    // Android-specific optimizations
+    ...(isAndroid && {
+      backgroundColor: '#f0f0f0',
+      clickableIcons: false,
+      disableDoubleClickZoom: false,
+      draggable: true,
+      keyboardShortcuts: false,
+      scrollwheel: true,
+      panControl: false,
+      mapTypeControl: false,
+      streetViewControl: false,
+      fullscreenControl: false
+    })
+  }), [isAndroid]);
 
   return (
     <div style={{ 

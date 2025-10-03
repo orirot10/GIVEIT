@@ -20,7 +20,27 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Optimize for performance
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            zipAlignEnabled true
         }
+        debug {
+            // Enable hardware acceleration in debug builds too
+            debuggable true
+        }
+    }
+    
+    // Optimize compilation
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    
+    // Enable multidex for large apps
+    defaultConfig {
+        multiDexEnabled true
     }
 }
 
