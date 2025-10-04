@@ -646,7 +646,7 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
                     style={{
                         width: 50,
                         height: 50,
-                        background: item.type?.includes('request') ? '#7dd3fc' : '#bfdbfe',
+                        background: item.type?.includes('request') ? '#d8974eff' : '#10b981',
                         position: 'relative',
                         boxShadow: DESIGN_TOKENS.shadows.lg,
                         transition: 'all 0.2s ease'
@@ -665,7 +665,7 @@ const MemoizedMarker = React.memo(function MemoizedMarker({ item, getMarkerColor
                         style={{
                             fontSize: '13px',
                             fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                            color: '#0b6052ff',
+                            color: '#1f1e1eff',
                             width: '100%',
                             textAlign: 'center',
                             overflow: 'hidden',

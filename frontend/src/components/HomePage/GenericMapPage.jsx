@@ -948,6 +948,30 @@ const GenericMapPage = ({ apiUrl }) => {
             .finally(() => setLoading(false));
     }, [getApiUrl, userLocation, mapItemsToCoords]);
 
+    // Enhanced setContentType with caching
+    const handleSetContentType = useCallback((newType) => {
+        if (newType === contentType) return;
+        
+        // Show cached data instantly if available
+        const cacheKey = `mapCache_${JSON.stringify(mapBounds)}_${newType}`;
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+            const parsedData = JSON.parse(cached);
+            setAllItems(parsedData);
+            const withCoords = mapItemsToCoords(parsedData.map(item => ({ ...item, type: newType })));
+            setLocations(withCoords);
+        }
+        
+        setContentType(newType);
+        
+        // Fetch fresh data in background
+        setTimeout(() => {
+            if (mapBounds) {
+                fetchItemsWithinBounds(mapBounds);
+            }
+        }, 100);
+    }, [contentType, mapBounds, setAllItems, mapItemsToCoords, setLocations, setContentType, fetchItemsWithinBounds]);
+
     // Add listing handler
     const handleAddListing = useCallback(() => {
         const routeMap = {
@@ -1312,7 +1336,7 @@ const GenericMapPage = ({ apiUrl }) => {
                                         onSearch={handleSearch}
                                         onClearFilters={handleClearFilters}
                                         contentType={contentType}
-                                        setContentType={setContentType}
+                                        setContentType={handleSetContentType}
                                         tabs={tabs}
                                         onAddListing={handleAddListing}
                                         availableCategories={availableCategories}
@@ -1374,7 +1398,7 @@ const GenericMapPage = ({ apiUrl }) => {
                             onSearch={handleSearch}
                             onClearFilters={handleClearFilters}
                             contentType={contentType}
-                            setContentType={setContentType}
+                            setContentType={handleSetContentType}
                             tabs={tabs}
                             onAddListing={handleAddListing}
                             availableCategories={availableCategories}

@@ -1,0 +1,50 @@
+/* Loading overlay - positioned absolute inside map container */
+/* CRITICAL: No layout impact, preserves map container dimensions */
+.map-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.map-loading-overlay.fade-out {
+  opacity: 0;
+}
+
+.loading-content {
+  padding: 8px 16px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e0e0e0;
+  border-top: 2px solid #14b8a6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Android WebView optimizations */
+@media (max-width: 768px) {
+  .map-loading-overlay {
+    backdrop-filter: blur(2px);
+  }
+}
