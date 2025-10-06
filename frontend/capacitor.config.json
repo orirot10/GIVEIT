@@ -1,9 +1,10 @@
 {
   "appId": "com.orirot.givit",
-  "appName": "Givit",
+  "appName": "GivIt",
   "webDir": "dist",
+  "bundledWebRuntime": false,
   "server": {
-    "cleartext": true,
+    "cleartext": false,
     "allowNavigation": [
       "*.google.com",
       "*.googleapis.com",
@@ -18,7 +19,9 @@
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 2000,
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
     },
     "GoogleMaps": {
       "apiKey": "YOUR_GOOGLE_MAPS_API_KEY_HERE"
@@ -42,19 +45,15 @@
   "android": {
     "webContentsDebuggingEnabled": true,
     "allowMixedContent": true,
-    "captureInput": true,
-    "webContentsOpaque": false,
     "backgroundColor": "#ffffff",
     "hardwareAccelerated": true,
-    "loggingBehavior": "none",
-    "appendUserAgent": "GivitApp/1.0",
-    "overrideUserAgent": "Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36 GivitApp/1.0"
+    "appendUserAgent": "GivItApp/1.0"
   },
   "ios": {
-    "webContentsDebuggingEnabled": true,
     "backgroundColor": "#ffffff",
     "allowsLinkPreview": false,
+    "contentInsetAdjustmentBehavior": "never",
+    "scrollEnabled": true,
     "handleApplicationNotifications": false
   }
-
 }
