@@ -1,0 +1,64 @@
+import { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.orirot.givit',
+  appName: 'GivIt',
+  webDir: 'dist',
+  bundledWebRuntime: false,
+
+  server: {
+    cleartext: false,
+    allowNavigation: [
+      '*.google.com',
+      '*.googleapis.com',
+      '*.firebaseapp.com',
+      '*.firebase.com',
+      '*.gstatic.com',
+      '*.googleusercontent.com',
+      '*.onrender.com',
+      'giveit-backend.onrender.com'
+    ]
+  },
+
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: '#ffffff',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false
+    },
+
+    GoogleMaps: {
+      apiKey: 'YOUR_GOOGLE_MAPS_API_KEY_HERE'
+    },
+
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert']
+    },
+
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId:
+        '552189348251-93esjcu95at9ji45ugnddd60nistmqb6.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true
+    }
+  },
+
+  android: {
+    webContentsDebuggingEnabled: true,
+    allowMixedContent: true,
+    backgroundColor: '#ffffff',
+    hardwareAccelerated: true,
+    appendUserAgent: 'GivItApp/1.0'
+  },
+
+  ios: {
+    backgroundColor: '#ffffff',
+    allowsLinkPreview: false,
+    contentInsetAdjustmentBehavior: 'never',
+    scrollEnabled: true,
+    handleApplicationNotifications: false
+  }
+};
+
+export default config;
