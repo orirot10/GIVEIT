@@ -756,6 +756,10 @@ const GenericMapPage = ({ apiUrl }) => {
             },
             (error) => {
                 console.error('Error getting user location:', error);
+                setUserLocation({
+                    lat: 32.080561,
+                    lng: 34.780788
+                });
                 setError('Unable to get your location. Using default area.');
             },
             { enableHighAccuracy: true, timeout: LOCATION_TIMEOUT, maximumAge: 0 }

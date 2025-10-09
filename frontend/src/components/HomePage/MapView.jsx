@@ -72,8 +72,8 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-    lat: 32.0508,
-    lng: 34.7658,
+    lat: 32.080561,
+    lng: 34.780788,
 };
 
 
@@ -134,8 +134,17 @@ const MapView = ({ locations, mapHeight, onBoundsChanged, children, contentType 
             },
             (error) => {
                 console.error("Error getting user location:", error);
-                setUserLocation(defaultCenter);
+                const defaultLocation = {
+                    lat: 32.080561,
+                    lng: 34.780788
+                };
+                setUserLocation(defaultLocation);
                 hasSetInitialLocation.current = true;
+                
+                // Set map bounds to show default location after a short delay
+                setTimeout(() => {
+                    setMapToUserLocation(defaultLocation);
+                }, 100);
             },
             {
                 enableHighAccuracy: true,
