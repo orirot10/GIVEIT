@@ -224,5 +224,14 @@
   "privacyPolicy": {
     "title": "Privacy Policy",
     "link": "Privacy Policy"
+  },
+  "onboarding": {
+    "slide1_title": "Welcome to Givit 💚",
+    "slide1_description": "The app that connects people who offer help, products, or services with those who need them.",
+    "slide2_title": "Offers and Requests",
+    "slide2_description": "In the 'Offers' tab you'll see what people are offering, and in 'Requests' you can post what you're looking for.",
+    "slide3_title": "Services and Products",
+    "slide3_description": "'Services' include help, lessons, or repairs; 'Products' are for giving or requesting second-hand items.",
+    "start_button": "Start using Givit"
   }
 }

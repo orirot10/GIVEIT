@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from './context/AuthContext';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import GoogleMapsLoader from './components/GoogleMapsLoader';
 import MapPreloader from './components/MapPreloader';
@@ -27,8 +27,11 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import NotificationHandler from './components/NotificationHandler';
 import PermissionRequest from './components/PermissionRequest';
 import notificationService from './services/notificationService';
+import Onboarding from './components/Onboarding';
+import { useOnboarding } from './hooks/useOnboarding';
 
-function App() {
+// Main App Component that always renders
+const MainApp = () => {
   const { user } = useAuthContext();
 
   useEffect(() => {
@@ -42,12 +45,10 @@ function App() {
           console.log('Failed to initialize push notifications');
         }
       } else {
-        // Clean up notifications when user logs out
         await notificationService.cleanup();
       }
     };
 
-    // Add a small delay to ensure the app is fully loaded
     const timer = setTimeout(initializeNotifications, 1000);
     return () => clearTimeout(timer);
   }, [user]);
@@ -58,12 +59,11 @@ function App() {
         <MapPreloader />
         <Router>
           <ErrorBoundary>
-          <I18nextProvider i18n={i18n}>
-          <NotificationHandler />
-          <PermissionRequest onPermissionGranted={() => notificationService.initialize()} />
-          <div className="app-container">
-            <Routes>
-              <Route element={<Layout />}>
+            <NotificationHandler />
+            <PermissionRequest onPermissionGranted={() => notificationService.initialize()} />
+            <div className="app-container">
+              <Routes>
+                <Route element={<Layout />}>
                   <Route path="/" element={<ServicesMapPage />} />
                   <Route path="/services" element={<ServicesMapPage />} />
                   <Route path="/rentals" element={<RentalsMapPage />} />
@@ -80,16 +80,51 @@ function App() {
                   <Route path="/request-service" element={<RequestServiceForm />} />
                   <Route path="/terms" element={<Terms />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-
                   <Route path="/auth-handler" element={<MobileAuthHandler />} />
-               </Route>
+                </Route>
               </Routes>
             </div>
-            </I18nextProvider>
-           </ErrorBoundary>
-          </Router>
+          </ErrorBoundary>
+        </Router>
       </MapProvider>
     </GoogleMapsLoader>
+  );
+};
+
+function AppContent() {
+  const { i18n } = useTranslation();
+  const { onboardingSeen, markOnboardingAsSeen, isLoading } = useOnboarding();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !onboardingSeen) {
+      setShowOnboarding(true);
+    }
+  }, [isLoading, onboardingSeen]);
+
+  const handleOnboardingClose = () => {
+    setShowOnboarding(false);
+    markOnboardingAsSeen();
+  };
+
+  return (
+    <>
+      <MainApp />
+      {showOnboarding && (
+        <Onboarding 
+          lang={i18n.language} 
+          onClose={handleOnboardingClose}
+        />
+      )}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <I18nextProvider i18n={i18n}>
+      <AppContent />
+    </I18nextProvider>
   );
 }
 

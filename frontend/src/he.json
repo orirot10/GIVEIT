@@ -246,5 +246,14 @@
     "verification_instructions": "Add the following meta tag to your site's HTML head section for verification:",
     "meta_tag": "<meta name=\"tiktok-developers-site-verification\" content=\"UERk31630CZ8bbF9WAXoPLNRkgE8hJQF\">",
     "tiktok-developers-site-verification": "<UERk31630CZ8bbF9WAXoPLNRkgE8hJQF>"
+  },
+  "onboarding": {
+    "slide1_title": "ברוך הבא ל-Givit 💚",
+    "slide1_description": ",אפליקציה שמחברת בין אנשים שמציעים עזרה, מוצרים או שירותים לבין כאלה שמבקשים. עם מפה מדוייקת וצ'אט מובנה, והכי חשוב - בלי מתווכים ועמלות!",
+    "slide2_title": "הצעות ובקשות",
+    "slide2_description": "בלשונית הצעות תראה מה אנשים מציעים, ובבקשות תוכל לפרסם מה אתה מחפש.",
+    "slide3_title": "שירותים ומוצרים",
+    "slide3_description": "   בשירותים תמצא עזרה, לדוגמה- בייביסיטר , השקיית עציצים; במוצרים תוכל להשכיר או לבקש פריטי יד שנייה, לדוגמה - אופניים , מקרן",
+    "start_button": "התחלת שימוש"
   }
 }
