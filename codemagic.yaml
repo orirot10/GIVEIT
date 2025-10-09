@@ -1,0 +1,132 @@
+workflows:
+  ios-capacitor-release:
+    name: iOS Capacitor Release
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      node: 20
+      cocoapods: default
+      vars:
+        WEB_DIR: "dist"                   # אם הפרונט מוציא ל-'build' — שנה כאן
+        IOS_WORKSPACE: "ios/App/App.xcworkspace"
+        IOS_SCHEME: "App"                 # ברירת המחדל של Capacitor
+        BUNDLE_ID: "com.orirot.givit"    # עדכן במידת הצורך
+    cache:
+      cache_paths:
+        - ~/.npm
+        - ios/Pods -> ios/Podfile.lock
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm ci
+
+      - name: Build web app
+        script: |
+          npm run build
+          test -d "$WEB_DIR" || (echo "Missing $WEB_DIR after build" && exit 1)
+
+      - name: Capacitor sync iOS (uses capacitor.config.ts)
+        script: |
+          npx cap sync ios
+          test -d ios/App || (echo "Missing ios/App after sync" && exit 1)
+
+      - name: Verify bundle id (informational)
+        script: |
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" ios/App/App/Info.plist || true
+          echo "Expected: $BUNDLE_ID"
+
+      - name: Archive (Release)
+        script: |
+          set -e
+          xcodebuild -workspace "$IOS_WORKSPACE" \
+                     -scheme "$IOS_SCHEME" \
+                     -configuration Release \
+                     -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
+                     -allowProvisioningUpdates \
+                     clean archive
+
+      - name: Create exportOptions.plist
+        script: |
+          cat > exportOptions.plist <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store</string>
+            <key>uploadSymbols</key><true/>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>stripSwiftSymbols</key><true/>
+            <key>compileBitcode</key><false/>
+          </dict>
+          </plist>
+          PLIST
+
+      - name: Export .ipa
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
+            -exportPath "$CM_BUILD_DIR/build/ipa" \
+            -exportOptionsPlist exportOptions.plist \
+            -allowProvisioningUpdates
+
+    artifacts:
+      - build/ipa/*.ipa
+      - build/App.xcarchive
+
+    publishing:
+      app_store_connect:
+        submit_to_testflight: true
+        # אם תרצה להוסיף קבוצות בטא ספציפיות:
+        # beta_groups:
+        #   - Internal Testers
+
+workflows:
+  ios-unsigned-ipa:
+    name: iOS Unsigned IPA (Capacitor)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      node: 18
+      xcode: latest
+      vars:
+        APP_SCHEME: "App"   # ברירת המחדל של Capacitor
+        IOS_DIR: "ios/App"  # נתיב פרויקט ה-iOS בקפצ'יטור
+    scripts:
+      - name: Install deps
+        script: |
+          npm ci || npm i
+      - name: Build web
+        script: |
+          npm run build
+      - name: Sync Capacitor iOS
+        script: |
+          npx cap sync ios
+      - name: Build .app (disable code signing)
+        script: |
+          cd $IOS_DIR
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme $APP_SCHEME \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" \
+            ONLY_ACTIVE_ARCH=NO
+      - name: Package .ipa (unsigned)
+        script: |
+          cd $IOS_DIR
+          rm -rf Payload
+          mkdir -p Payload
+          APP_PATH="build/Build/Products/Release-iphoneos/App.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "App.app not found at $APP_PATH"
+            ls -R build/Build/Products
+            exit 1
+          fi
+          cp -R "$APP_PATH" Payload/
+          zip -r app-unsigned.ipa Payload
+          rm -rf Payload
+    artifacts:
+      - ios/App/app-unsigned.ipa
+      - ios/App/build/Build/Products/Release-iphoneos/*.app
