@@ -1,107 +1,104 @@
 workflows:
-  ios-capacitor-release:
-    name: iOS Capacitor Release
-    max_build_duration: 60
-    environment:
-      xcode: latest
-      node: 20
-      cocoapods: default
-      vars:
-        WEB_DIR: "dist"                   # אם הפרונט מוציא ל-'build' — שנה כאן
-        IOS_WORKSPACE: "ios/App/App.xcworkspace"
-        IOS_SCHEME: "App"                 # ברירת המחדל של Capacitor
-        BUNDLE_ID: "com.orirot.givit"    # עדכן במידת הצורך
-    cache:
-      cache_paths:
-        - ~/.npm
-        - ios/Pods -> ios/Podfile.lock
-    scripts:
-      - name: Install dependencies
-        script: |
-          npm ci
-
-      - name: Build web app
-        script: |
-          npm run build
-          test -d "$WEB_DIR" || (echo "Missing $WEB_DIR after build" && exit 1)
-
-      - name: Capacitor sync iOS (uses capacitor.config.ts)
-        script: |
-          npx cap sync ios
-          test -d ios/App || (echo "Missing ios/App after sync" && exit 1)
-
-      - name: Verify bundle id (informational)
-        script: |
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" ios/App/App/Info.plist || true
-          echo "Expected: $BUNDLE_ID"
-
-      - name: Archive (Release)
-        script: |
-          set -e
-          xcodebuild -workspace "$IOS_WORKSPACE" \
-                     -scheme "$IOS_SCHEME" \
-                     -configuration Release \
-                     -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
-                     -allowProvisioningUpdates \
-                     clean archive
-
-      - name: Create exportOptions.plist
-        script: |
-          cat > exportOptions.plist <<'PLIST'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key><string>app-store</string>
-            <key>uploadSymbols</key><true/>
-            <key>destination</key><string>export</string>
-            <key>signingStyle</key><string>automatic</string>
-            <key>stripSwiftSymbols</key><true/>
-            <key>compileBitcode</key><false/>
-          </dict>
-          </plist>
-          PLIST
-
-      - name: Export .ipa
-        script: |
-          xcodebuild -exportArchive \
-            -archivePath "$CM_BUILD_DIR/build/App.xcarchive" \
-            -exportPath "$CM_BUILD_DIR/build/ipa" \
-            -exportOptionsPlist exportOptions.plist \
-            -allowProvisioningUpdates
-
-    artifacts:
-      - build/ipa/*.ipa
-      - build/App.xcarchive
-
-    publishing:
-      app_store_connect:
-        submit_to_testflight: true
-        # אם תרצה להוסיף קבוצות בטא ספציפיות:
-        # beta_groups:
-        #   - Internal Testers
-
-workflows:
   ios-unsigned-ipa:
-    name: iOS Unsigned IPA (Capacitor)
+    name: iOS Unsigned IPA (Capacitor; frontend/)
     instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
       node: 18
       xcode: latest
       vars:
-        APP_SCHEME: "App"   # ברירת המחדל של Capacitor
-        IOS_DIR: "ios/App"  # נתיב פרויקט ה-iOS בקפצ'יטור
+        APP_SCHEME: "App"
+        IOS_DIR: "frontend/ios/App"
     scripts:
-      - name: Install deps
+      - name: Install deps (frontend)
         script: |
+          cd frontend
           npm ci || npm i
-      - name: Build web
+
+      - name: Build web (auto-detect framework)
         script: |
-          npm run build
-      - name: Sync Capacitor iOS
+          set -e
+          cd frontend
+
+          echo "==> Listing npm scripts:"
+          npm run || true
+
+          echo "==> Detecting framework & running build…"
+          BUILD_OK=0
+          WEB_OUT=""
+
+          # 1) Vite
+          if [ -f vite.config.ts ] || [ -f vite.config.js ] || npm ls vite --depth=0 >/dev/null 2>&1; then
+            npx vite build && BUILD_OK=1
+          fi
+
+          # 2) Create React App (react-scripts)
+          if [ $BUILD_OK -eq 0 ] && (npm ls react-scripts --depth=0 >/dev/null 2>&1); then
+            npx react-scripts build && BUILD_OK=1
+          fi
+
+          # 3) Next.js (נייצא גם סטטי)
+          if [ $BUILD_OK -eq 0 ] && (npm ls next --depth=0 >/dev/null 2>&1); then
+            npx next build
+            # אם יש next export קונפיג, ננסה להוציא ל-out
+            npx next export || true
+            BUILD_OK=1
+          fi
+
+          # 4) Ionic (Capacitor)
+          if [ $BUILD_OK -eq 0 ] && (npx ionic -v >/dev/null 2>&1); then
+            npx ionic build && BUILD_OK=1
+          fi
+
+          # 5) אם יש כבר סקריפט build – נריץ אותו
+          if [ $BUILD_OK -eq 0 ]; then
+            if npm run -s build >/dev/null 2>&1; then
+              npm run build && BUILD_OK=1
+            fi
+          fi
+
+          if [ $BUILD_OK -eq 0 ]; then
+            echo "No known build tool detected and no 'npm run build' script exists."
+            echo "Please add a build script to frontend/package.json, e.g.:"
+            echo '  "scripts": { "build": "vite build" }'
+            echo "Failing with logs:"
+            cat package.json
+            exit 1
+          fi
+
+          # מצאנו לאן נבנה
+          if [ -d dist ]; then WEB_OUT="dist"; fi
+          if [ -d build ]; then WEB_OUT="build"; fi
+          if [ -d out ];   then WEB_OUT="out";   fi
+
+          if [ -z "$WEB_OUT" ]; then
+            echo "Build finished but couldn't find output folder (dist/build/out)."
+            ls -la
+            exit 1
+          fi
+
+          echo "==> Build output detected at: $WEB_OUT"
+
+          # עדכון capacitor.config.* ל-webDir = WEB_OUT (כדי ש-cap sync יעתיק נכון)
+          # תומך גם ב-capacitor.config.json וגם ב-capacitor.config.ts|js בסיסי.
+          if [ -f capacitor.config.json ]; then
+            node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_OUT';fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
+          elif [ -f capacitor.config.ts ] || [ -f capacitor.config.js ]; then
+            # החלפה טקסטואלית בסיסית של webDir אם קיים
+            sed -i.bak "s/webDir: *['\"][^'\"]*['\"]/webDir: '$WEB_OUT'/" capacitor.config.* || true
+            echo "Attempted to set webDir='$WEB_OUT' in capacitor.config.*"
+          else
+            echo "No capacitor.config.* found in frontend. Make sure it's there."
+          fi
+
+      - name: Ensure iOS platform exists & sync
         script: |
+          cd frontend
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
           npx cap sync ios
+
       - name: Build .app (disable code signing)
         script: |
           cd $IOS_DIR
@@ -113,6 +110,7 @@ workflows:
             -derivedDataPath build \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" \
             ONLY_ACTIVE_ARCH=NO
+
       - name: Package .ipa (unsigned)
         script: |
           cd $IOS_DIR
@@ -121,12 +119,14 @@ workflows:
           APP_PATH="build/Build/Products/Release-iphoneos/App.app"
           if [ ! -d "$APP_PATH" ]; then
             echo "App.app not found at $APP_PATH"
-            ls -R build/Build/Products
+            echo "Available products tree:"
+            ls -R build/Build/Products || true
             exit 1
           fi
           cp -R "$APP_PATH" Payload/
           zip -r app-unsigned.ipa Payload
           rm -rf Payload
+
     artifacts:
-      - ios/App/app-unsigned.ipa
-      - ios/App/build/Build/Products/Release-iphoneos/*.app
+      - frontend/ios/App/app-unsigned.ipa
+      - frontend/ios/App/build/Build/Products/Release-iphoneos/*.app
