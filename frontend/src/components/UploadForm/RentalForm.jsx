@@ -1,9 +1,9 @@
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import ModalUploadForm from './ModalUploadForm';
-import { rentalCategoryData, extraRentalCategoryData } from '../../constants/categories';
+import { rentalCategoryData } from '../../constants/categories';
 
-const allRentalCategories = [...rentalCategoryData, ...extraRentalCategoryData];
+const allRentalCategories = [...rentalCategoryData];
 
 const RentalForm = () => {
     const { user } = useAuthContext();
