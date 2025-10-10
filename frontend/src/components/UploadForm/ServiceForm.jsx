@@ -1,9 +1,9 @@
 import { useAuthContext } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import ModalUploadForm from './ModalUploadForm';
-import { serviceCategoryData, extraServiceCategoryData } from '../../constants/categories';
+import { serviceCategoryData } from '../../constants/categories';
 
-const allServiceCategories = [...serviceCategoryData, ...extraServiceCategoryData];
+const allServiceCategories = serviceCategoryData;
 
 const ServiceForm = () => {
     const { user } = useAuthContext();

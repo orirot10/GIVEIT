@@ -110,3 +110,6 @@ export const getRentalSubcategoryFilterTags = () => [];
 // Extra rental categories for extended functionality
 export const extraRentalCategoryData = [];
 
+// Extra service categories for extended functionality
+export const extraServiceCategoryData = [];
+
