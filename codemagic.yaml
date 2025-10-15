@@ -221,9 +221,11 @@ workflows:
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"
 
+      # Export חתום — חתימה אוטומטית כדי לא לשדך פרופיל ל-frameworks
 
 
-      - name: Export signed .ipa (App Store, automatic signing on export)
+
+      - name: Export signed .ipa (App Store, manual with profile NAME)
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
@@ -232,7 +234,18 @@ workflows:
           EXPORT_DIR="$CM_BUILD_DIR/Export"
           mkdir -p "$EXPORT_DIR"
 
-          # ExportOptions: חתימה אוטומטית. בלי provisioningProfiles ובלי signingCertificate.
+          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
+          : "${PROV_NAME:?Missing PROV_NAME}"   # שם הפרופיל, לא ה-UUID
+
+          # ודא שהפרופיל קיים במכונה (צריך להיות שם משלב ההתקנה)
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          test -d "$PROFILES_DIR" || { echo "Profiles dir missing: $PROFILES_DIR"; exit 1; }
+          /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > /tmp/profile.plist
+          FOUND_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist)
+          echo "Found local profile: $FOUND_NAME"
+          [ "$FOUND_NAME" = "$PROV_NAME" ] || echo "WARN: Local profile name != PROV_NAME (using $PROV_NAME in ExportOptions)"
+
+          # ExportOptions: manual + מיפוי לפי *שם* הפרופיל רק ל-App ID שלך
           cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -240,20 +253,22 @@ workflows:
           <dict>
             <key>method</key><string>app-store</string>
             <key>teamID</key><string>39WVDVZKGE</string>
-            <key>signingStyle</key><string>automatic</string>
-            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key><string>${PROV_NAME}</string>
+            </dict>
             <key>compileBitcode</key><false/>
-            <!-- אופציונלי: <key>stripSwiftSymbols</key><true/> -->
+            <key>manageAppVersionAndBuildNumber</key><false/>
           </dict>
           </plist>
           EOF
 
-          # אפשר להוסיף -allowProvisioningUpdates כדי לאפשר ל-Xcode לבחור/להוריד פרופיל אם צריך.
+          # חשוב: בלי -allowProvisioningUpdates (שדורש Apple ID). משתמשים בפרופיל המקומי בלבד.
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             -exportPath "$EXPORT_DIR" \
             -exportOptionsPlist /tmp/ExportOptions.plist \
-            -allowProvisioningUpdates \
             | xcpretty || true
 
           echo "Exported files:"
@@ -272,8 +287,6 @@ workflows:
 
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$IPA_OUT" "$CM_BUILD_DIR/../build/ios/ipa/"
-
-
 
 
 
