@@ -9,7 +9,8 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - o1   # שמור כאן: P12_BASE64, P12_PASSWORD, DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
+        - o1     # כאן שמור: P12_BASE64, P12_PASSWORD, DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
+        - asc    # כאן שמור: APP_STORE_CONNECT_API_KEY_ID, APP_STORE_CONNECT_ISSUER_ID, APP_STORE_CONNECT_API_KEY_BASE64
       vars:
         APP_SCHEME: "App"
         IOS_DIR: "frontend/ios/App"
@@ -62,22 +63,14 @@ workflows:
         script: |
           set -euxo pipefail
           cd "$IOS_DIR"
-          # נקה ערכים ישנים
           [ -f "$CM_ENV" ] && sed -i.bak '/^export BUNDLE_ID=/d' "$CM_ENV" || true
-
           BID=""
-
-          # 1) מקור ראשי: showBuildSettings
           BID=$(xcodebuild -showBuildSettings -workspace "App.xcworkspace" -scheme "$APP_SCHEME" -configuration Release \
                 | awk -F' = ' '/^[[:space:]]*PRODUCT_BUNDLE_IDENTIFIER[[:space:]]*=/{print $2; exit}') || true
-
-          # 2) גיבוי: מתוך project.pbxproj
           if [ -z "${BID:-}" ] || [ "$BID" = "NO" ]; then
             BID=$(grep -Rho 'PRODUCT_BUNDLE_IDENTIFIER *= *[^;]*;' App.xcodeproj/project.pbxproj \
                   | head -n1 | sed -E 's/.*= *([^;]*);/\1/') || true
           fi
-
-          # 3) גיבוי נוסף: מתוך capacitor.config.*
           if [ -z "${BID:-}" ] || [ "$BID" = "NO" ]; then
             cd "$CM_BUILD_DIR/../frontend" || true
             if [ -f capacitor.config.json ]; then
@@ -86,17 +79,19 @@ workflows:
               BID=$(awk -F"'" '/appId:/{gsub(/"|,/, "", $2); print $2; exit}' capacitor.config.* || true)
             fi
           fi
-
           [ -n "${BID:-}" ] && [ "$BID" != "NO" ] || { echo "Failed to detect PRODUCT_BUNDLE_IDENTIFIER (got '$BID')."; exit 1; }
           echo "Detected BUNDLE_ID=$BID"
           echo "export BUNDLE_ID=$BID" >> "$CM_ENV"
 
-      - name: Check required env
+      - name: Check required env (signing + ASC)
         script: |
           set -euxo pipefail
           test -n "${P12_BASE64:-}" || { echo "P12_BASE64 missing"; exit 1; }
           test -n "${P12_PASSWORD:-}" || { echo "P12_PASSWORD missing"; exit 1; }
           test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
+          test -n "${APP_STORE_CONNECT_API_KEY_ID:-}" || { echo "APP_STORE_CONNECT_API_KEY_ID missing"; exit 1; }
+          test -n "${APP_STORE_CONNECT_ISSUER_ID:-}" || { echo "APP_STORE_CONNECT_ISSUER_ID missing"; exit 1; }
+          test -n "${APP_STORE_CONNECT_API_KEY_BASE64:-}" || { echo "APP_STORE_CONNECT_API_KEY_BASE64 missing"; exit 1; }
           echo "All required env vars are present."
 
       - name: Install certificates & provisioning profile (custom keychain via temp P12)
@@ -107,47 +102,39 @@ workflows:
           : "${P12_PASSWORD:?P12_PASSWORD is missing}"
           : "${DIST_PROFILE_BASE64:?DIST_PROFILE_BASE64 is missing}"
 
-          CERTS_DIR="$HOME/Library/MobileDevice/Certificates"
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
+          mkdir -p "$PROFILES_DIR"
 
-          # Decode inputs
           echo "$P12_BASE64"          | tr -d '\r\n\t ' > /tmp/p12.b64
           echo "$DIST_PROFILE_BASE64" | tr -d '\r\n\t ' > /tmp/profile.b64
           /usr/bin/base64 -D -i /tmp/p12.b64     -o /tmp/dist.p12
           /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILES_DIR/profile.mobileprovision"
 
-          # Sanity check P12
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
 
-          # Create & configure dedicated keychain
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PWD="cm_build_keychain_pwd"
           KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}-db"
           /usr/bin/security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_NAME" || true
           /usr/bin/security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           /usr/bin/security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
-
-          # Ensure search list includes our keychain (and login/system for Apple roots)
           /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
           /usr/bin/security default-keychain -d user -s "$KEYCHAIN_PATH"
 
-          # Repackage P12 (stable import), then import
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
           TEMP_P12_PASS="Temp123!"
           /usr/bin/openssl pkcs12 -export -inkey /tmp/key.pem -in /tmp/cert.pem \
             -out /tmp/combined.p12 -passout pass:${TEMP_P12_PASS}
-
           /usr/bin/security import /tmp/combined.p12 \
             -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" \
             -A -T /usr/bin/codesign -T /usr/bin/security
 
-          # CRITICAL: allow codesign to use the private key (prevents errSecInternalComponent)
+          # לאפשר ל-codesign גישה למפתח (מונע errSecInternalComponent)
           /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s \
             -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
 
-          # Extract provisioning profile metadata (write plist OUTSIDE the Profiles dir!)
+          # חילוץ מטא-דאטה של הפרופיל (שמור מחוץ לתיקיית ה-Profiles)
           PLIST_OUT="/tmp/profile.plist"
           /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
@@ -155,7 +142,6 @@ workflows:
           TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
           BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
 
-          # Load detected project BUNDLE_ID (from earlier step)
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           echo "Profile Bundle: ${BUNDLE_ID_IN_PROF:-unknown}"
           echo "Project Bundle: ${BUNDLE_ID:-unknown}"
@@ -175,22 +161,21 @@ workflows:
 
           /usr/bin/security find-identity -p codesigning -v || true
 
-
       - name: Reload signing vars (fallback)
         script: |
           set -euo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
-          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          PLIST_OUT="$PROFILES_DIR/profile.plist"
           if [ -z "${PROV_UUID:-}" ] || [ -z "${PROV_NAME:-}" ]; then
-            if [ -f "$PLIST_OUT" ]; then
-              PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
-              PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
+            if [ -f "/tmp/profile.plist" ]; then
+              PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist)
+              PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' /tmp/profile.plist)
               echo "Recovered PROV_NAME=$PROV_NAME ; PROV_UUID=$PROV_UUID"
-              echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
-              echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
+              {
+                echo "export PROV_NAME=\"$PROV_NAME\""
+                echo "export PROV_UUID=\"$PROV_UUID\""
+              } >> "$CM_ENV"
             else
-              echo "ERROR: profile.plist not found; cannot recover signing vars"; exit 1
+              echo "ERROR: /tmp/profile.plist not found; cannot recover signing vars"; exit 1
             fi
           else
             echo "Signing vars present: PROV_NAME=$PROV_NAME PROV_UUID=$PROV_UUID"
@@ -213,13 +198,11 @@ workflows:
           NEW_BUILD_NUMBER=${CM_BUILD_ID:-1}
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD_NUMBER" "App/Info.plist" || true
 
-      - name: Build (archive) unsigned (no provisioning at archive)
+      - name: Build (archive) unsigned
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
-
-          # ארכוב בלי חתימה/פרופיל (נמנע משגיאות Pods ו-"requires a provisioning profile")
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
@@ -231,7 +214,6 @@ workflows:
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
 
-
       - name: Export signed .ipa (App Store, xcodebuild)
         script: |
           set -euxo pipefail
@@ -241,27 +223,31 @@ workflows:
           EXPORT_DIR="$CM_BUILD_DIR/Export"
           mkdir -p "$EXPORT_DIR"
 
-          # מכין ExportOptions.plist עם מיפוי פרופיל לפי ה-BUNDLE_ID
-          cat > /tmp/ExportOptions.plist <<'EOF'
+          cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-            <key>method</key><string>app-store</string>
+            <key>method</key><string>app-store-connect</string>
             <key>signingStyle</key><string>manual</string>
-            <key>teamID</key><string>39WVDVZKGE</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
             <key>signingCertificate</key><string>Apple Distribution</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>${BUNDLE_ID}</key><string>${PROV_NAME}</string>
+              <key>${BUNDLE_ID}</key><string>${PROV_UUID}</string>
             </dict>
             <key>compileBitcode</key><false/>
+            <key>stripSwiftSymbols</key><true/>
             <key>manageAppVersionAndBuildNumber</key><false/>
           </dict>
           </plist>
           EOF
 
-          # ייצוא חתום מתוך הארכיון שיצרנו קודם
+          if [ -n "${KEYCHAIN_PATH:-}" ] && [ -n "${KEYCHAIN_PWD:-}" ]; then
+            /usr/bin/security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH" || true
+            /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
+          fi
+
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             -exportPath "$EXPORT_DIR" \
@@ -271,20 +257,16 @@ workflows:
           echo "Exported files:"
           ls -la "$EXPORT_DIR"
 
-          # מעתיקים את ה-ipa לתיקיית ברירת המחדל של Codemagic
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
-
 
       - name: Upload to App Store Connect
         script: |
           set -euxo pipefail
 
-          # 1) מצא את ה-IPA
           IPA_PATH=$(find "$CM_BUILD_DIR/../build/ios/ipa" -name "*.ipa" | head -n 1)
           test -n "${IPA_PATH:-}" || { echo "No IPA found"; exit 1; }
 
-          # 2) שחזר את קובץ ה-API Key למיקום ש-altool מחפש
           test -n "${APP_STORE_CONNECT_API_KEY_ID:-}" || { echo "APP_STORE_CONNECT_API_KEY_ID missing"; exit 1; }
           test -n "${APP_STORE_CONNECT_ISSUER_ID:-}" || { echo "APP_STORE_CONNECT_ISSUER_ID missing"; exit 1; }
           test -n "${APP_STORE_CONNECT_API_KEY_BASE64:-}" || { echo "APP_STORE_CONNECT_API_KEY_BASE64 missing"; exit 1; }
@@ -292,22 +274,18 @@ workflows:
           KEY_DIR="$HOME/.appstoreconnect/private_keys"
           mkdir -p "$KEY_DIR"
           KEY_PATH="$KEY_DIR/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
-
-          # נקה תווים בעייתיים ושחזר לקובץ .p8
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | tr -d '\r\n\t ' | /usr/bin/base64 -D > "$KEY_PATH"
           chmod 600 "$KEY_PATH"
 
-          # 3) העלאה
+          # העלאה
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \
             --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
             --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
 
-
-artifacts:
-  - build/ios/ipa/*.ipa
-  - $IOS_DIR/build/Build/Products/Release-iphoneos/*.app
-  - $CM_BUILD_DIR/App.xcarchive
-  - $CM_BUILD_DIR/Export/*   # (אופציונלי) לשמירת קבצי ה-export
-
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - $IOS_DIR/build/Build/Products/Release-iphoneos/*.app
+      - $CM_BUILD_DIR/App.xcarchive
+      - $CM_BUILD_DIR/Export/*
