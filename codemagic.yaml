@@ -169,17 +169,6 @@ workflows:
             echo "Signing vars present: PROV_NAME=$PROV_NAME PROV_UUID=$PROV_UUID"
           fi
 
-      - name: Debug signing (show build settings)
-        script: |
-          set -euxo pipefail
-          cd $IOS_DIR
-          xcodebuild -showBuildSettings \
-            -workspace "App.xcworkspace" \
-            -scheme "$APP_SCHEME" \
-            -configuration Release | egrep "PRODUCT_BUNDLE_IDENTIFIER|DEVELOPMENT_TEAM|CODE_SIGN|PROVISIONING_PROFILE"
-
-
-
       - name: De-quarantine Xcode (fix -10814)
         script: |
           set -euxo pipefail
@@ -208,52 +197,32 @@ workflows:
           echo "CFBundleShortVersionString=$SHORT"
           echo "CFBundleVersion=$BUILD"
           echo "$BUILD" | grep -E '^[0-9]+(\.[0-9]+){0,2}$' >/dev/null || { echo "ERROR: CFBundleVersion חייב להיות מספר/מספר.מספר/מספר.מספר.מספר"; exit 1; }
-          
-      - name: Build (archive) SIGNED (force Apple Distribution)
+
+      # ארכוב ללא חתימה — נמנע מקונפליקטים עם Targets של Pods
+      - name: Build (archive) UNSIGNED (no codesign at archive)
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
 
-          : "${PROV_UUID:?Missing PROV_UUID}"
-          : "${PROV_NAME:?Missing PROV_NAME}"
-          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
-          : "${KEYCHAIN_PATH:?Missing KEYCHAIN_PATH}"
           : "${APPLE_TEAM_ID:?Missing APPLE_TEAM_ID}"
+          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
 
-          # ננקה קוורנטין לכל Xcode כדי להימנע מ--10814:
-          /usr/bin/xattr -dr com.apple.quarantine /Applications/Xcode*.app || true
-
-          # ארכוב + חתימה ידנית עם Apple Distribution + פרופיל ההפצה
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             CODE_SIGN_STYLE=Manual \
-            CODE_SIGNING_ALLOWED=YES \
-            CODE_SIGNING_REQUIRED=YES \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            "CODE_SIGN_IDENTITY[sdk=iphoneos*]"="Apple Distribution" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROV_NAME" \
-            PROVISIONING_PROFILE="$PROV_UUID" \
-            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"
 
-          # אימות שה-.app בארכיון אכן מכיל embedded.mobileprovision ונחתם עם Distribution
-          APP_PATH=$(find "$CM_BUILD_DIR/App.xcarchive/Products/Applications" -name "*.app" -maxdepth 1 | head -n1)
-          test -n "$APP_PATH" || { echo "No .app produced"; exit 1; }
-
-          ls -la "$APP_PATH"
-          test -f "$APP_PATH/embedded.mobileprovision" || { echo "ERROR: missing embedded.mobileprovision inside .app"; exit 1; }
-
-          echo "codesign details:"
-          codesign -dv --verbose=4 "$APP_PATH" 2>&1 | egrep "Authority=|TeamIdentifier=|Sealed Resources|Signed Time" || true
-
-
-      - name: Export signed .ipa (App Store, minimal ExportOptions)
+      # Export חתום — מוסיפים מפה של provisioningProfiles עם ה-UUID
+      - name: Export signed .ipa (App Store, with provisioningProfiles map)
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
@@ -262,16 +231,24 @@ workflows:
           EXPORT_DIR="$CM_BUILD_DIR/Export"
           mkdir -p "$EXPORT_DIR"
 
-          # ExportOptions מינימלי – לא מכריח תעודה/פרופיל מחדש כי כבר חתמנו בארכוב.
+          : "${PROV_UUID:?Missing PROV_UUID}"
+          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
+
           cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key><string>app-store</string>
-            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>signingStyle</key><string>manual</string>
             <key>teamID</key><string>39WVDVZKGE</string>
+            <key>signingCertificate</key><string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${BUNDLE_ID}</key><string>${PROV_UUID}</string>
+            </dict>
             <key>compileBitcode</key><false/>
+            <key>manageAppVersionAndBuildNumber</key><false/>
           </dict>
           </plist>
           EOF
@@ -291,7 +268,7 @@ workflows:
           echo "Verifying embedded.mobileprovision exists in IPA..."
           unzip -l "$IPA_OUT" | grep -q "embedded.mobileprovision" || { 
             echo "ERROR: IPA missing embedded.mobileprovision"; 
-            echo "Inspecting archived app for embedded.mobileprovision…";
+            echo "Inspecting archived app…"
             /usr/bin/find "$CM_BUILD_DIR/App.xcarchive/Products/Applications" -name "*.app" -maxdepth 1 -print -exec /bin/ls -la {} \;
             exit 1; 
           }
