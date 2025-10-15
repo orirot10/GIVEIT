@@ -89,7 +89,7 @@ workflows:
           test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
           echo "All required env vars are present."
 
-      - name: Install certificates & provisioning profile (custom keychain via temp P12)
+      - name: Install certificates & provisioning profile (custom keychain)
         script: |
           set -euo pipefail
           set +x
@@ -121,7 +121,6 @@ workflows:
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
           TEMP_P12_PASS="Temp123!"
           /usr/bin/openssl pkcs12 -export -inkey /tmp/key.pem -in /tmp/cert.pem -out /tmp/combined.p12 -passout pass:${TEMP_P12_PASS}
-
           /usr/bin/security import /tmp/combined.p12 -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" -A -T /usr/bin/codesign -T /usr/bin/security
           /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
 
@@ -199,23 +198,31 @@ workflows:
           echo "CFBundleVersion=$BUILD"
           echo "$BUILD" | grep -E '^[0-9]+(\.[0-9]+){0,2}$' >/dev/null || { echo "ERROR: CFBundleVersion חייב להיות מספר/מספר.מספר/מספר.מספר.מספר"; exit 1; }
 
-      - name: Build (archive) unsigned (no provisioning at archive)
+      # חתימה כבר בשלב הארכוב (כדי להבטיח embedded.mobileprovision בתוך ה-App)
+      - name: Build (archive) SIGNED (manual signing at archive)
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
+
+          : "${PROV_UUID:?Missing PROV_UUID}"
+          : "${PROV_NAME:?Missing PROV_NAME}"
+          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
+          : "${KEYCHAIN_PATH:?Missing KEYCHAIN_PATH}"
+
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="$PROV_NAME" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH"
 
-      - name: Export signed .ipa (App Store, xcodebuild)
+      - name: Export signed .ipa (App Store, minimal ExportOptions)
         script: |
           set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
@@ -224,24 +231,16 @@ workflows:
           EXPORT_DIR="$CM_BUILD_DIR/Export"
           mkdir -p "$EXPORT_DIR"
 
-          : "${PROV_UUID:?Missing PROV_UUID}"
-          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
-
+          # ExportOptions מינימלי – לא מכריח תעודה/פרופיל מחדש כי כבר חתמנו בארכוב.
           cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
             <key>method</key><string>app-store</string>
-            <key>signingStyle</key><string>manual</string>
-            <key>teamID</key><string>39WVDVZKGE</string>
-            <key>signingCertificate</key><string>Apple Distribution</string>
-            <key>provisioningProfiles</key>
-            <dict>
-              <key>${BUNDLE_ID}</key><string>${PROV_UUID}</string>
-            </dict>
-            <key>compileBitcode</key><false/>
             <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>teamID</key><string>39WVDVZKGE</string>
+            <key>compileBitcode</key><false/>
           </dict>
           </plist>
           EOF
@@ -257,7 +256,14 @@ workflows:
 
           IPA_OUT=$(find "$EXPORT_DIR" -name "*.ipa" | head -n 1 || true)
           test -n "$IPA_OUT" || { echo "No IPA exported"; exit 1; }
-          unzip -l "$IPA_OUT" | grep -q "embedded.mobileprovision" || { echo "ERROR: IPA missing embedded.mobileprovision"; exit 1; }
+
+          echo "Verifying embedded.mobileprovision exists in IPA..."
+          unzip -l "$IPA_OUT" | grep -q "embedded.mobileprovision" || { 
+            echo "ERROR: IPA missing embedded.mobileprovision"; 
+            echo "Inspecting archived app for embedded.mobileprovision…";
+            /usr/bin/find "$CM_BUILD_DIR/App.xcarchive/Products/Applications" -name "*.app" -maxdepth 1 -print -exec /bin/ls -la {} \;
+            exit 1; 
+          }
 
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$IPA_OUT" "$CM_BUILD_DIR/../build/ios/ipa/"
