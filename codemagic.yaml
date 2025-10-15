@@ -91,65 +91,80 @@ workflows:
   
       - name: Install certificates & provisioning profile (custom keychain, robust)
         script: |
-          set -euxo pipefail
+          set -euo pipefail
+          # אל תדפיס סודות
+          set +x
 
-          # ===== 0) הכנת קבצי base64 (מנרמל CRLF/רווחים) =====
-          echo "$P12_BASE64"          | tr -d '\r\n ' > /tmp/p12.b64
-          echo "$DIST_PROFILE_BASE64" | tr -d '\r\n ' > /tmp/profile.b64
-          [ -s /tmp/p12.b64 ] || { echo "Empty P12_BASE64"; exit 1; }
-          [ -s /tmp/profile.b64 ] || { echo "Empty DIST_PROFILE_BASE64"; exit 1; }
+          # ===== בדיקות ENV =====
+          : "${P12_BASE64:?P12_BASE64 is missing}"
+          : "${P12_PASSWORD:?P12_PASSWORD is missing}"
+          : "${DIST_PROFILE_BASE64:?DIST_PROFILE_BASE64 is missing}"
 
           CERTS_DIR="$HOME/Library/MobileDevice/Certificates"
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
-          # ===== 1) יוצרים keychain ייעודי לבילד =====
+          # ===== נרמול ו-Decoding (BSD base64) =====
+          echo "$P12_BASE64"          | tr -d '\r\n\t ' > /tmp/p12.b64
+          echo "$DIST_PROFILE_BASE64" | tr -d '\r\n\t ' > /tmp/profile.b64
+
+          /usr/bin/base64 -D -i /tmp/p12.b64     -o /tmp/dist.p12
+          /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILES_DIR/profile.mobileprovision"
+
+          # ===== Sanity check: האם ה-p12 תואם לסיסמה? =====
+          /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
+
+          # ===== אימות אופציונלי של checksum (אם הגדרת P12_SHA256 ב-ENV) =====
+          if [ -n "${P12_SHA256:-}" ]; then
+            SUM=$(/usr/bin/shasum -a 256 /tmp/dist.p12 | awk '{print $1}')
+            if [ "$SUM" != "$P12_SHA256" ]; then
+              echo "P12 SHA256 mismatch. Expected: $P12_SHA256, Got: $SUM"
+              exit 1
+            fi
+          fi
+
+          # ===== יצירת keychain פרטי וייבוא =====
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PWD="cm_build_keychain_pwd"
           KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}-db"
 
-          security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_NAME" || true
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
-          security list-keychains -d user -s "$KEYCHAIN_PATH"
-          security default-keychain -d user -s "$KEYCHAIN_PATH"
+          /usr/bin/security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_NAME" || true
+          /usr/bin/security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          /usr/bin/security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
+          /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH"
+          /usr/bin/security default-keychain -d user -s "$KEYCHAIN_PATH"
 
-          # ===== 2) decode באמצעות BSD base64 =====
-          P12_PATH="$CERTS_DIR/dist.p12"
-          /usr/bin/base64 -D -i /tmp/p12.b64 -o "$P12_PATH"
-
-          PROFILE_PATH="$PROFILES_DIR/profile.mobileprovision"
-          /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILE_PATH"
-
-          # ===== 3) יבוא ה-p12 לקי-צ'יין החדש =====
-          security import "$P12_PATH" -k "$KEYCHAIN_PATH" -P "$P12_PASSWORD" -A \
+          /usr/bin/security import /tmp/dist.p12 -k "$KEYCHAIN_PATH" -P "$P12_PASSWORD" -A \
             -T /usr/bin/codesign -T /usr/bin/security
 
-          security find-identity -p codesigning -v || true
+          # הקלות הרשאות לכל זהויות החתימה
+          for HASH in $(/usr/bin/security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
+            /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH" -t private -Z "$HASH" || true
+          done
 
-          # ===== 4) חילוץ Name/UUID/Bundle מהפרופיל =====
+          # ===== חילוץ נתונים מה-profile =====
           PLIST_OUT="$PROFILES_DIR/profile.plist"
-          /usr/bin/security cms -D -i "$PROFILE_PATH" > "$PLIST_OUT"
+          /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
 
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
           PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
           TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
           BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
 
+          # החזרת הדיבוג (בלי לחשוף סודות)
+          set -x
           echo "== Provisioning profile parsed =="
-          echo "Name: $PROV_NAME"
-          echo "UUID: $PROV_UUID"
+          echo "Name: ${PROV_NAME}"
+          echo "UUID: ${PROV_UUID}"
           echo "Team: ${TEAM_ID:-unknown}"
           echo "Bundle ID (from profile): ${BUNDLE_ID_IN_PROF:-unknown}"
 
-          echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
-          echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
-          echo "export BUNDLE_ID_FROM_PROFILE=\"$BUNDLE_ID_IN_PROF\"" >> $CM_ENV
+          echo "export PROV_NAME=\"${PROV_NAME}\"" >> $CM_ENV
+          echo "export PROV_UUID=\"${PROV_UUID}\"" >> $CM_ENV
+          echo "export BUNDLE_ID_FROM_PROFILE=\"${BUNDLE_ID_IN_PROF}\"" >> $CM_ENV
 
-          # הקלות הרשאות לשימוש זהויות חתימה ע״י codesign
-          for HASH in $(security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
-            security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH" -t private -Z "$HASH" || true
-          done
+          # דיבוג זהויות חתימה
+          /usr/bin/security find-identity -p codesigning -v || true
 
       - name: Debug signing context
         script: |
