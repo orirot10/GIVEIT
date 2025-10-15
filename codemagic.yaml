@@ -275,6 +275,28 @@ workflows:
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
 
+                
+      - name: Verify App Store Connect creds
+        script: |
+          set -euxo pipefail
+          : "${APP_STORE_CONNECT_API_KEY_ID:?missing}"
+          : "${APP_STORE_CONNECT_ISSUER_ID:?missing}"
+          : "${APP_STORE_CONNECT_API_KEY_BASE64:?missing}"
+
+          KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$KEY_DIR"
+          KEY_PATH="$KEY_DIR/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+          echo "$APP_STORE_CONNECT_API_KEY_BASE64" | tr -d '\r\n\t ' | /usr/bin/base64 -D > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+
+          # 1) רשימת providers (אם נכשל -> ה־Key/Issuer שגויים או רמת הרשאות לא מספיקה)
+          xcrun altool --list-providers \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
+          # 2) הדפסת fingerprint כדי לוודא שהקובץ נטען נכון (ללא חשיפת המפתח)
+          /usr/bin/shasum -a 256 "$KEY_PATH" | awk '{print "p8 SHA256:", $1}'
+
           
       - name: Upload to App Store Connect (Transporter with fallback)
         script: |
