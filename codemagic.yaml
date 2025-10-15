@@ -196,32 +196,35 @@ workflows:
           NEW_BUILD_NUMBER=${CM_BUILD_ID:-1}
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD_NUMBER" "App/Info.plist" || true
 
-      - name: Build (archive) with code signing
+      - name: Build (archive) unsigned (no provisioning at archive)
         script: |
-          set -eo pipefail
+          set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
-          # שים לב: לא מציינים PROVISIONING_PROFILE_SPECIFIER כאן כדי לא "להדביק" לפרויקטי Pods
+
+          # ארכוב בלי חתימה/פרופיל (נמנע משגיאות Pods ו-"requires a provisioning profile")
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+
 
       - name: Export signed .ipa (App Store)
         script: |
-          set -eo pipefail
+          set -euxo pipefail
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
           xcode-project export-ipa \
             --archive "$CM_BUILD_DIR/App.xcarchive" \
             --export-method app-store \
             --export-options "provisioningProfiles[${BUNDLE_ID}]=${PROV_NAME}"
+
 
     artifacts:
       - build/ios/ipa/*.ipa
