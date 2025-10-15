@@ -118,9 +118,13 @@ workflows:
           # Workaround: split P12 -> PEM (cert + key), then import
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
+	 
+ 	  # יבוא התעודה (X.509)
+	  /usr/bin/security import /tmp/cert.pem -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security -f x509
 
-          /usr/bin/security import /tmp/cert.pem -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security -f pemseq
-          /usr/bin/security import /tmp/key.pem  -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security -f pemseq
+	  # יבוא המפתח הפרטי (PKCS#8)
+ 	   /usr/bin/security import /tmp/key.pem -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security -f pkcs8 -t priv
+
 
           # Grant codesign access
           for HASH in $(/usr/bin/security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
