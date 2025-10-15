@@ -1,18 +1,22 @@
 workflows:
-  ios-signed-ipa:
-    name: iOS Signed IPA (Capacitor; frontend/)
+  ios-appstore-signed:
+    name: iOS App Store (Capacitor; signed)
     instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
       node: 18
       xcode: latest
       cocoapods: default
+      # ====== ערכים להתאמה ======
       vars:
-        APP_SCHEME: "App"                 # ודא שזה שם ה-Scheme
-        IOS_DIR: "frontend/ios/App"       # נתיב פרויקט iOS (Capacitor)
-        BUNDLE_ID: "com.orirot.givit"     # ה-Bundle ID שלך
-        APPLE_TEAM_ID: "39WVDVZKGE"       # <-- שים כאן את Team ID שלך (10 תווים, אותיות/ספרות)
-        DIST_PROFILE_NAME: "Distribution"  # שם ה-Provisioning Profile (App Store) בדיוק כפי שמופיע ב-Apple/Codemagic
+        APP_SCHEME: "App"            # שם ה-Scheme ב-Xcode (Capacitor יוצר בד"כ "App")
+        IOS_DIR: "frontend/ios/App"  # נתיב פרויקט iOS
+        APPLE_TEAM_ID: "39WVDVZKGE"  # החלף ל-Team ID שלך אם שונה
+      # ====== הוסף ב-Encrypted env ב-Codemagic ======
+      # P12_BASE64           (base64 של AppleDistribution.p12)
+      # P12_PASSWORD         (סיסמת ה-p12)
+      # DIST_PROFILE_BASE64  (base64 של קובץ ה-.mobileprovision מסוג App Store)
+
     scripts:
       - name: Install deps (frontend)
         script: |
@@ -23,28 +27,28 @@ workflows:
         script: |
           set -e
           cd frontend
-
-          echo "==> Listing npm scripts:"
-          npm run || true
-
-          echo "==> Detecting framework & running build…"
           BUILD_OK=0
           WEB_OUT=""
 
+          # 1) Vite
           if [ -f vite.config.ts ] || [ -f vite.config.js ] || npm ls vite --depth=0 >/dev/null 2>&1; then
             npx vite build && BUILD_OK=1
           fi
+          # 2) CRA
           if [ $BUILD_OK -eq 0 ] && (npm ls react-scripts --depth=0 >/dev/null 2>&1); then
             npx react-scripts build && BUILD_OK=1
           fi
+          # 3) Next.js
           if [ $BUILD_OK -eq 0 ] && (npm ls next --depth=0 >/dev/null 2>&1); then
             npx next build
             npx next export || true
             BUILD_OK=1
           fi
+          # 4) Ionic
           if [ $BUILD_OK -eq 0 ] && (npx ionic -v >/dev/null 2>&1); then
             npx ionic build && BUILD_OK=1
           fi
+          # 5) fallback ל-"npm run build"
           if [ $BUILD_OK -eq 0 ]; then
             if npm run -s build >/dev/null 2>&1; then
               npm run build && BUILD_OK=1
@@ -52,49 +56,79 @@ workflows:
           fi
 
           if [ $BUILD_OK -eq 0 ]; then
-            echo "No known build tool detected and no 'npm run build' script exists."
-            cat package.json
+            echo "No known web build. Add a 'build' script or use Vite/CRA/Next/Ionic."
+            cat package.json || true
             exit 1
           fi
 
+          # מציאת תיקיית פלט
           if [ -d dist ]; then WEB_OUT="dist"; fi
           if [ -d build ]; then WEB_OUT="build"; fi
           if [ -d out ];   then WEB_OUT="out";   fi
+          [ -z "$WEB_OUT" ] && { echo "Could not detect build output (dist/build/out)."; exit 1; }
 
-          if [ -z "$WEB_OUT" ]; then
-            echo "Build finished but couldn't find output folder (dist/build/out)."
-            ls -la
-            exit 1
-          fi
+          echo "==> Web build at: $WEB_OUT"
 
-          echo "==> Build output detected at: $WEB_OUT"
-
+          # עדכון webDir בקובץ הקפציטור
           if [ -f capacitor.config.json ]; then
             node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_OUT';fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
           elif ls capacitor.config.* >/dev/null 2>&1; then
             sed -i.bak "s/webDir: *['\"][^'\"]*['\"]/webDir: '$WEB_OUT'/" capacitor.config.* || true
             echo "Attempted to set webDir='$WEB_OUT' in capacitor.config.*"
           else
-            echo "No capacitor.config.* found in frontend. Make sure it's there."
+            echo "WARN: No capacitor.config.* found in frontend"
           fi
 
       - name: Ensure iOS platform exists & sync
         script: |
           cd frontend
-          if [ ! -d "ios" ]; then
-            npx cap add ios
-          fi
+          [ ! -d "ios" ] && npx cap add ios
           npx cap sync ios
-          # חובה ב-Capacitor עם Pods:
           cd ios/App
           pod install --repo-update
 
-      - name: Install signing certificates & provisioning profiles
+      - name: Detect BUNDLE_ID from Xcode
         script: |
-          # ודא שהעלית ב-Codemagic: AppleDistribution.p12 (עם סיסמה) וה-.mobileprovision (App Store)
-          keychain add-certificates
-          # הכפיית team על כל ה-targets (כולל Pods) + שימוש בפרופילים שהותקנו
-          xcode-project use-profiles --team-id "$APPLE_TEAM_ID" --warn-only
+          cd $IOS_DIR
+          BID=$(xcodebuild -showBuildSettings \
+                -workspace "App.xcworkspace" \
+                -scheme "$APP_SCHEME" -configuration Release \
+                | grep -m1 PRODUCT_BUNDLE_IDENTIFIER | awk '{print $3}')
+          [ -z "$BID" ] && { echo "Failed to detect PRODUCT_BUNDLE_IDENTIFIER"; exit 1; }
+          echo "Detected BUNDLE_ID=$BID"
+          echo "export BUNDLE_ID=$BID" >> $CM_ENV
+
+      - name: Install certificates & provisioning profile (manual)
+        script: |
+          set -e
+          CERTS_DIR="$HOME/Library/MobileDevice/Certificates"
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
+
+          # === תעודה (p12) מה-ENV ===
+          echo "$P12_BASE64" | base64 --decode > "$CERTS_DIR/dist.p12"
+          security import "$CERTS_DIR/dist.p12" \
+            -k "$HOME/Library/Keychains/login.keychain-db" \
+            -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+
+          # === פרופיל App Store (.mobileprovision) מה-ENV ===
+          PROFILE_PATH="$PROFILES_DIR/profile.mobileprovision"
+          echo "$DIST_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+
+          # חליצה ל-plist כדי לקבל Name ו-UUID
+          PLIST_OUT="$PROFILES_DIR/profile.plist"
+          /usr/bin/security cms -D -i "$PROFILE_PATH" > "$PLIST_OUT"
+
+          PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
+          PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
+
+          echo "Provisioning Profile:"
+          echo "  Name: $PROV_NAME"
+          echo "  UUID: $PROV_UUID"
+
+          # ייצוא לשימוש בשלבים הבאים
+          echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
+          echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
 
       - name: Bump build number
         script: |
@@ -105,7 +139,6 @@ workflows:
       - name: Build (archive) with code signing
         script: |
           cd $IOS_DIR
-          # אם אתה רוצה להיות אקספליציטי בפרופיל: PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME"
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
@@ -114,18 +147,17 @@ workflows:
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROV_UUID" \
             CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES
 
       - name: Export signed .ipa (App Store)
         script: |
           cd $IOS_DIR
-          # ניתן למפות Bundle ID -> שם פרופיל, אם יש כמה:
-          #  --export-options "provisioningProfiles[$BUNDLE_ID]=$DIST_PROFILE_NAME"
+          # המיפוי דורש Name (לא UUID) — נשתמש ב-$PROV_NAME
           xcode-project export-ipa \
             --archive "$CM_BUILD_DIR/App.xcarchive" \
             --export-method app-store \
-            --export-options "provisioningProfiles[$BUNDLE_ID]=$DIST_PROFILE_NAME"
+            --export-options "provisioningProfiles[$BUNDLE_ID]=$PROV_NAME"
 
     artifacts:
       - build/ios/ipa/*.ipa
