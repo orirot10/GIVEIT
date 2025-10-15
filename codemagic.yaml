@@ -8,8 +8,9 @@ workflows:
       xcode: latest
       cocoapods: default
       vars:
-        APP_SCHEME: "App"
-        IOS_DIR: "frontend/ios/App"
+        APP_SCHEME: "App"              # ודא שזה שם ה-Scheme ב-Xcode
+        IOS_DIR: "frontend/ios/App"    # נתיב פרויקט iOS שנוצר ע"י Capacitor
+        BUNDLE_ID: "com.orirot.givit"  # אופציונלי: לשימוש עתידי/בדיקות
     scripts:
       - name: Install deps (frontend)
         script: |
@@ -28,24 +29,29 @@ workflows:
           BUILD_OK=0
           WEB_OUT=""
 
+          # 1) Vite
           if [ -f vite.config.ts ] || [ -f vite.config.js ] || npm ls vite --depth=0 >/dev/null 2>&1; then
             npx vite build && BUILD_OK=1
           fi
 
+          # 2) CRA (react-scripts)
           if [ $BUILD_OK -eq 0 ] && (npm ls react-scripts --depth=0 >/dev/null 2>&1); then
             npx react-scripts build && BUILD_OK=1
           fi
 
+          # 3) Next.js (כולל export סטטי אם אפשר)
           if [ $BUILD_OK -eq 0 ] && (npm ls next --depth=0 >/dev/null 2>&1); then
             npx next build
             npx next export || true
             BUILD_OK=1
           fi
 
+          # 4) Ionic (Capacitor)
           if [ $BUILD_OK -eq 0 ] && (npx ionic -v >/dev/null 2>&1); then
             npx ionic build && BUILD_OK=1
           fi
 
+          # 5) fallback ל-"npm run build" אם קיים
           if [ $BUILD_OK -eq 0 ]; then
             if npm run -s build >/dev/null 2>&1; then
               npm run build && BUILD_OK=1
@@ -61,6 +67,7 @@ workflows:
             exit 1
           fi
 
+          # מציאת תיקיית הפלט
           if [ -d dist ]; then WEB_OUT="dist"; fi
           if [ -d build ]; then WEB_OUT="build"; fi
           if [ -d out ];   then WEB_OUT="out";   fi
@@ -73,8 +80,9 @@ workflows:
 
           echo "==> Build output detected at: $WEB_OUT"
 
+          # עדכון webDir בקובץ הקפציטור
           if [ -f capacitor.config.json ]; then
-            node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_OUT';fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
+            node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_DIR' || (o.webDir='$WEB_OUT');fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
           elif ls capacitor.config.* >/dev/null 2>&1; then
             sed -i.bak "s/webDir: *['\"][^'\"]*['\"]/webDir: '$WEB_OUT'/" capacitor.config.* || true
             echo "Attempted to set webDir='$WEB_OUT' in capacitor.config.*"
@@ -90,83 +98,40 @@ workflows:
           fi
           npx cap sync ios
 
-      # ✅ פה מותקנים התעודה (.p12) והפרופיל (.mobileprovision) שהעלית ב-Codemagic UI
       - name: Install signing certificates & provisioning profiles
         script: |
+          # דורש שהעלית ב-Codemagic UI: .p12 (עם הסיסמה) ו-.mobileprovision
           keychain add-certificates
           xcode-project use-profiles
 
-      # (אופציונלי) עדכון מספר build אוטומטי
       - name: Bump build number
         script: |
           cd $IOS_DIR
-          # נשתמש ב-CM_BUILD_ID כמספר build; אפשר להחליף כרצונך
           NEW_BUILD_NUMBER=${CM_BUILD_ID:-1}
+          # עדכון CFBundleVersion (Build)
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD_NUMBER" "App/Info.plist" || true
 
-      - name: Build signed .ipa (App Store export)
+      - name: Build (archive) with code signing
         script: |
           cd $IOS_DIR
-          # codemagic-cli-tools יבצעו archive + export חתומים לפי הפרופיל
-          xcode-project build-ipa \
-            --workspace "App.xcworkspace" \
-            --scheme "$APP_SCHEME" \
-            --archive-configuration "Release" \
-            --export-method "app-store"
+          # ארכוב חתום ל-.xcarchive (Code signing: YES; שימוש בפרופילים שהותקנו)
+          xcodebuild archive \
+            -workspace "App.xcworkspace" \
+            -scheme "$APP_SCHEME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$CM_BUILD_DIR/App.xcarchive" \
+            CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES
+
+      - name: Export signed .ipa (App Store)
+        script: |
+          cd $IOS_DIR
+          # ייצוא IPA חתום מתוך הארכיון. ניתן להוסיף מפה פרופיל ספציפי ע"י --export-options.
+          xcode-project export-ipa \
+            --archive "$CM_BUILD_DIR/App.xcarchive" \
+            --export-method app-store
 
     artifacts:
       - build/ios/ipa/*.ipa
       - $IOS_DIR/build/Build/Products/Release-iphoneos/*.app
-      - $IOS_DIR/build/*.xcarchive
-
-  # אופציונלי: העלאה אוטומטית ל-TestFlight (דורש מפתחות App Store Connect)
-  ios-app-store:
-    name: iOS Signed IPA + Upload to TestFlight
-    instance_type: mac_mini_m1
-    max_build_duration: 60
-    environment:
-      node: 18
-      xcode: latest
-      vars:
-        APP_SCHEME: "App"
-        IOS_DIR: "frontend/ios/App"
-        BUNDLE_ID: "com.orirot.givit"
-        # הוסף ב-Encrypted variables:
-        # APP_STORE_CONNECT_ISSUER_ID
-        # APP_STORE_CONNECT_KEY_IDENTIFIER
-        # APP_STORE_CONNECT_PRIVATE_KEY  (ה-API key במלואו כטקסט)
-    scripts:
-      - name: Trigger signed build
-        script: |
-          echo "This workflow depends on ios-signed-ipa steps; repeating key steps:"
-          cd frontend && (npm ci || npm i)
-          # ... אפשר לייבא פה את אותם צעדים כמו למעלה, או לקרוא ל-reusable script
-          cd ..
-          keychain add-certificates
-          xcode-project use-profiles
-          cd frontend && npx cap sync ios && cd ..
-          cd $IOS_DIR
-          xcode-project build-ipa \
-            --workspace "App.xcworkspace" \
-            --scheme "$APP_SCHEME" \
-            --archive-configuration "Release" \
-            --export-method "app-store"
-
-      - name: Upload to TestFlight
-        script: |
-          IPA_PATH=$(ls build/ios/ipa/*.ipa | head -n 1)
-          if [ -z "$IPA_PATH" ]; then
-            echo "No IPA found to upload."; exit 1
-          fi
-
-          app-store-connect publish-ios \
-            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
-            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
-            --api-key "$APP_STORE_CONNECT_PRIVATE_KEY" \
-            --ipa "$IPA_PATH" \
-            --bundle-id "$BUNDLE_ID" \
-            --submit-for-review false \
-            --release-type "TESTFLIGHT"
-
-    artifacts:
-      - build/ios/ipa/*.ipa
+      - $CM_BUILD_DIR/App.xcarchive
