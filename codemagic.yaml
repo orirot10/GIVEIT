@@ -111,41 +111,51 @@ workflows:
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
+          # Decode inputs
           echo "$P12_BASE64"          | tr -d '\r\n\t ' > /tmp/p12.b64
           echo "$DIST_PROFILE_BASE64" | tr -d '\r\n\t ' > /tmp/profile.b64
           /usr/bin/base64 -D -i /tmp/p12.b64     -o /tmp/dist.p12
           /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILES_DIR/profile.mobileprovision"
 
+          # Sanity check P12
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
 
+          # Create & configure dedicated keychain
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PWD="cm_build_keychain_pwd"
           KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}-db"
           /usr/bin/security create-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_NAME" || true
           /usr/bin/security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           /usr/bin/security unlock-keychain -p "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
-          /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH"
+
+          # Ensure search list includes our keychain (and login/system for Apple roots)
+          /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
           /usr/bin/security default-keychain -d user -s "$KEYCHAIN_PATH"
 
-          # Split -> repackage P12 (יציב ל-import), ואז import
+          # Repackage P12 (stable import), then import
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
           TEMP_P12_PASS="Temp123!"
           /usr/bin/openssl pkcs12 -export -inkey /tmp/key.pem -in /tmp/cert.pem \
             -out /tmp/combined.p12 -passout pass:${TEMP_P12_PASS}
+
           /usr/bin/security import /tmp/combined.p12 \
             -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" \
             -A -T /usr/bin/codesign -T /usr/bin/security
 
-          # Parse profile + התאמת Bundle IDs
-          PLIST_OUT="$PROFILES_DIR/profile.plist"
+          # CRITICAL: allow codesign to use the private key (prevents errSecInternalComponent)
+          /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s \
+            -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
+
+          # Extract provisioning profile metadata (write plist OUTSIDE the Profiles dir!)
+          PLIST_OUT="/tmp/profile.plist"
           /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
           PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
           TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
           BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
 
-          # טען את BUNDLE_ID שזוהה וודא התאמה
+          # Load detected project BUNDLE_ID (from earlier step)
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           echo "Profile Bundle: ${BUNDLE_ID_IN_PROF:-unknown}"
           echo "Project Bundle: ${BUNDLE_ID:-unknown}"
@@ -154,10 +164,17 @@ workflows:
             exit 1
           fi
 
-          echo "export PROV_NAME=\"${PROV_NAME}\"" >> $CM_ENV
-          echo "export PROV_UUID=\"${PROV_UUID}\"" >> $CM_ENV
-          echo "export BUNDLE_ID_FROM_PROFILE=\"${BUNDLE_ID_IN_PROF}\"" >> $CM_ENV
+          {
+            echo "export PROV_NAME=\"$PROV_NAME\""
+            echo "export PROV_UUID=\"$PROV_UUID\""
+            echo "export BUNDLE_ID_FROM_PROFILE=\"$BUNDLE_ID_IN_PROF\""
+            echo "export KEYCHAIN_NAME=\"$KEYCHAIN_NAME\""
+            echo "export KEYCHAIN_PATH=\"$KEYCHAIN_PATH\""
+            echo "export KEYCHAIN_PWD=\"$KEYCHAIN_PWD\""
+          } >> "$CM_ENV"
+
           /usr/bin/security find-identity -p codesigning -v || true
+
 
       - name: Reload signing vars (fallback)
         script: |
