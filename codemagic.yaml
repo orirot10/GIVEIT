@@ -7,8 +7,8 @@ workflows:
       node: 18
       xcode: latest
       cocoapods: default
-  groups:
-    - o1  
+      groups:
+        - o1  
       vars:
         APP_SCHEME: "App"              # שם ה-Scheme ב-Xcode (ב-Capacitor לרוב "App")
         IOS_DIR: "frontend/ios/App"    # נתיב פרויקט iOS
