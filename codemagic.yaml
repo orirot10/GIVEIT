@@ -9,7 +9,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - o1   # כאן שמורים: P12_BASE64, P12_PASSWORD, DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
+        - o1   # כאן נמצאים: P12_BASE64, P12_PASSWORD, DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
       vars:
         APP_SCHEME: "App"
         IOS_DIR: "frontend/ios/App"
@@ -32,7 +32,7 @@ workflows:
           if [ $BUILD_OK -eq 0 ] && npm ls react-scripts --depth=0 >/dev/null 2>&1; then npx react-scripts build && BUILD_OK=1; fi
           if [ $BUILD_OK -eq 0 ] && npm ls next --depth=0 >/dev/null 2>&1; then npx next build && npx next export || true; BUILD_OK=1; fi
           if [ $BUILD_OK -eq 0 ] && npx ionic -v >/dev/null 2>&1; then npx ionic build && BUILD_OK=1; fi
-          if [ $BUILD_OK -eq 0 ] && npm run -s build >/devлал 2>&1; then npm run build && BUILD_OK=1; fi
+          if [ $BUILD_OK -eq 0 ] && npm run -s build >/dev/null 2>&1; then npm run build && BUILD_OK=1; fi
           [ $BUILD_OK -eq 1 ] || { echo "No known web build"; cat package.json || true; exit 1; }
 
           if   [ -d dist ];  then WEB_OUT="dist";
@@ -76,7 +76,7 @@ workflows:
           test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
           echo "All required env vars are present."
 
-      - name: Install certificates & provisioning profile (custom keychain, PEM workaround)
+      - name: Install certificates & provisioning profile (custom keychain via temp P12)
         script: |
           set -euo pipefail
           set +x
@@ -88,13 +88,13 @@ workflows:
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
-          # Decode base64 (BSD)
+          # Decode incoming base64 (BSD base64)
           echo "$P12_BASE64"          | tr -d '\r\n\t ' > /tmp/p12.b64
           echo "$DIST_PROFILE_BASE64" | tr -d '\r\n\t ' > /tmp/profile.b64
           /usr/bin/base64 -D -i /tmp/p12.b64     -o /tmp/dist.p12
           /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILES_DIR/profile.mobileprovision"
 
-          # Sanity: verify p12 with password
+          # Verify original P12 & password
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
 
           # Create isolated keychain
@@ -111,21 +111,22 @@ workflows:
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
 
-          # Import cert (X.509) and private key (PKCS#8) with explicit formats
-          /usr/bin/security import /tmp/cert.pem \
-            -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security \
-            -f x509
+          # Repackage into a new temporary P12 (eliminates format issues)
+          TEMP_P12_PASS="Temp123!"
+          /usr/bin/openssl pkcs12 -export -inkey /tmp/key.pem -in /tmp/cert.pem \
+            -out /tmp/combined.p12 -passout pass:${TEMP_P12_PASS}
 
-          /usr/bin/security import /tmp/key.pem  \
-            -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign -T /usr/bin/security \
-            -f pkcs8 -t priv
+          # Import the new P12
+          /usr/bin/security import /tmp/combined.p12 \
+            -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" \
+            -A -T /usr/bin/codesign -T /usr/bin/security
 
-          # Grant codesign access
+          # Allow codesign to use the keys
           for HASH in $(/usr/bin/security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
             /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH" -t private -Z "$HASH" || true
           done
 
-          # Parse provisioning profile
+          # Parse provisioning profile (Name/UUID/Bundle)
           PLIST_OUT="$PROFILES_DIR/profile.plist"
           /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
@@ -138,6 +139,7 @@ workflows:
           echo "Name: ${PROV_NAME}"
           echo "UUID: ${PROV_UUID}"
           echo "Bundle ID (from profile): ${BUNDLE_ID_IN_PROF:-unknown}"
+
           echo "export PROV_NAME=\"${PROV_NAME}\"" >> $CM_ENV
           echo "export PROV_UUID=\"${PROV_UUID}\"" >> $CM_ENV
           echo "export BUNDLE_ID_FROM_PROFILE=\"${BUNDLE_ID_IN_PROF}\"" >> $CM_ENV
