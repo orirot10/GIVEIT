@@ -7,27 +7,25 @@ workflows:
       node: 18
       xcode: latest
       cocoapods: default
-      # ====== ערכים להתאמה ======
       vars:
-        APP_SCHEME: "App"            # שם ה-Scheme ב-Xcode (Capacitor יוצר בד"כ "App")
-        IOS_DIR: "frontend/ios/App"  # נתיב פרויקט iOS
-        APPLE_TEAM_ID: "39WVDVZKGE"  # החלף ל-Team ID שלך אם שונה
-      # ====== הוסף ב-Encrypted env ב-Codemagic ======
-      # P12_BASE64           (base64 של AppleDistribution.p12)
-      # P12_PASSWORD         (סיסמת ה-p12)
-      # DIST_PROFILE_BASE64  (base64 של קובץ ה-.mobileprovision מסוג App Store)
+        APP_SCHEME: "App"              # שם ה-Scheme ב-Xcode (ב-Capacitor לרוב "App")
+        IOS_DIR: "frontend/ios/App"    # נתיב פרויקט iOS
+        APPLE_TEAM_ID: "39WVDVZKGE"    # Team ID שלך
+      # ב-Encrypted env יש להגדיר:
+      # P12_BASE64            (base64 של AppleDistribution.p12)
+      # P12_PASSWORD          (סיסמת ה-p12)
+      # DIST_PROFILE_BASE64   (base64 של Ori_Roth.mobileprovision - App Store)
 
     scripts:
-
-
       - name: Install deps (frontend)
         script: |
+          set -euxo pipefail
           cd frontend
           npm ci || npm i
 
       - name: Build web (auto-detect framework)
         script: |
-          set -e
+          set -euxo pipefail
           cd frontend
           BUILD_OK=0
           WEB_OUT=""
@@ -46,7 +44,7 @@ workflows:
             npx next export || true
             BUILD_OK=1
           fi
-          # 4) Ionic
+          # 4) Ionic (Capacitor)
           if [ $BUILD_OK -eq 0 ] && (npx ionic -v >/dev/null 2>&1); then
             npx ionic build && BUILD_OK=1
           fi
@@ -80,15 +78,10 @@ workflows:
           else
             echo "WARN: No capacitor.config.* found in frontend"
           fi
-      - name: Check required env
-  script: |
-    test -n "${P12_BASE64:-}" || { echo "P12_BASE64 missing"; exit 1; }
-    test -n "${P12_PASSWORD:-}" || { echo "P12_PASSWORD missing"; exit 1; }
-    test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
-    echo "All required env vars are present."
 
       - name: Ensure iOS platform exists & sync
         script: |
+          set -euxo pipefail
           cd frontend
           [ ! -d "ios" ] && npx cap add ios
           npx cap sync ios
@@ -97,6 +90,7 @@ workflows:
 
       - name: Detect BUNDLE_ID from Xcode
         script: |
+          set -euxo pipefail
           cd $IOS_DIR
           BID=$(xcodebuild -showBuildSettings \
                 -workspace "App.xcworkspace" \
@@ -105,15 +99,6 @@ workflows:
           [ -z "$BID" ] && { echo "Failed to detect PRODUCT_BUNDLE_IDENTIFIER"; exit 1; }
           echo "Detected BUNDLE_ID=$BID"
           echo "export BUNDLE_ID=$BID" >> $CM_ENV
-
-      - name: Debug signing context
-        script: |
-          set -x
-          security find-identity -p codesigning -v || true
-          echo "BUNDLE_ID=${BUNDLE_ID:-unset}"
-          echo "BUNDLE_ID_FROM_PROFILE=${BUNDLE_ID_FROM_PROFILE:-unset}"
-          echo "PROV_NAME=${PROV_NAME:-unset}"
-          echo "PROV_UUID=${PROV_UUID:-unset}"
 
       - name: Install certificates & provisioning profile (manual, robust)
         script: |
@@ -128,19 +113,15 @@ workflows:
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
-          # ===== 1) Normalize Base64 (מסיר CRLF אפשריים) =====
-          # לפעמים ה-base64 מגיע עם שורות שבורות/CRLF. ננרמל לשורה אחת נקייה.
-          echo "$P12_BASE64"         | tr -d '\r\n ' > /tmp/p12.b64
-          echo "$DIST_PROFILE_BASE64"| tr -d '\r\n ' > /tmp/profile.b64
-
-          # וידוא שהקבצים לא ריקים
+          # ===== 1) Normalize Base64 (מסיר CRLF/רווחים) =====
+          echo "$P12_BASE64"          | tr -d '\r\n ' > /tmp/p12.b64
+          echo "$DIST_PROFILE_BASE64" | tr -d '\r\n ' > /tmp/profile.b64
           [ -s /tmp/p12.b64 ] || { echo "Empty P12_BASE64"; exit 1; }
           [ -s /tmp/profile.b64 ] || { echo "Empty DIST_PROFILE_BASE64"; exit 1; }
 
-          # ===== 2) הכנת keychain (לעתים login נעול) =====
+          # ===== 2) הכנת keychain =====
           KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
           security list-keychains -d user -s "$KEYCHAIN"
-          # נסה לפתוח את ה-login keychain עם סיסמת המשתמש (ב־CI לרוב אין צורך; אם ייכשל נתעלם)
           security unlock-keychain -p "" "$KEYCHAIN" || true
           security set-keychain-settings -lut 21600 "$KEYCHAIN" || true
 
@@ -148,7 +129,6 @@ workflows:
           P12_PATH="$CERTS_DIR/dist.p12"
           base64 --decode /tmp/p12.b64 > "$P12_PATH"
 
-          # ניסיון ראשון (codesign+security)
           set +e
           security import "$P12_PATH" -k "$KEYCHAIN" -P "$P12_PASSWORD" -A \
             -T /usr/bin/codesign -T /usr/bin/security
@@ -159,7 +139,6 @@ workflows:
             security import "$P12_PATH" -k "$KEYCHAIN" -P "$P12_PASSWORD"
           fi
 
-          # ודא שיש זהויות חתימה זמינות
           security find-identity -p codesigning -v || true
 
           # ===== 4) התקנת ה-mobileprovision וחילוץ פרטים =====
@@ -169,10 +148,8 @@ workflows:
           PLIST_OUT="$PROFILES_DIR/profile.plist"
           /usr/bin/security cms -D -i "$PROFILE_PATH" > "$PLIST_OUT"
 
-          # חילוץ מאפייני הפרופיל עם PlistBuddy
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
           PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
-          APP_ID_NAME=$(/usr/libexec/PlistBuddy -c 'Print :AppIDName' "$PLIST_OUT") || true
           TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
           BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
 
@@ -181,39 +158,35 @@ workflows:
           echo "UUID: $PROV_UUID"
           echo "Team: ${TEAM_ID:-unknown}"
           echo "Bundle ID (from profile): ${BUNDLE_ID_IN_PROF:-unknown}"
-          echo "AppIDName: ${APP_ID_NAME:-unknown}"
 
-          # נייצא לסביבה להמשך השלבים
           echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
           echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
           echo "export BUNDLE_ID_FROM_PROFILE=\"$BUNDLE_ID_IN_PROF\"" >> $CM_ENV
 
-          echo "== Installed provisioning profiles =="
-          ls -la "$PROFILES_DIR" || true
-          /usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT" || true
-
-          # ===== 5) בדיקת התאמה לבאנדל (אם כבר זיהינו קודם BUNDLE_ID) =====
-          if [ -n "${BUNDLE_ID:-}" ] && [ -n "${BUNDLE_ID_IN_PROF:-}" ]; then
-            if [ "$BUNDLE_ID" != "$BUNDLE_ID_IN_PROF" ]; then
-              echo "WARNING: Detected BUNDLE_ID='$BUNDLE_ID' differs from profile bundle='$BUNDLE_ID_IN_PROF'"
-              echo "This often causes signing failures. Make sure profile matches your Xcode target bundle id."
-            fi
+          # אזהרה מוקדמת על חוסר התאמה (לא מפיל build)
+          if [ -n "${BUNDLE_ID:-}" ] && [ -n "${BUNDLE_ID_IN_PROF:-}" ] && [ "$BUNDLE_ID" != "$BUNDLE_ID_IN_PROF" ]; then
+            echo "WARNING: Xcode BUNDLE_ID='$BUNDLE_ID' differs from profile bundle='$BUNDLE_ID_IN_PROF'"
           fi
 
-          # ===== 6) מתן הרשאות key partition (מונע prompted access ב-codesign) =====
-          # שקט במידה ואין זהויות — לא קריטי
-          for HASH in $(security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
-            security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN" -t private -Z "$HASH" || true
-          done
+      - name: Debug signing context
+        script: |
+          set -euxo pipefail
+          security find-identity -p codesigning -v || true
+          echo "BUNDLE_ID=${BUNDLE_ID:-unset}"
+          echo "BUNDLE_ID_FROM_PROFILE=${BUNDLE_ID_FROM_PROFILE:-unset}"
+          echo "PROV_NAME=${PROV_NAME:-unset}"
+          echo "PROV_UUID=${PROV_UUID:-unset}"
 
       - name: Bump build number
         script: |
+          set -euxo pipefail
           cd $IOS_DIR
           NEW_BUILD_NUMBER=${CM_BUILD_ID:-1}
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD_NUMBER" "App/Info.plist" || true
 
       - name: Build (archive) with code signing
         script: |
+          set -euxo pipefail
           cd $IOS_DIR
           xcodebuild archive \
             -workspace "App.xcworkspace" \
@@ -228,8 +201,9 @@ workflows:
 
       - name: Export signed .ipa (App Store)
         script: |
+          set -euxo pipefail
           cd $IOS_DIR
-          # המיפוי דורש Name (לא UUID) — נשתמש ב-$PROV_NAME
+          # מיפוי לפי Name (לא UUID)
           xcode-project export-ipa \
             --archive "$CM_BUILD_DIR/App.xcarchive" \
             --export-method app-store \
