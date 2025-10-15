@@ -98,37 +98,105 @@ workflows:
           echo "Detected BUNDLE_ID=$BID"
           echo "export BUNDLE_ID=$BID" >> $CM_ENV
 
-      - name: Install certificates & provisioning profile (manual)
+      - name: Debug signing context
         script: |
-          set -e
+          set -x
+          security find-identity -p codesigning -v || true
+          echo "BUNDLE_ID=${BUNDLE_ID:-unset}"
+          echo "BUNDLE_ID_FROM_PROFILE=${BUNDLE_ID_FROM_PROFILE:-unset}"
+          echo "PROV_NAME=${PROV_NAME:-unset}"
+          echo "PROV_UUID=${PROV_UUID:-unset}"
+
+      - name: Install certificates & provisioning profile (manual, robust)
+        script: |
+          set -euxo pipefail
+
+          # ===== 0) בדיקות קיום ENV =====
+          : "${P12_BASE64:?P12_BASE64 is missing}"
+          : "${P12_PASSWORD:?P12_PASSWORD is missing}"
+          : "${DIST_PROFILE_BASE64:?DIST_PROFILE_BASE64 is missing}"
+
           CERTS_DIR="$HOME/Library/MobileDevice/Certificates"
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
-          # === תעודה (p12) מה-ENV ===
-          echo "$P12_BASE64" | base64 --decode > "$CERTS_DIR/dist.p12"
-          security import "$CERTS_DIR/dist.p12" \
-            -k "$HOME/Library/Keychains/login.keychain-db" \
-            -P "$P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          # ===== 1) Normalize Base64 (מסיר CRLF אפשריים) =====
+          # לפעמים ה-base64 מגיע עם שורות שבורות/CRLF. ננרמל לשורה אחת נקייה.
+          echo "$P12_BASE64"         | tr -d '\r\n ' > /tmp/p12.b64
+          echo "$DIST_PROFILE_BASE64"| tr -d '\r\n ' > /tmp/profile.b64
 
-          # === פרופיל App Store (.mobileprovision) מה-ENV ===
+          # וידוא שהקבצים לא ריקים
+          [ -s /tmp/p12.b64 ] || { echo "Empty P12_BASE64"; exit 1; }
+          [ -s /tmp/profile.b64 ] || { echo "Empty DIST_PROFILE_BASE64"; exit 1; }
+
+          # ===== 2) הכנת keychain (לעתים login נעול) =====
+          KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
+          security list-keychains -d user -s "$KEYCHAIN"
+          # נסה לפתוח את ה-login keychain עם סיסמת המשתמש (ב־CI לרוב אין צורך; אם ייכשל נתעלם)
+          security unlock-keychain -p "" "$KEYCHAIN" || true
+          security set-keychain-settings -lut 21600 "$KEYCHAIN" || true
+
+          # ===== 3) יבוא ה-p12 =====
+          P12_PATH="$CERTS_DIR/dist.p12"
+          base64 --decode /tmp/p12.b64 > "$P12_PATH"
+
+          # ניסיון ראשון (codesign+security)
+          set +e
+          security import "$P12_PATH" -k "$KEYCHAIN" -P "$P12_PASSWORD" -A \
+            -T /usr/bin/codesign -T /usr/bin/security
+          IMPORT_RC=$?
+          set -e
+          if [ $IMPORT_RC -ne 0 ]; then
+            echo "First import attempt failed (maybe wrong password?). Retrying without -A…"
+            security import "$P12_PATH" -k "$KEYCHAIN" -P "$P12_PASSWORD"
+          fi
+
+          # ודא שיש זהויות חתימה זמינות
+          security find-identity -p codesigning -v || true
+
+          # ===== 4) התקנת ה-mobileprovision וחילוץ פרטים =====
           PROFILE_PATH="$PROFILES_DIR/profile.mobileprovision"
-          echo "$DIST_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+          base64 --decode /tmp/profile.b64 > "$PROFILE_PATH"
 
-          # חליצה ל-plist כדי לקבל Name ו-UUID
           PLIST_OUT="$PROFILES_DIR/profile.plist"
           /usr/bin/security cms -D -i "$PROFILE_PATH" > "$PLIST_OUT"
 
+          # חילוץ מאפייני הפרופיל עם PlistBuddy
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
           PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
+          APP_ID_NAME=$(/usr/libexec/PlistBuddy -c 'Print :AppIDName' "$PLIST_OUT") || true
+          TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
+          BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
 
-          echo "Provisioning Profile:"
-          echo "  Name: $PROV_NAME"
-          echo "  UUID: $PROV_UUID"
+          echo "== Provisioning profile parsed =="
+          echo "Name: $PROV_NAME"
+          echo "UUID: $PROV_UUID"
+          echo "Team: ${TEAM_ID:-unknown}"
+          echo "Bundle ID (from profile): ${BUNDLE_ID_IN_PROF:-unknown}"
+          echo "AppIDName: ${APP_ID_NAME:-unknown}"
 
-          # ייצוא לשימוש בשלבים הבאים
+          # נייצא לסביבה להמשך השלבים
           echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
           echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
+          echo "export BUNDLE_ID_FROM_PROFILE=\"$BUNDLE_ID_IN_PROF\"" >> $CM_ENV
+
+          echo "== Installed provisioning profiles =="
+          ls -la "$PROFILES_DIR" || true
+          /usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT" || true
+
+          # ===== 5) בדיקת התאמה לבאנדל (אם כבר זיהינו קודם BUNDLE_ID) =====
+          if [ -n "${BUNDLE_ID:-}" ] && [ -n "${BUNDLE_ID_IN_PROF:-}" ]; then
+            if [ "$BUNDLE_ID" != "$BUNDLE_ID_IN_PROF" ]; then
+              echo "WARNING: Detected BUNDLE_ID='$BUNDLE_ID' differs from profile bundle='$BUNDLE_ID_IN_PROF'"
+              echo "This often causes signing failures. Make sure profile matches your Xcode target bundle id."
+            fi
+          fi
+
+          # ===== 6) מתן הרשאות key partition (מונע prompted access ב-codesign) =====
+          # שקט במידה ואין זהויות — לא קריטי
+          for HASH in $(security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
+            security set-key-partition-list -S apple-tool:,apple: -s -k "" "$KEYCHAIN" -t private -Z "$HASH" || true
+          done
 
       - name: Bump build number
         script: |
