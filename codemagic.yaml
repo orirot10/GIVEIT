@@ -8,9 +8,11 @@ workflows:
       xcode: latest
       cocoapods: default
       vars:
-        APP_SCHEME: "App"              # ודא שזה שם ה-Scheme ב-Xcode
-        IOS_DIR: "frontend/ios/App"    # נתיב פרויקט iOS שנוצר ע"י Capacitor
-        BUNDLE_ID: "com.orirot.givit"  # אופציונלי: לשימוש עתידי/בדיקות
+        APP_SCHEME: "App"                 # ודא שזה שם ה-Scheme
+        IOS_DIR: "frontend/ios/App"       # נתיב פרויקט iOS (Capacitor)
+        BUNDLE_ID: "com.orirot.givit"     # ה-Bundle ID שלך
+        APPLE_TEAM_ID: "39WVDVZKGE"       # <-- שים כאן את Team ID שלך (10 תווים, אותיות/ספרות)
+        DIST_PROFILE_NAME: "Distribution"  # שם ה-Provisioning Profile (App Store) בדיוק כפי שמופיע ב-Apple/Codemagic
     scripts:
       - name: Install deps (frontend)
         script: |
@@ -29,29 +31,20 @@ workflows:
           BUILD_OK=0
           WEB_OUT=""
 
-          # 1) Vite
           if [ -f vite.config.ts ] || [ -f vite.config.js ] || npm ls vite --depth=0 >/dev/null 2>&1; then
             npx vite build && BUILD_OK=1
           fi
-
-          # 2) CRA (react-scripts)
           if [ $BUILD_OK -eq 0 ] && (npm ls react-scripts --depth=0 >/dev/null 2>&1); then
             npx react-scripts build && BUILD_OK=1
           fi
-
-          # 3) Next.js (כולל export סטטי אם אפשר)
           if [ $BUILD_OK -eq 0 ] && (npm ls next --depth=0 >/dev/null 2>&1); then
             npx next build
             npx next export || true
             BUILD_OK=1
           fi
-
-          # 4) Ionic (Capacitor)
           if [ $BUILD_OK -eq 0 ] && (npx ionic -v >/dev/null 2>&1); then
             npx ionic build && BUILD_OK=1
           fi
-
-          # 5) fallback ל-"npm run build" אם קיים
           if [ $BUILD_OK -eq 0 ]; then
             if npm run -s build >/dev/null 2>&1; then
               npm run build && BUILD_OK=1
@@ -60,14 +53,10 @@ workflows:
 
           if [ $BUILD_OK -eq 0 ]; then
             echo "No known build tool detected and no 'npm run build' script exists."
-            echo "Please add a build script to frontend/package.json, e.g.:"
-            echo '  "scripts": { "build": "vite build" }'
-            echo "Failing with logs:"
             cat package.json
             exit 1
           fi
 
-          # מציאת תיקיית הפלט
           if [ -d dist ]; then WEB_OUT="dist"; fi
           if [ -d build ]; then WEB_OUT="build"; fi
           if [ -d out ];   then WEB_OUT="out";   fi
@@ -80,9 +69,8 @@ workflows:
 
           echo "==> Build output detected at: $WEB_OUT"
 
-          # עדכון webDir בקובץ הקפציטור
           if [ -f capacitor.config.json ]; then
-            node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_DIR' || (o.webDir='$WEB_OUT');fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
+            node -e "const fs=require('fs');const p='capacitor.config.json';const o=JSON.parse(fs.readFileSync(p));o.webDir='$WEB_OUT';fs.writeFileSync(p, JSON.stringify(o,null,2));console.log('Updated',p,'webDir=$WEB_OUT');"
           elif ls capacitor.config.* >/dev/null 2>&1; then
             sed -i.bak "s/webDir: *['\"][^'\"]*['\"]/webDir: '$WEB_OUT'/" capacitor.config.* || true
             echo "Attempted to set webDir='$WEB_OUT' in capacitor.config.*"
@@ -97,39 +85,47 @@ workflows:
             npx cap add ios
           fi
           npx cap sync ios
+          # חובה ב-Capacitor עם Pods:
+          cd ios/App
+          pod install --repo-update
 
       - name: Install signing certificates & provisioning profiles
         script: |
-          # דורש שהעלית ב-Codemagic UI: .p12 (עם הסיסמה) ו-.mobileprovision
+          # ודא שהעלית ב-Codemagic: AppleDistribution.p12 (עם סיסמה) וה-.mobileprovision (App Store)
           keychain add-certificates
-          xcode-project use-profiles
+          # הכפיית team על כל ה-targets (כולל Pods) + שימוש בפרופילים שהותקנו
+          xcode-project use-profiles --team-id "$APPLE_TEAM_ID" --warn-only
 
       - name: Bump build number
         script: |
           cd $IOS_DIR
           NEW_BUILD_NUMBER=${CM_BUILD_ID:-1}
-          # עדכון CFBundleVersion (Build)
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEW_BUILD_NUMBER" "App/Info.plist" || true
 
       - name: Build (archive) with code signing
         script: |
           cd $IOS_DIR
-          # ארכוב חתום ל-.xcarchive (Code signing: YES; שימוש בפרופילים שהותקנו)
+          # אם אתה רוצה להיות אקספליציטי בפרופיל: PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME"
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
             -configuration Release \
             -destination "generic/platform=iOS" \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="$DIST_PROFILE_NAME" \
             CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES
 
       - name: Export signed .ipa (App Store)
         script: |
           cd $IOS_DIR
-          # ייצוא IPA חתום מתוך הארכיון. ניתן להוסיף מפה פרופיל ספציפי ע"י --export-options.
+          # ניתן למפות Bundle ID -> שם פרופיל, אם יש כמה:
+          #  --export-options "provisioningProfiles[$BUNDLE_ID]=$DIST_PROFILE_NAME"
           xcode-project export-ipa \
             --archive "$CM_BUILD_DIR/App.xcarchive" \
-            --export-method app-store
+            --export-method app-store \
+            --export-options "provisioningProfiles[$BUNDLE_ID]=$DIST_PROFILE_NAME"
 
     artifacts:
       - build/ios/ipa/*.ipa
