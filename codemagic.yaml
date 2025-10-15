@@ -263,8 +263,12 @@ workflows:
           EXPORT_DIR="$CM_BUILD_DIR/Export"
           mkdir -p "$EXPORT_DIR"
 
-          # מכין ExportOptions.plist עם מיפוי פרופיל לפי ה-BUNDLE_ID
-          cat > /tmp/ExportOptions.plist <<'EOF'
+          # נוודא שיש לנו את ה־UUID של הפרופיל (עדיף על שם)
+          : "${PROV_UUID:?Missing PROV_UUID - הווריאבל צריך להגיע מהשלב שמחלץ את ה-mobileprovision}"
+          : "${BUNDLE_ID:?Missing BUNDLE_ID}"
+
+          # שים לב: בלי גרשיים סביב EOF כדי לאפשר הרחבת משתנים!
+          cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -275,7 +279,7 @@ workflows:
             <key>signingCertificate</key><string>Apple Distribution</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>${BUNDLE_ID}</key><string>${PROV_NAME}</string>
+              <key>${BUNDLE_ID}</key><string>${PROV_UUID}</string>
             </dict>
             <key>compileBitcode</key><false/>
             <key>manageAppVersionAndBuildNumber</key><false/>
@@ -283,7 +287,7 @@ workflows:
           </plist>
           EOF
 
-          # ייצוא חתום מתוך הארכיון שיצרנו קודם
+          # ייצוא חתום מתוך הארכיון
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             -exportPath "$EXPORT_DIR" \
@@ -293,9 +297,13 @@ workflows:
           echo "Exported files:"
           ls -la "$EXPORT_DIR"
 
-          # מעתיקים את ה-ipa לתיקיית ברירת המחדל של Codemagic
+          # וידוא שה-IPA מכיל embedded.mobileprovision
+          IPA_OUT=$(find "$EXPORT_DIR" -name "*.ipa" | head -n 1 || true)
+          test -n "$IPA_OUT" || { echo "No IPA exported"; exit 1; }
+          unzip -l "$IPA_OUT" | grep -q "embedded.mobileprovision" || { echo "ERROR: IPA missing embedded.mobileprovision"; exit 1; }
+
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
-          cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
+          cp "$IPA_OUT" "$CM_BUILD_DIR/../build/ios/ipa/"
 
 
       - name: Verify App Store Connect creds (lightweight)
@@ -312,7 +320,7 @@ workflows:
           chmod 600 "$KEY_PATH"
           /usr/bin/shasum -a 256 "$KEY_PATH" | awk '{print "p8 SHA256:", $1}'
           echo "Key restored. Skipping 'altool --list-providers' (often fails if roles/keys are mid-change)."
-          
+
       - name: De-quarantine Xcode (fix -10814)
         script: |
           set -euxo pipefail
