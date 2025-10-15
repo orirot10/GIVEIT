@@ -312,6 +312,11 @@ workflows:
           chmod 600 "$KEY_PATH"
           /usr/bin/shasum -a 256 "$KEY_PATH" | awk '{print "p8 SHA256:", $1}'
           echo "Key restored. Skipping 'altool --list-providers' (often fails if roles/keys are mid-change)."
+          
+      - name: De-quarantine Xcode (fix -10814)
+        script: |
+          set -euxo pipefail
+          /usr/bin/xattr -dr com.apple.quarantine /Applications/Xcode*.app || true
 
       - name: Upload to App Store Connect (Transporter with safer fallback)
         script: |
