@@ -275,6 +275,17 @@ workflows:
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
 
+          
+      - name: Upload to App Store Connect
+        script: |
+          set -euxo pipefail
+          IPA_PATH=$(find "$CM_BUILD_DIR/../build/ios/ipa" -name "*.ipa" | head -n 1)
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_PATH" \
+            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
+            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
 artifacts:
   - build/ios/ipa/*.ipa
   - $IOS_DIR/build/Build/Products/Release-iphoneos/*.app
