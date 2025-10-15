@@ -1,7 +1,7 @@
 workflows:
   ios-appstore-signed:
     name: iOS App Store (Capacitor; signed)
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2   # <- update per Codemagic notice
     max_build_duration: 60
 
     environment:
@@ -275,8 +275,8 @@ workflows:
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
 
-                
-      - name: Verify App Store Connect creds
+
+      - name: Verify App Store Connect creds (lightweight)
         script: |
           set -euxo pipefail
           : "${APP_STORE_CONNECT_API_KEY_ID:?missing}"
@@ -288,27 +288,18 @@ workflows:
           KEY_PATH="$KEY_DIR/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | tr -d '\r\n\t ' | /usr/bin/base64 -D > "$KEY_PATH"
           chmod 600 "$KEY_PATH"
-
-          # 1) רשימת providers (אם נכשל -> ה־Key/Issuer שגויים או רמת הרשאות לא מספיקה)
-          xcrun altool --list-providers \
-            --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
-
-          # 2) הדפסת fingerprint כדי לוודא שהקובץ נטען נכון (ללא חשיפת המפתח)
           /usr/bin/shasum -a 256 "$KEY_PATH" | awk '{print "p8 SHA256:", $1}'
+          echo "Key restored. Skipping 'altool --list-providers' (often fails if roles/keys are mid-change)."
 
-          
-      - name: Upload to App Store Connect (Transporter with fallback)
+      - name: Upload to App Store Connect (Transporter with safer fallback)
         script: |
           set -euo pipefail
           set -x
 
-          # 0) locate IPA
           IPA_PATH=$(find "$CM_BUILD_DIR/../build/ios/ipa" -name "*.ipa" | head -n 1 || true)
           test -n "${IPA_PATH:-}" || { echo "No IPA found"; exit 1; }
           echo "Using IPA: $IPA_PATH"
 
-          # 1) restore API key file
           : "${APP_STORE_CONNECT_API_KEY_ID:?missing}"
           : "${APP_STORE_CONNECT_ISSUER_ID:?missing}"
           : "${APP_STORE_CONNECT_API_KEY_BASE64:?missing}"
@@ -319,25 +310,14 @@ workflows:
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | tr -d '\r\n\t ' | /usr/bin/base64 -D > "$KEY_PATH"
           chmod 600 "$KEY_PATH"
 
-          # 2) try to resolve iTMSTransporter absolute path
           TRANSPORTER_BIN="$(xcrun --find iTMSTransporter || true)"
           if [ -z "${TRANSPORTER_BIN}" ]; then
-            # common Xcode 16.x location
-            CANDIDATES=$(
-              /usr/bin/find /Applications -type f -name iTMSTransporter 2>/dev/null | tr '\n' ' '
-            )
-            for p in $CANDIDATES; do
-              if [ -x "$p" ]; then TRANSPORTER_BIN="$p"; break; fi
-            done
+            CANDIDATES=$(/usr/bin/find /Applications -type f -name iTMSTransporter 2>/dev/null | tr '\n' ' ')
+            for p in $CANDIDATES; do [ -x "$p" ] && TRANSPORTER_BIN="$p" && break; done
           fi
           echo "TRANSPORTER_BIN=${TRANSPORTER_BIN:-<none>}"
+          if [ -n "${TRANSPORTER_BIN:-}" ]; then /usr/bin/xattr -dr com.apple.quarantine "$(dirname "$TRANSPORTER_BIN")" || true; fi
 
-          # 3) if found, remove quarantine just in case
-          if [ -n "${TRANSPORTER_BIN:-}" ]; then
-            /usr/bin/xattr -dr com.apple.quarantine "$(dirname "$TRANSPORTER_BIN")" || true
-          fi
-
-          # 4) run Transporter verify; capture -10814 and fall back to altool
           run_transporter() {
             "$TRANSPORTER_BIN" -m "$1" \
               -apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
@@ -346,30 +326,27 @@ workflows:
               -v informational
           }
 
-          FALLBACK=0
+          USED_FALLBACK=0
           if [ -n "${TRANSPORTER_BIN:-}" ]; then
             set +e
             run_transporter verify
             RC=$?
             set -e
             if [ $RC -ne 0 ]; then
-              echo "Transporter verify failed with code $RC; will try upload anyway..."
+              echo "Transporter verify failed ($RC). Trying upload directly…"
               set +e
               run_transporter upload
               RC2=$?
               set -e
-              if [ $RC2 -ne 0 ]; then
-                echo "Transporter upload failed (code $RC2). Falling back to altool."
-                FALLBACK=1
-              fi
+              [ $RC2 -eq 0 ] || USED_FALLBACK=1
             fi
           else
-            echo "iTMSTransporter not found. Falling back to altool."
-            FALLBACK=1
+            USED_FALLBACK=1
           fi
 
-          if [ $FALLBACK -eq 1 ]; then
-            # altool fallback (deprecated but works reliably on CI)
+          if [ $USED_FALLBACK -eq 1 ]; then
+            echo "Falling back to xcrun altool (deprecated)."
+            # Note: no 'list-providers' call (it’s what fails with -26000 most often).
             xcrun altool --validate-app \
               --type ios \
               --file "$IPA_PATH" \
