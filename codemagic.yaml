@@ -9,7 +9,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - o1   # כאן נמצאים: P12_BASE64, P12_PASSWORD, DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
+        - o1   # P12_BASE64 / P12_PASSWORD / DIST_PROFILE_BASE64 (+ אופציונלי P12_SHA256)
       vars:
         APP_SCHEME: "App"
         IOS_DIR: "frontend/ios/App"
@@ -111,22 +111,15 @@ workflows:
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
 
-          # Repackage into a new temporary P12 (eliminates format issues)
+          # Repackage into a new temporary P12 and import (avoids format issues)
           TEMP_P12_PASS="Temp123!"
           /usr/bin/openssl pkcs12 -export -inkey /tmp/key.pem -in /tmp/cert.pem \
             -out /tmp/combined.p12 -passout pass:${TEMP_P12_PASS}
-
-          # Import the new P12
           /usr/bin/security import /tmp/combined.p12 \
             -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" \
             -A -T /usr/bin/codesign -T /usr/bin/security
 
-          # Allow codesign to use the keys
-          for HASH in $(/usr/bin/security find-identity -p codesigning -v | awk '/\) [0-9A-F]{40}/ {print $2}'); do
-            /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH" -t private -Z "$HASH" || true
-          done
-
-          # Parse provisioning profile (Name/UUID/Bundle)
+          # Parse provisioning profile
           PLIST_OUT="$PROFILES_DIR/profile.plist"
           /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
@@ -139,15 +132,37 @@ workflows:
           echo "Name: ${PROV_NAME}"
           echo "UUID: ${PROV_UUID}"
           echo "Bundle ID (from profile): ${BUNDLE_ID_IN_PROF:-unknown}"
-
           echo "export PROV_NAME=\"${PROV_NAME}\"" >> $CM_ENV
           echo "export PROV_UUID=\"${PROV_UUID}\"" >> $CM_ENV
           echo "export BUNDLE_ID_FROM_PROFILE=\"${BUNDLE_ID_IN_PROF}\"" >> $CM_ENV
           /usr/bin/security find-identity -p codesigning -v || true
 
+      # ✅ שלב חדש: לוודא שהמשתנים נטענו, ואם לא — לשחזרם מה-profile
+      - name: Reload signing vars (fallback)
+        script: |
+          set -euo pipefail
+          # טען משתנים שנשמרו ע"י שלבים קודמים (אם Codemagic לא טען אוטומטית)
+          [ -f "$CM_ENV" ] && . "$CM_ENV" || true
+          PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
+          PLIST_OUT="$PROFILES_DIR/profile.plist"
+          if [ -z "${PROV_UUID:-}" ] || [ -z "${PROV_NAME:-}" ]; then
+            if [ -f "$PLIST_OUT" ]; then
+              PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
+              PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
+              echo "Recovered PROV_NAME=$PROV_NAME ; PROV_UUID=$PROV_UUID"
+              echo "export PROV_NAME=\"$PROV_NAME\"" >> $CM_ENV
+              echo "export PROV_UUID=\"$PROV_UUID\"" >> $CM_ENV
+            else
+              echo "ERROR: profile.plist not found; cannot recover signing vars"; exit 1
+            fi
+          else
+            echo "Signing vars present: PROV_NAME=$PROV_NAME PROV_UUID=$PROV_UUID"
+          fi
+
       - name: Debug signing context
         script: |
           set -euxo pipefail
+          [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           security find-identity -p codesigning -v || true
           echo "BUNDLE_ID=${BUNDLE_ID:-unset}"
           echo "BUNDLE_ID_FROM_PROFILE=${BUNDLE_ID_FROM_PROFILE:-unset}"
@@ -163,8 +178,17 @@ workflows:
 
       - name: Build (archive) with code signing
         script: |
-          set -euxo pipefail
+          set -eo pipefail
+          # טען env ששמרנו
+          [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
+          # בונים ארגומנטים ל-xcodebuild באופן חסין
+          EXTRA_ARGS=()
+          if [ -n "${PROV_UUID:-}" ]; then
+            EXTRA_ARGS+=("PROVISIONING_PROFILE_SPECIFIER=$PROV_UUID")
+          elif [ -n "${PROV_NAME:-}" ]; then
+            EXTRA_ARGS+=("PROVISIONING_PROFILE_SPECIFIER=$PROV_NAME")
+          fi
           xcodebuild archive \
             -workspace "App.xcworkspace" \
             -scheme "$APP_SCHEME" \
@@ -173,17 +197,23 @@ workflows:
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="$PROV_UUID" \
-            CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES
+            CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES \
+            "${EXTRA_ARGS[@]}"
 
       - name: Export signed .ipa (App Store)
         script: |
-          set -euxo pipefail
+          set -eo pipefail
+          [ -f "$CM_ENV" ] && . "$CM_ENV" || true
           cd $IOS_DIR
+          # אם PROV_NAME לא קיים (נדיר) — נשחזר מה-plist
+          if [ -z "${PROV_NAME:-}" ]; then
+            PLIST_OUT="$HOME/Library/MobileDevice/Provisioning Profiles/profile.plist"
+            [ -f "$PLIST_OUT" ] && PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
+          fi
           xcode-project export-ipa \
             --archive "$CM_BUILD_DIR/App.xcarchive" \
             --export-method app-store \
-            --export-options "provisioningProfiles[$BUNDLE_ID]=$PROV_NAME"
+            --export-options "provisioningProfiles[${BUNDLE_ID}]=${PROV_NAME}"
 
     artifacts:
       - build/ios/ipa/*.ipa
