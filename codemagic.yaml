@@ -275,16 +275,35 @@ workflows:
           mkdir -p "$CM_BUILD_DIR/../build/ios/ipa"
           cp "$EXPORT_DIR"/*.ipa "$CM_BUILD_DIR/../build/ios/ipa/" || { echo "No IPA exported"; exit 1; }
 
-          
+
       - name: Upload to App Store Connect
         script: |
           set -euxo pipefail
+
+          # 1) מצא את ה-IPA
           IPA_PATH=$(find "$CM_BUILD_DIR/../build/ios/ipa" -name "*.ipa" | head -n 1)
+          test -n "${IPA_PATH:-}" || { echo "No IPA found"; exit 1; }
+
+          # 2) שחזר את קובץ ה-API Key למיקום ש-altool מחפש
+          test -n "${APP_STORE_CONNECT_API_KEY_ID:-}" || { echo "APP_STORE_CONNECT_API_KEY_ID missing"; exit 1; }
+          test -n "${APP_STORE_CONNECT_ISSUER_ID:-}" || { echo "APP_STORE_CONNECT_ISSUER_ID missing"; exit 1; }
+          test -n "${APP_STORE_CONNECT_API_KEY_BASE64:-}" || { echo "APP_STORE_CONNECT_API_KEY_BASE64 missing"; exit 1; }
+
+          KEY_DIR="$HOME/.appstoreconnect/private_keys"
+          mkdir -p "$KEY_DIR"
+          KEY_PATH="$KEY_DIR/AuthKey_${APP_STORE_CONNECT_API_KEY_ID}.p8"
+
+          # נקה תווים בעייתיים ושחזר לקובץ .p8
+          echo "$APP_STORE_CONNECT_API_KEY_BASE64" | tr -d '\r\n\t ' | /usr/bin/base64 -D > "$KEY_PATH"
+          chmod 600 "$KEY_PATH"
+
+          # 3) העלאה
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA_PATH" \
             --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
             --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+
 
 artifacts:
   - build/ios/ipa/*.ipa
