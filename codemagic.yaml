@@ -76,6 +76,19 @@ workflows:
           test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
           echo "All required env vars are present."
 
+      - name: Sanity check p12 password (before import)
+        script: |
+          set -euxo pipefail
+          # מנרמל base64 -> קובץ p12 זמני
+          echo "$P12_BASE64" | tr -d '\r\n ' > /tmp/p12.b64
+          /usr/bin/base64 -D -i /tmp/p12.b64 -o /tmp/dist.p12
+
+          # מציגים “אורך” (לא את הערך) כדי לזהות רווחים/שורות מיותרות
+          echo "P12_PASSWORD length: ${#P12_PASSWORD}"
+
+          # בדיקת OpenSSL עם הסיסמה מה-ENV (אם נכשל = סיסמה/קובץ לא תואמים)
+          /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
+  
       - name: Install certificates & provisioning profile (custom keychain, robust)
         script: |
           set -euxo pipefail
