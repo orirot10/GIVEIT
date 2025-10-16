@@ -12,3 +12,6 @@
 .animate-fade-in-scale {
   animation: fadeInScale 0.3s ease-out forwards;
 } 
+.popup-text-lower {
+  transform: translateY(2px);
+}

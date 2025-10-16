@@ -305,11 +305,11 @@ const Popup = ({ item, onClose, contentType }) => {
 
   return (
     <div 
-      className="fixed inset-0 flex justify-center items-start p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 flex justify-center items-start p-5 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
       style={{ 
         zIndex: 9999, 
         fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
-        paddingTop: '68px'
+        paddingTop: '100px'
       }}
       onClick={handleBackdropClick}
       aria-modal="true"
@@ -330,8 +330,8 @@ const Popup = ({ item, onClose, contentType }) => {
         <div 
           className="relative flex items-center justify-center px-3"
           style={{
-            background: (contentType?.includes('request') || item.type?.includes('request')) ? '#0f766e' : '#10b981',
-            height: '50px',
+            background: (contentType?.includes('request') || item.type?.includes('request')) ? '#c27e30ff' : '#10b981',
+            height: '40px',
             borderTopLeftRadius: DESIGN_TOKENS.borderRadius.lg,
             borderTopRightRadius: DESIGN_TOKENS.borderRadius.lg
           }}
@@ -487,23 +487,19 @@ const Popup = ({ item, onClose, contentType }) => {
                 style={{
                   height: '0.5px',
                   backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '8px 24px'
+                  margin: '8px 12px'
                 }}
               />
               <div 
-                className="info-row flex justify-center py-1.5"
-                style={{ 
-                  paddingTop: DESIGN_TOKENS.spacing.xs, 
-                  paddingBottom: DESIGN_TOKENS.spacing.xs
-                }}
+                className="info-row flex justify-center"
               >
                 <p
-                  className="text-lg font-bold text-center"
+                  className="text-base font-bold text-center"
                   style={{
-                    fontSize: DESIGN_TOKENS.typography.fontSize.lg,
+                    fontSize: DESIGN_TOKENS.typography.fontSize.base,
                     fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
                     color: DESIGN_TOKENS.colors.primary[600],
-                    lineHeight: 1.2
+                    lineHeight: 1
                   }}
                 >
                   ₪{price} <span className="font-semibold" style={{ color: DESIGN_TOKENS.colors.primary[500] }}>{translatePricePeriod(pricePeriod)}</span>
@@ -517,13 +513,13 @@ const Popup = ({ item, onClose, contentType }) => {
             <div className="info-section">
               <div 
                 style={{
-                  height: '0.5px',
+                  height: '0.3px',
                   backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '8px 24px'
+                  margin: '8px 8px'
                 }}
               />
               <div
-                className="info-row flex justify-center py-1.5"
+                className="info-row flex justify-center py-1"
                 style={{ 
                   paddingTop: DESIGN_TOKENS.spacing.xs, 
                   paddingBottom: DESIGN_TOKENS.spacing.xs
@@ -568,88 +564,83 @@ const Popup = ({ item, onClose, contentType }) => {
               }}
             />
             <div 
-              className="info-row flex items-center py-1.5 space-x-4"
+              className="info-row flex items-center py-1.5 space-x-3"
               style={{ 
                 paddingTop: DESIGN_TOKENS.spacing.xs, 
                 paddingBottom: DESIGN_TOKENS.spacing.xs
               }}
             >
               {/* Phone */}
-              <div className="flex items-center flex-1">
-                <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
-                  <PhoneIcon 
-                    className="h-2 w-2" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                </div>
-                <div className="min-w-0">
+              <div className="flex items-end flex-1">
+                <PhoneIcon 
+                  className="h-2 w-3 mr-3" 
+                  style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                />
+                <p
+                  className="text-xs font-semibold break-words popup-text-lower"
+                  style={{
+                    fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                    fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                    lineHeight: '10px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
                   <a
                     href={`tel:${sanitizedPhone}`}
-                    className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline break-words transition-colors duration-200"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                      lineHeight: 1.2
-                    }}
+                    className="text-blue-600 hover:text-blue-800 underline transition-colors duration-200"
                   >
                     {displayPhone}
                   </a>
-                </div>
+                </p>
               </div>
               
               {/* Owner */}
               {ownerName && ownerName !== 'N/A' && (
-                <div className="flex items-center flex-1">
-                  <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
-                    <UserIcon 
-                      className="h-2 w-2" 
-                      style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <p
-                      className="text-xs font-semibold text-gray-800 break-words"
-                      style={{
-                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                        color: DESIGN_TOKENS.colors.neutral[800],
-                        lineHeight: 1.2,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {ownerName}
-                    </p>
-                  </div>
+                <div className="flex items-end flex-1">
+                  <UserIcon 
+                    className="h-2 w-3 mr-3" 
+                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                  />
+                  <p
+                    className="text-xs font-semibold text-gray-800 break-words popup-text-lower"
+                    style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                      color: DESIGN_TOKENS.colors.neutral[800],
+                      lineHeight: '10px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {ownerName}
+                  </p>
                 </div>
               )}
               
               {/* Location */}
               {address && (
-                <div className="flex items-center flex-1">
-                  <div className="flex-shrink-0 w-2 h-2 flex items-center justify-center mr-1">
-                    <MapPinIcon 
-                      className="h-2 w-2" 
-                      style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <p
-                      className="text-xs font-semibold text-gray-800 break-words"
-                      style={{
-                        fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                        fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                        color: DESIGN_TOKENS.colors.neutral[800],
-                        lineHeight: 1.2,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {address}
-                    </p>
-                  </div>
+                <div className="flex items-end flex-1">
+                  <MapPinIcon 
+                    className="h-2 w-3 mr-1" 
+                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
+                  />
+                  <p
+                    className="text-xs font-semibold text-gray-800 break-words popup-text-lower"
+                    style={{
+                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
+                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
+                      color: DESIGN_TOKENS.colors.neutral[800],
+                      lineHeight: '10px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {address}
+                  </p>
                 </div>
               )}
             </div>
@@ -687,7 +678,7 @@ const Popup = ({ item, onClose, contentType }) => {
                   lineHeight: '44px',
                   fontSize: DESIGN_TOKENS.typography.fontSize.sm,
                   borderColor: '#ef4444',
-                  backgroundColor: '#ef4444',
+                  backgroundColor: '#bb513eff',
                   borderRadius: DESIGN_TOKENS.borderRadius.md
                 }}
               >
