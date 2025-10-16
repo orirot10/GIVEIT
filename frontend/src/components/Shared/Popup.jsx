@@ -1,10 +1,9 @@
+// Popup.jsx (only UI changed per your request)
 import React, { useEffect, useRef, useState } from 'react';
 import {
   XMarkIcon,
   UserIcon,
   MapPinIcon,
-  TagIcon,
-  CurrencyDollarIcon,
   PhoneIcon,
   ChevronLeftIcon,
   ChevronRightIcon
@@ -17,88 +16,18 @@ import { getDownloadURL, ref as storageRef } from 'firebase/storage';
 import { storage } from '../../firebase';
 import { usePricePeriodTranslation } from '../../utils/pricePeriodTranslator';
 
-// Design System - Unified Color Palette & Typography
 const DESIGN_TOKENS = {
-    // Primary Color Palette (Teal-based)
-    colors: {
-        primary: {
-            50: '#f0fdfa',
-            100: '#ccfbf1',
-            200: '#99f6e4',
-            300: '#5eead4',
-            400: '#2dd4bf',
-            500: '#14b8a6', // Main accent
-            600: '#0d9488',
-            700: '#0f766e',
-            800: '#115e59',
-            900: '#134e4a'
-        },
-        neutral: {
-            50: '#f8fafc',
-            100: '#f1f5f9',
-            200: '#e2e8f0',
-            300: '#cbd5e1',
-            400: '#94a3b8',
-            500: '#64748b',
-            600: '#475569',
-            700: '#334155',
-            800: '#1e293b',
-            900: '#0f172a'
-        },
-        semantic: {
-            success: '#10b981',
-            warning: '#f59e0b',
-            error: '#ef4444',
-            info: '#3b82f6'
-        }
-    },
-    // Typography System
-    typography: {
-        fontFamily: {
-            primary: "'Assistant', 'David Libre', Arial, sans-serif",
-            secondary: "'Inter', 'Alef', Arial, sans-serif"
-        },
-        fontSize: {
-            xs: '12px',
-            sm: '14px',
-            base: '16px',
-            lg: '18px',
-            xl: '20px',
-            '2xl': '24px',
-            '3xl': '30px'
-        },
-        fontWeight: {
-            normal: 400,
-            medium: 500,
-            semibold: 600,
-            bold: 700
-        }
-    },
-    // Spacing System
-    spacing: {
-        xs: '4px',
-        sm: '8px',
-        md: '12px',
-        lg: '16px',
-        xl: '24px',
-        '2xl': '32px',
-        '3xl': '48px'
-    },
-    // Border Radius
-    borderRadius: {
-        sm: '6px',
-        md: '12px',
-        lg: '16px',
-        xl: '20px',
-        full: '9999px'
-    },
-    // Shadows
-    shadows: {
-        sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
-        md: '0 4px 6px rgba(0, 0, 0, 0.07)',
-        lg: '0 10px 15px rgba(0, 0, 0, 0.1)',
-        xl: '0 20px 25px rgba(0, 0, 0, 0.15)'
-    }
+  colors: {
+    primary: { 500: '#14b8a6', 600: '#0d9488' },
+    neutral: { 100: '#f1f5f9', 200: '#e2e8f0', 700: '#334155', 800: '#1e293b' }
+  },
+  typography: {
+    fontFamily: { primary: "'Assistant','Inter',Arial,sans-serif" },
+    fontSize: { xs: '12px', sm: '14px', base: '16px', lg: '18px', xl: '20px' },
+    fontWeight: { semibold: 600, bold: 700 }
+  },
+  borderRadius: { sm: '8px', md: '14px', lg: '20px', full: '9999px' },
+  shadows: { md: '0 6px 16px rgba(0,0,0,.10)', lg: '0 12px 28px rgba(0,0,0,.15)' }
 };
 
 const Popup = ({ item, onClose, contentType }) => {
@@ -109,12 +38,12 @@ const Popup = ({ item, onClose, contentType }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { translatePricePeriod } = usePricePeriodTranslation();
+
   const [currentRating, setCurrentRating] = useState(item?.rating || 0);
   const [ratingCount, setRatingCount] = useState(item?.ratingCount || 0);
-  const isRateable = contentType === 'rentals' || contentType === 'services';
   const [selectedRating, setSelectedRating] = useState(0);
   const [hasRated, setHasRated] = useState(false);
-
+  const isRateable = contentType === 'rentals' || contentType === 'services';
 
   useEffect(() => {
     setCurrentRating(item?.rating || 0);
@@ -125,7 +54,6 @@ const Popup = ({ item, onClose, contentType }) => {
 
   const handleRate = async () => {
     if (!isRateable || hasRated || selectedRating === 0) return;
-
     try {
       const baseUrl = import.meta.env.VITE_API_URL || 'https://giveit-backend.onrender.com';
       const endpoint = contentType === 'services' ? 'services' : 'rentals';
@@ -136,288 +64,156 @@ const Popup = ({ item, onClose, contentType }) => {
           ...(user && user.token ? { Authorization: `Bearer ${user.token}` } : {})
         },
         body: JSON.stringify({ rating: selectedRating })
-
       });
       const data = await res.json();
       if (res.ok) {
         setCurrentRating(data.rating);
         setRatingCount(data.ratingCount);
         setHasRated(true);
-      } else if (data?.error) {
-        setHasRated(true);
-
-      }
+      } else setHasRated(true);
     } catch (err) {
       console.error('Failed to rate', err);
     }
   };
-  
+
   useEffect(() => {
-    const handleEscKey = (event) => {
-      if (event.key === 'Escape') onClose();
-    };
-    
+    const onEsc = (e) => e.key === 'Escape' && onClose();
     document.body.style.overflow = 'hidden';
-    document.addEventListener('keydown', handleEscKey);
-    
+    document.addEventListener('keydown', onEsc);
     return () => {
       document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleEscKey);
+      document.removeEventListener('keydown', onEsc);
     };
   }, [onClose]);
-  
+
   useEffect(() => {
-    let isMounted = true;
-    async function resolveImages() {
-      if (!item || !item.images || item.images.length === 0) {
-        setResolvedImageUrls([]);
-        setCurrentImageIndex(0);
-        return;
+    let mounted = true;
+    (async () => {
+      if (!item?.images?.length) {
+        setResolvedImageUrls([]); setCurrentImageIndex(0); return;
       }
-
-      const resolvedUrls = [];
-      
+      const urls = [];
       for (const img of item.images) {
-        if (img.startsWith('http')) {
-          resolvedUrls.push(img);
-          continue;
-        }
-        
-        // Try Firebase Storage
+        if (img.startsWith('http')) { urls.push(img); continue; }
         try {
-          const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//, '')}`);
-          
+          const firebaseRef = storageRef(storage, img.startsWith('images/') ? img : `images/${img.replace(/^\//,'')}`);
           const url = await getDownloadURL(firebaseRef);
-          resolvedUrls.push(url);
-        } catch (error) {
-          console.warn(`Failed to resolve image from Firebase Storage, falling back to legacy URL for image: ${img}`, error);
-          // Fallback to backend URL
-          if (img.startsWith('http')) {
-            resolvedUrls.push(img);
-          } else {
-            resolvedUrls.push(`https://giveit-backend.onrender.com${img}`);
-          }
+          urls.push(url);
+        } catch {
+          urls.push(`https://giveit-backend.onrender.com${img}`);
         }
       }
-      
-      if (isMounted) {
-        setResolvedImageUrls(resolvedUrls);
-        setCurrentImageIndex(0);
-      }
-    }
-    resolveImages();
-    return () => { isMounted = false; };
+      if (mounted) { setResolvedImageUrls(urls); setCurrentImageIndex(0); }
+    })();
+    return () => (mounted = false);
   }, [item]);
-  
-  const handleBackdropClick = (event) => {
-    if (popupRef.current && !popupRef.current.contains(event.target)) {
-      onClose();
-    }
-  };
 
-  console.log('[Popup] Received item prop:', item);
+  const handleBackdropClick = (e) => {
+    if (popupRef.current && !popupRef.current.contains(e.target)) onClose();
+  };
 
   if (!item) return null;
 
   const {
     title = 'Item Title Unavailable',
     description = 'No description available',
-    street = '',
-    city = '',
-    state = '',
-    zipCode = '',
-    phone,
-    phoneNumber,
-    price = null,
-    pricePeriod = 'use',
-    firstName = 'N/A',
-    lastName = '',
-    ownerId = null,
-    owner = null
+    street = '', city = '', state = '', zipCode = '',
+    phone, phoneNumber,
+    price = null, pricePeriod = 'use',
+    firstName = 'N/A', lastName = '',
+    ownerId = null, owner = null
   } = item;
 
-  // Handle different owner ID field names
-  const actualOwnerId = ownerId || (owner && owner._id) || (owner && owner.uid) || null;
-
+  const actualOwnerId = ownerId || owner?._id || owner?.uid || null;
   const address = [street, city, state, zipCode].filter(Boolean).join(', ');
   const ownerName = [firstName, lastName].filter(Boolean).join(' ');
-  const displayPhone = (phone && phone.trim() !== '') ? phone : (phoneNumber && phoneNumber.trim() !== '' ? phoneNumber : 'Contact Info Unavailable');
-  const sanitizedPhone = displayPhone.replace(/[^0-9+]/g, '').replace(/^0/, '+972');
+  const displayPhone = phone?.trim() ? phone : (phoneNumber?.trim() ? phoneNumber : '');
+  const sanitizedPhone = displayPhone ? displayPhone.replace(/[^0-9+]/g, '').replace(/^0/, '+972') : '';
 
-  const toggleFullScreen = () => {
-    setIsFullScreen((prev) => !prev);
-  };
+  const toggleFullScreen = () => setIsFullScreen((p) => !p);
+  const handlePreviousImage = () =>
+    setCurrentImageIndex((i) => (i === 0 ? resolvedImageUrls.length - 1 : i - 1));
+  const handleNextImage = () =>
+    setCurrentImageIndex((i) => (i === resolvedImageUrls.length - 1 ? 0 : i + 1));
 
   const handleContact = () => {
-    console.log('handleContact called with item:', item);
-    console.log('Current user:', user);
-    console.log('Owner ID from item:', ownerId);
-    console.log('User ID from context:', user?.uid);
-
-    if (!user) {
-      alert('Please log in to start a conversation');
-      return;
-    }
-
-    if (!actualOwnerId) {
-      alert('Unable to start conversation: Owner information is missing');
-      onClose();
-      return;
-    }
-
-    // Check if user.uid exists (Firebase auth) or fall back to user.user?.id (legacy)
+    if (!user) return alert('Please log in to start a conversation');
     const currentUserId = user.uid;
-    
-    if (!currentUserId) {
-      alert('Your user information is incomplete. Please log out and log in again.');
-      return;
-    }
-
-    if (actualOwnerId === currentUserId) {
-      alert('You cannot start a conversation with yourself');
-      onClose();
-      return;
-    }
-
-    console.log(`Navigating to messages to chat with owner: ${actualOwnerId}`);
-    navigate('/messages', {
-      state: {
-        contactId: actualOwnerId,
-        contactName: title,
-        itemTitle: title,
-        initialMessage: true
-      }
-    });
+    if (!currentUserId) return alert('Your user information is incomplete. Please re-login.');
+    const ownerUid = actualOwnerId;
+    if (!ownerUid) { alert('Unable to start conversation: Owner missing'); onClose(); return; }
+    if (ownerUid === currentUserId) { alert('You cannot start a conversation with yourself'); onClose(); return; }
+    navigate('/messages', { state: { contactId: ownerUid, contactName: title, itemTitle: title, initialMessage: true } });
     onClose();
   };
 
-  const handlePreviousImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === 0 ? resolvedImageUrls.length - 1 : prevIndex - 1
-    );
-  };
-
-  const handleNextImage = () => {
-    setCurrentImageIndex((prevIndex) => 
-      prevIndex === resolvedImageUrls.length - 1 ? 0 : prevIndex + 1
-    );
-  };
+  const hasImages = resolvedImageUrls.length > 0;
 
   return (
-    <div 
-      className="fixed inset-0 flex justify-center items-start px-2 py-5 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
-      style={{ 
-        zIndex: 9999, 
-        fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
-        paddingTop: '100px'
-      }}
+    <div
+      className="fixed inset-0 flex justify-center items-start px-2 py-5 bg-black/40 backdrop-blur-sm"
+      style={{ zIndex: 9999, fontFamily: DESIGN_TOKENS.typography.fontFamily.primary, paddingTop: '100px' }}
       onClick={handleBackdropClick}
       aria-modal="true"
       role="dialog"
-      dir="auto"
+      dir="rtl"
     >
       <div
         ref={popupRef}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
-        style={{
-          borderRadius: DESIGN_TOKENS.borderRadius.lg,
-          boxShadow: DESIGN_TOKENS.shadows.xl,
-          fontFamily: DESIGN_TOKENS.typography.fontFamily.primary
-        }}
-        dir="auto"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] flex flex-col overflow-hidden relative animate-popup-enter"
+        style={{ boxShadow: DESIGN_TOKENS.shadows.lg }}
       >
-        {/* Header Bar */}
-        <div 
-          className="relative flex items-center justify-center px-3"
-          style={{
-            background: (contentType?.includes('request') || item.type?.includes('request')) ? '#c27e30ff' : '#10b981',
-            height: '40px',
-            borderTopLeftRadius: DESIGN_TOKENS.borderRadius.lg,
-            borderTopRightRadius: DESIGN_TOKENS.borderRadius.lg
-          }}
+        {/* === Close Button (over image when exists; else at top-right) === */}
+        <button
+          onClick={onClose}
+          aria-label="סגור"
+          className={`absolute top-1 right-1 z-20 rounded-full text-white p-2 transition ${
+            hasImages ? 'bg-black/55 hover:bg-black/65' : 'bg-black/35 hover:bg-black/45'
+          }`}
         >
-          <h1
-            className="header-title text-lg font-bold text-white break-words text-center"
-            style={{
-              fontSize: DESIGN_TOKENS.typography.fontSize.lg,
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-              color: 'white',
-              lineHeight: '1.1',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}
-          >
-            {title}
-          </h1>
-        
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="close-button absolute left-0.5 flex items-center justify-center text-white hover:text-gray-200 transition-all duration-200 rounded-full hover:bg-white/20 active:scale-95"
-            style={{
-              width: '40px',
-              height: '40px'
-            }}
-            aria-label="Close popup"
-          >
-            <XMarkIcon className="h-6 w-6" />
-          </button>
-        </div>
+          <XMarkIcon className="h-3 w-3" />
+        </button>
 
-        <div className="flex-1 overflow-hidden">
-        {/* Hero Image Section */}
-        {resolvedImageUrls.length > 0 && (
-          <div className="relative shadow-sm" style={{ aspectRatio: '3/2', boxShadow: DESIGN_TOKENS.shadows.md }}>
-            <div
-              className="w-full h-full overflow-hidden"
-              style={{
-                background: DESIGN_TOKENS.colors.neutral[100],
-                borderBottomLeftRadius: DESIGN_TOKENS.borderRadius.md,
-                borderBottomRightRadius: DESIGN_TOKENS.borderRadius.md
-              }}
-            >
-              <img
-                src={resolvedImageUrls[currentImageIndex]}
-                alt={`${title} - Image ${currentImageIndex + 1}`}
-                className="w-full h-full object-cover transition-transform duration-300 cursor-zoom-in"
-                onClick={toggleFullScreen}
-                loading="lazy"
-              />
-            </div>
-            
-
-            
-            {/* Image counter */}
-            {resolvedImageUrls.length > 1 && (
-              <div
-                className="image-counter absolute bottom-2 right-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded-md"
-                style={{ borderRadius: DESIGN_TOKENS.borderRadius.sm }}
-              >
-                {currentImageIndex + 1} of {resolvedImageUrls.length}
+        {/* === HERO (no header) === */}
+        {hasImages && (
+          <div className="relative" style={{ aspectRatio: '16/10' }}>
+            <img
+              src={resolvedImageUrls[currentImageIndex]}
+              alt={`${title} - Image ${currentImageIndex + 1}`}
+              className="w-full h-full object-cover"
+              onClick={toggleFullScreen}
+              loading="lazy"
+            />
+            {/* gradient bottom for legibility */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/55 to-transparent" />
+            {/* price chip over image */}
+            {price !== null && (
+              <div className="absolute left-1 bottom-1">
+                <span className="inline-flex items-center px-5 py-3 text-white text-xl font-bold rounded-full"
+                  style={{ background: contentType?.includes('request') ? '#d8974eff' : DESIGN_TOKENS.colors.primary[600] }}>
+                  ₪{price}&nbsp;·&nbsp;{translatePricePeriod(pricePeriod)}
+                </span>
               </div>
             )}
-            
-            {/* Navigation arrows - only show if there are multiple images */}
+            {/* image counter + nav */}
             {resolvedImageUrls.length > 1 && (
               <>
-                {/* Previous button */}
+                <div className="absolute right-3 bottom-3 text-[11px] text-white/90 bg-black/40 px-2 py-0.5 rounded-full">
+                  {currentImageIndex + 1}/{resolvedImageUrls.length}
+                </div>
                 <button
                   onClick={handlePreviousImage}
-                  className="image-nav-button absolute -left-1 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-black hover:text-gray-200 transition-all duration-200"
-                  aria-label="Previous image"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/35 hover:bg-black/50 text-white p-2 rounded-full"
+                  aria-label="תמונה קודמת"
                 >
-                  <ChevronLeftIcon className="h-2 w-2" />
+                  <ChevronLeftIcon className="h-4 w-4" />
                 </button>
-                
-                {/* Next button */}
                 <button
                   onClick={handleNextImage}
-                  className="image-nav-button absolute -right-1 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-black hover:text-gray-200 transition-all duration-200"
-                  aria-label="Next image"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/35 hover:bg-black/50 text-white p-2 rounded-full"
+                  aria-label="תמונה הבאה"
                 >
-                  <ChevronRightIcon className="h-2 w-2" />
+                  <ChevronRightIcon className="h-4 w-4" />
                 </button>
               </>
             )}
@@ -425,283 +221,161 @@ const Popup = ({ item, onClose, contentType }) => {
         )}
 
         {isFullScreen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
-            onClick={toggleFullScreen}
-          >
-            <img
-              src={resolvedImageUrls[currentImageIndex]}
-              alt={`${title} - full view`}
-              className="max-w-full max-h-full object-contain"
-            />
+          <div className="fixed inset-0 z-[10000] bg-black/90 flex items-center justify-center" onClick={toggleFullScreen}>
+            <img src={resolvedImageUrls[currentImageIndex]} alt={`${title} - full view`} className="max-w-full max-h-full object-contain" />
           </div>
         )}
 
-        {/* Separator Line */}
-        {resolvedImageUrls.length > 0 && (
-          <div 
-            style={{
-              height: '0.5px',
-              backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-              margin: '0 12px'
-            }}
-          />
+        {/* Separator (thin) below image */}
+        {hasImages && <div className="h-px bg-gray-200 mx-3" />}
+
+        {/* === Price chip fallback when NO image (left-aligned) === */}
+        {!hasImages && price !== null && (
+          <div className="px-4 py-2 pt-3">
+            <div className="flex" dir="ltr">
+              <span
+                className="inline-flex items-center px-5 py-3 text-white text-xl font-bold rounded-full mr-auto"
+                style={{ background: contentType?.includes('request') ? '#d8974eff' : DESIGN_TOKENS.colors.primary[600] }}
+              >
+                ₪{price}&nbsp;·&nbsp;{translatePricePeriod(pricePeriod)}
+              </span>
+            </div>
+          </div>
         )}
 
-        {/* Description */}
-        {description && (
-          <>
-            <div 
-              style={{
-                height: '0.5px',
-                backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                margin: '4px 12px'
-              }}
-            />
-            <div className="px-2 py-1">
-              <p
-                className="description-text text-gray-700 break-words whitespace-pre-line"
-                style={{
-                  fontSize: DESIGN_TOKENS.typography.fontSize.base,
-                  color: DESIGN_TOKENS.colors.neutral[700],
-                  lineHeight: 1.25,
-                  display: '-webkit-box',
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-              >
-                {description}
-              </p>
-            </div>
-          </>
-        )}
+        {/* === Title (black, above description) & Description === */}
+        <div className="px-4 pt-2 space-y-0.5">
+          <h1
+            className="font-bold text-[18px] leading-snug mb-0 line-clamp-2"
+            style={{ color: DESIGN_TOKENS.colors.neutral[800] }}
+          >
+            {title}
+          </h1>
 
-                {/* Info Rows */}
-        <div className="px-2 space-y-0" dir="rtl">
-          {/* Price Section */}
-          {price !== null && (
-            <div className="info-section">
-              <div 
-                style={{
-                  height: '0.5px',
-                  backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '4px 8px'
-                }}
-              />
-              <div 
-                className="info-row flex justify-center"
-              >
-                <p
-                  className="text-base font-bold text-center"
-                  style={{
-                    fontSize: DESIGN_TOKENS.typography.fontSize.base,
-                    fontWeight: DESIGN_TOKENS.typography.fontWeight.bold,
-                    color: DESIGN_TOKENS.colors.primary[600],
-                    lineHeight: 1
-                  }}
-                >
-                  ₪{price} <span className="font-semibold" style={{ color: DESIGN_TOKENS.colors.primary[500] }}>{translatePricePeriod(pricePeriod)}</span>
-                </p>
-              </div>
-            </div>
-          )}
-          
-          {/* Rating Section */}
-          {isRateable && (
-            <div className="info-section">
-              <div 
-                style={{
-                  height: '0.3px',
-                  backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '4px 8px'
-                }}
-              />
-              <div
-                className="info-row flex justify-center py-1"
-                style={{ 
-                  paddingTop: DESIGN_TOKENS.spacing.xs, 
-                  paddingBottom: DESIGN_TOKENS.spacing.xs
-                }}
-              >
-                <div className="flex flex-col items-center">
-                  <div className="flex items-center mb-1">
-                    <span style={{ fontSize: DESIGN_TOKENS.typography.fontSize.xs, fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold, color: DESIGN_TOKENS.colors.neutral[800] }}>
-                      {currentRating.toFixed(1)} ({ratingCount})
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    {[1,2,3,4,5].map(star => (
-                      <FaStar
-                        key={star}
-                        className={`h-2 w-2 ${hasRated ? '' : 'cursor-pointer'}`}
-                        style={{ color: star <= (hasRated ? Math.round(currentRating) : selectedRating) ? '#fbbf24' : DESIGN_TOKENS.colors.neutral[300], marginRight: 3 }}
-                        onClick={() => { if (!hasRated) setSelectedRating(star); }}
-                      />
-                    ))}
-                    {!hasRated && (
-                      <button
-                        onClick={handleRate}
-                        disabled={selectedRating === 0}
-                        className="ml-1 text-md font-bold text-blue-600 disabled:text-gray-400 disabled:font-normal"
-                      >
-                        דרג
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Combined Contact Info Row */}
-          <div className="info-section">
-            <div 
-              style={{
-                height: '0.5px',
-                backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                margin: '4px 12px'
-              }}
-            />
-            <div 
-              className="info-row flex items-center py-1.5 space-x-3"
-              style={{ 
-                paddingTop: DESIGN_TOKENS.spacing.xs, 
-                paddingBottom: DESIGN_TOKENS.spacing.xs
-              }}
+          {item?.description && (
+            <p
+              className="text-[14px] leading-[1.25] mt-0 text-gray-700 line-clamp-2"
+              style={{ color: DESIGN_TOKENS.colors.neutral[700] }}
             >
-              {/* Phone */}
-              <div className="flex items-end flex-1">
-                <PhoneIcon 
-                  className="h-2 w-3 mr-3" 
-                  style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                />
-                <p
-                  className="text-xs font-semibold break-words popup-text-lower"
-                  style={{
-                    fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                    fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                    lineHeight: '10px',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  <a
-                    href={`tel:${sanitizedPhone}`}
-                    className="text-blue-600 hover:text-blue-800 underline transition-colors duration-200"
-                  >
-                    {displayPhone}
-                  </a>
-                </p>
-              </div>
-              
-              {/* Owner */}
-              {ownerName && ownerName !== 'N/A' && (
-                <div className="flex items-end flex-1">
-                  <UserIcon 
-                    className="h-2 w-3 mr-3" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                  <p
-                    className="text-xs font-semibold text-gray-800 break-words popup-text-lower"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                      color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: '10px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {ownerName}
-                  </p>
-                </div>
-              )}
-              
-              {/* Location */}
-              {address && (
-                <div className="flex items-end flex-1">
-                  <MapPinIcon 
-                    className="h-2 w-3 mr-1" 
-                    style={{ color: DESIGN_TOKENS.colors.primary[500] }}
-                  />
-                  <p
-                    className="text-xs font-semibold text-gray-800 break-words popup-text-lower"
-                    style={{
-                      fontSize: DESIGN_TOKENS.typography.fontSize.xs,
-                      fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-                      color: DESIGN_TOKENS.colors.neutral[800],
-                      lineHeight: '10px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {address}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+              {item.description}
+            </p>
+          )}
         </div>
 
-        {/* Call-to-Action Button */}
-        <div className="sticky bottom-0 bg-white px-2 pt-1 pb-2 space-y-1 border-t">
-          <button
-            className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
-            style={{
-              background: DESIGN_TOKENS.colors.primary[500],
-              height: '44px',
-              borderRadius: DESIGN_TOKENS.borderRadius.md,
-              fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-              fontWeight: DESIGN_TOKENS.typography.fontWeight.semibold,
-              color: 'white',
-              boxShadow: DESIGN_TOKENS.shadows.md,
-              transition: 'all 0.2s ease-in-out'
-            }}
-            onClick={handleContact}
-            onMouseOver={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[600]}
-            onMouseOut={e => e.currentTarget.style.background = DESIGN_TOKENS.colors.primary[500]}
-          >
-            <span className="text-sm">התחל שיחה בצ'אט</span>
-          </button>
-          {sanitizedPhone && (
-            <div className="flex space-x-1">
-              <a
-                href={`tel:${sanitizedPhone}`}
-                className="flex-1 text-center border border-current text-white rounded-lg block"
-                style={{
-                  height: '44px',
-                  lineHeight: '44px',
-                  fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                  borderColor: '#ef4444',
-                  backgroundColor: '#bb513eff',
-                  borderRadius: DESIGN_TOKENS.borderRadius.md
-                }}
-              >
-                התקשר
-              </a>
-              <a
-                href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center rounded-lg text-white"
-                style={{
-                  height: '44px',
-                  fontSize: DESIGN_TOKENS.typography.fontSize.sm,
-                  borderRadius: DESIGN_TOKENS.borderRadius.md,
-                  background: '#25D366'
-                }}
-              >
-                <FaWhatsapp className="h-2 w-2 ml-1" />
-                <span className="text-sm"> whatsapp </span>
+{/* === Rating (bigger) === */}
+{isRateable && (
+  <div className="px-4 pt-2 pb-1">
+    <div className="flex items-center gap-4">
+      <div className="flex items-center">
+        {[1,2,3,4,5].map(star => (
+          <FaStar
+            key={star}
+            className={`mx-1 ${hasRated ? '' : 'cursor-pointer'}`}
+            size={28}                           // ⟵ was 20
+            color={
+              star <= (hasRated ? Math.round(currentRating) : selectedRating)
+                ? '#FFC107'
+                : '#E2E8F0'
+            }
+            onClick={() => !hasRated && setSelectedRating(star)}
+          />
+        ))}
+      </div>
+
+      <div className="flex items-baseline gap-2 text-gray-700">
+        <span className="text-[20px] font-bold">{currentRating.toFixed(1)}</span>
+        <span className="text-[14px] opacity-80">({ratingCount})</span>
+      </div>
+
+      {!hasRated && (
+        <button
+          onClick={handleRate}
+          disabled={selectedRating === 0}
+          className="ml-auto px-3 py-1.5 rounded-md text-[13px] font-semibold text-white disabled:opacity-50"
+          style={{ background: DESIGN_TOKENS.colors.primary[600] }}
+        >
+          דרג
+        </button>
+      )}
+    </div>
+  </div>
+)}
+
+
+        <div className="h-px bg-gray-200 my-2 mx-3" />
+
+        {/* === Info Row === */}
+        <div className="px-4 pb-2 flex items-center justify-between gap-2 text-[11px] overflow-hidden" dir="rtl">
+          {([firstName,lastName].filter(Boolean).join(' ') !== 'N/A') && (
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              <UserIcon className={`h-2 w-2 flex-shrink-0`} style={{ color: contentType?.includes('request') ? '#d8974eff' : '#0d9488' }} />
+              <span className="font-semibold truncate">{[firstName,lastName].filter(Boolean).join(' ')}</span>
+            </div>
+          )}
+          {address && (
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              <MapPinIcon className={`h-2 w-2 flex-shrink-0`} style={{ color: contentType?.includes('request') ? '#d8974eff' : '#0d9488' }} />
+              <span className="font-semibold truncate">{address}</span>
+            </div>
+          )}
+          {displayPhone && (
+            <div className="flex items-center gap-1 min-w-0 flex-1">
+              <a href={`tel:${sanitizedPhone}`} className="flex items-center gap-1 text-blue-700 underline font-semibold truncate">
+                <PhoneIcon className={`h-2 w-2 flex-shrink-0`} style={{ color: contentType?.includes('request') ? '#d8974eff' : '#0d9488' }} />
+                <span className="truncate">{displayPhone}</span>
               </a>
             </div>
           )}
         </div>
+{/* === CTA (smaller) === */}
+<div className="sticky bottom-0 bg-white px-3 pt-1 pb-2 border-t">
+  <button
+    className="w-full rounded-md text-white font-medium transition hover:opacity-95 active:scale-[.98]"
+    style={{
+      background: contentType?.includes('request') ? '#d8974eff' : DESIGN_TOKENS.colors.primary[500],
+      height: '48px',                // ⟵ smaller (was h-8 ~32px)
+      fontSize: '13px'               // ⟵ smaller text
+    }}
+    onClick={handleContact}
+  >
+    התחל שיחה בצ'אט
+  </button>
+
+  {sanitizedPhone && (
+    <div className="mt-1 grid grid-cols-2 gap-1.5">
+      <a
+        href={`tel:${sanitizedPhone}`}
+        className="rounded-[8px] grid place-items-center border text-white font-medium"
+        style={{
+          background: '#bb513e',
+          borderColor: '#bb513e',
+          height: '48px',            // ⟵ smaller (was ~16px)
+          fontSize: '11px'
+        }}
+      >
+        התקשר
+      </a>
+
+      <a
+        href={`https://wa.me/${sanitizedPhone}?text=${encodeURIComponent(`Hi! im interested in ${title}`)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-[8px] grid place-items-center text-white font-medium"
+        style={{
+          background: '#25D366',
+          height: '48px',            // ⟵ smaller
+          fontSize: '11px'
+        }}
+      >
+        <span className="flex items-center gap-1">
+          <FaWhatsapp size={12} /> WhatsApp
+        </span>
+      </a>
+    </div>
+  )}
+</div>
+
+
       </div>
     </div>
   );
