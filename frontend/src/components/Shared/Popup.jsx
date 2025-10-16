@@ -305,7 +305,7 @@ const Popup = ({ item, onClose, contentType }) => {
 
   return (
     <div 
-      className="fixed inset-0 flex justify-center items-start p-5 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
+      className="fixed inset-0 flex justify-center items-start px-2 py-5 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ease-in-out"
       style={{ 
         zIndex: 9999, 
         fontFamily: DESIGN_TOKENS.typography.fontFamily.primary,
@@ -318,7 +318,7 @@ const Popup = ({ item, onClose, contentType }) => {
     >
       <div
         ref={popupRef}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         style={{
           borderRadius: DESIGN_TOKENS.borderRadius.lg,
           boxShadow: DESIGN_TOKENS.shadows.xl,
