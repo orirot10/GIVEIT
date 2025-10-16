@@ -443,7 +443,7 @@ const Popup = ({ item, onClose, contentType }) => {
             style={{
               height: '0.5px',
               backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-              margin: '0 24px'
+              margin: '0 12px'
             }}
           />
         )}
@@ -455,10 +455,10 @@ const Popup = ({ item, onClose, contentType }) => {
               style={{
                 height: '0.5px',
                 backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                margin: '8px 24px'
+                margin: '4px 12px'
               }}
             />
-            <div className="p-2 pb-1">
+            <div className="px-2 py-1">
               <p
                 className="description-text text-gray-700 break-words whitespace-pre-line"
                 style={{
@@ -479,7 +479,7 @@ const Popup = ({ item, onClose, contentType }) => {
         )}
 
                 {/* Info Rows */}
-        <div className="px-3 space-y-0" dir="rtl">
+        <div className="px-2 space-y-0" dir="rtl">
           {/* Price Section */}
           {price !== null && (
             <div className="info-section">
@@ -487,7 +487,7 @@ const Popup = ({ item, onClose, contentType }) => {
                 style={{
                   height: '0.5px',
                   backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '8px 12px'
+                  margin: '4px 8px'
                 }}
               />
               <div 
@@ -515,7 +515,7 @@ const Popup = ({ item, onClose, contentType }) => {
                 style={{
                   height: '0.3px',
                   backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                  margin: '8px 8px'
+                  margin: '4px 8px'
                 }}
               />
               <div
@@ -560,7 +560,7 @@ const Popup = ({ item, onClose, contentType }) => {
               style={{
                 height: '0.5px',
                 backgroundColor: DESIGN_TOKENS.colors.neutral[200],
-                margin: '8px 24px'
+                margin: '4px 12px'
               }}
             />
             <div 
@@ -649,7 +649,7 @@ const Popup = ({ item, onClose, contentType }) => {
         </div>
 
         {/* Call-to-Action Button */}
-        <div className="sticky bottom-0 bg-white px-3 pt-2 pb-2 space-y-2 border-t">
+        <div className="sticky bottom-0 bg-white px-2 pt-1 pb-2 space-y-1 border-t">
           <button
             className="cta-button w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold px-4 rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.96] transition-all duration-200 ease-in-out"
             style={{
