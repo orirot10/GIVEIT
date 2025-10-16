@@ -89,7 +89,7 @@ workflows:
           test -n "${DIST_PROFILE_BASE64:-}" || { echo "DIST_PROFILE_BASE64 missing"; exit 1; }
           echo "All required env vars are present."
 
-      - name: Install certificates & provisioning profile (custom keychain)
+      - name: Install certificates & provisioning profile (custom keychain; save as UUID.mobileprovision)
         script: |
           set -euo pipefail
           set +x
@@ -101,13 +101,16 @@ workflows:
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$CERTS_DIR" "$PROFILES_DIR"
 
+          # Decode inputs
           echo "$P12_BASE64"          | tr -d '\r\n\t ' > /tmp/p12.b64
           echo "$DIST_PROFILE_BASE64" | tr -d '\r\n\t ' > /tmp/profile.b64
           /usr/bin/base64 -D -i /tmp/p12.b64     -o /tmp/dist.p12
-          /usr/bin/base64 -D -i /tmp/profile.b64 -o "$PROFILES_DIR/profile.mobileprovision"
+          /usr/bin/base64 -D -i /tmp/profile.b64 -o /tmp/profile.mobileprovision
 
+          # Sanity check P12
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -noout -info -passin env:P12_PASSWORD
 
+          # Create dedicated keychain
           KEYCHAIN_NAME="build.keychain"
           KEYCHAIN_PWD="cm_build_keychain_pwd"
           KEYCHAIN_PATH="$HOME/Library/Keychains/${KEYCHAIN_NAME}-db"
@@ -117,6 +120,7 @@ workflows:
           /usr/bin/security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
           /usr/bin/security default-keychain -d user -s "$KEYCHAIN_PATH"
 
+          # Import cert+key
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -nocerts -nodes -out /tmp/key.pem
           /usr/bin/openssl pkcs12 -in /tmp/dist.p12 -passin env:P12_PASSWORD -clcerts -nokeys -out /tmp/cert.pem
           TEMP_P12_PASS="Temp123!"
@@ -124,20 +128,44 @@ workflows:
           /usr/bin/security import /tmp/combined.p12 -k "$KEYCHAIN_PATH" -P "${TEMP_P12_PASS}" -A -T /usr/bin/codesign -T /usr/bin/security
           /usr/bin/security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PWD" "$KEYCHAIN_PATH"
 
+          # Parse provisioning profile → get UUID, Name, Team, AppID
           PLIST_OUT="/tmp/profile.plist"
-          /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > "$PLIST_OUT"
+          /usr/bin/security cms -D -i /tmp/profile.mobileprovision > "$PLIST_OUT"
           PROV_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$PLIST_OUT")
           PROV_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PLIST_OUT")
           TEAM_ID=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.team-identifier' "$PLIST_OUT") || true
-          BUNDLE_ID_IN_PROF=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT" | sed "s/^${TEAM_ID}\.//") || true
+          APPID_FULL=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$PLIST_OUT") || true
+          BUNDLE_ID_IN_PROF="$(echo "$APPID_FULL" | sed "s/^${TEAM_ID}\.//")"
 
+          # **שמור את הקובץ בשם ה-UUID** — זה מה ש-Xcode מצפה למצוא
+          install -m 0644 /tmp/profile.mobileprovision "$PROFILES_DIR/${PROV_UUID}.mobileprovision"
+
+          # Load previously detected BUNDLE_ID (if exists)
           [ -f "$CM_ENV" ] && . "$CM_ENV" || true
+          echo "Profile Name: $PROV_NAME"
+          echo "Profile UUID: $PROV_UUID"
           echo "Profile Bundle: ${BUNDLE_ID_IN_PROF:-unknown}"
           echo "Project Bundle: ${BUNDLE_ID:-unknown}"
           if [ -n "${BUNDLE_ID_IN_PROF:-}" ] && [ -n "${BUNDLE_ID:-}" ] && [ "$BUNDLE_ID" != "$BUNDLE_ID_IN_PROF" ]; then
-            echo "ERROR: Profile bundle '$BUNDLE_ID_IN_PROF' != project bundle '$BUNDLE_ID'. העלה פרופיל App Store ל-$BUNDLE_ID."
+            echo "ERROR: profile app id '$BUNDLE_ID_IN_PROF' != project bundle '$BUNDLE_ID'"
             exit 1
           fi
+
+          # אימות התאמה בין הפרופיל לתעודת ה-Distribution (SHA-1)
+          CERT_SHA=$(/usr/bin/openssl x509 -in /tmp/cert.pem -noout -fingerprint -sha1 | sed 's/^.*=//;s/://g' | tr 'A-F' 'a-f')
+          PROF_CERT_COUNT=$(/usr/libexec/PlistBuddy -c 'Print :DeveloperCertificates' "$PLIST_OUT" | grep -c "data" || true)
+          MATCH=0
+          i=0
+          while [ $i -lt ${PROF_CERT_COUNT:-0} ]; do
+            /usr/libexec/PlistBuddy -c "Print :DeveloperCertificates:$i" "$PLIST_OUT" > /tmp/cert.der 2>/dev/null || true
+            if [ -s /tmp/cert.der ]; then
+              /usr/bin/openssl x509 -inform DER -in /tmp/cert.der -out /tmp/cert_tmp.pem 2>/dev/null || true
+              SHA=$(/usr/bin/openssl x509 -in /tmp/cert_tmp.pem -noout -fingerprint -sha1 | sed 's/^.*=//;s/://g' | tr 'A-F' 'a-f')
+              [ "$SHA" = "$CERT_SHA" ] && MATCH=1 && break
+            fi
+            i=$((i+1))
+          done
+          [ $MATCH -eq 1 ] || { echo "ERROR: Provisioning profile does not include the installed Distribution certificate"; exit 1; }
 
           {
             echo "export PROV_NAME=\"$PROV_NAME\""
@@ -222,7 +250,6 @@ workflows:
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"
 
       # Export חתום — חתימה אוטומטית כדי לא לשדך פרופיל ל-frameworks
-
       - name: Export signed .ipa (App Store, minimal manual mapping for APP ONLY)
         script: |
           set -euxo pipefail
@@ -234,18 +261,12 @@ workflows:
 
           : "${BUNDLE_ID:?Missing BUNDLE_ID}"
           : "${PROV_NAME:?Missing PROV_NAME}"
+          : "${PROV_UUID:?Missing PROV_UUID}"
 
-          # ודא שהפרופיל קיים לוקאלית
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
-          test -d "$PROFILES_DIR" || { echo "Profiles dir missing: $PROFILES_DIR"; exit 1; }
-          /usr/bin/security cms -D -i "$PROFILES_DIR/profile.mobileprovision" > /tmp/profile.plist
-          FOUND_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist || true)
-          echo "Local profile: ${FOUND_NAME:-<unknown>}"
+          test -f "$PROFILES_DIR/${PROV_UUID}.mobileprovision" || { echo "Profile file not found: $PROFILES_DIR/${PROV_UUID}.mobileprovision"; ls -la "$PROFILES_DIR" || true; exit 1; }
 
-          # ExportOptions.plist מינימלי:
-          #  - בלי signingStyle
-          #  - בלי signingCertificate
-          #  - provisioningProfiles ממופה רק ל-BUNDLE_ID של האפליקציה
+          # ExportOptions מינימלי: מפה רק ל-App הראשי לפי "שם" הפרופיל; בלי signingStyle/Certificate
           cat > /tmp/ExportOptions.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -259,12 +280,10 @@ workflows:
             </dict>
             <key>manageAppVersionAndBuildNumber</key><false/>
             <key>compileBitcode</key><false/>
-            <!-- אופציונלי: <key>stripSwiftSymbols</key><true/> -->
           </dict>
           </plist>
           EOF
 
-          # בלי -allowProvisioningUpdates (לא מחוברים עם Apple ID ב-CI)
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             -exportPath "$EXPORT_DIR" \
