@@ -318,7 +318,7 @@ const Popup = ({ item, onClose, contentType }) => {
     >
       <div
         ref={popupRef}
-        className="bg-white rounded-2xl shadow-xl w-full max-w-sm max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
+        className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[80vh] flex flex-col overflow-hidden relative transform transition-all duration-300 ease-in-out animate-popup-enter"
         style={{
           borderRadius: DESIGN_TOKENS.borderRadius.lg,
           boxShadow: DESIGN_TOKENS.shadows.xl,
