@@ -6,7 +6,8 @@ workflows:
     environment:
       vars:
         BUNDLE_ID: "com.orirot.givit"
-        XCODE_PROJECT_PATH: "ios/App"
+        # הפרויקט יושב תחת frontend
+        XCODE_PROJECT_PATH: "frontend/ios/App"
         XCODE_SCHEME: "App"
         APPLE_TEAM_ID: $APPLE_TEAM_ID
       xcode: 16.4
@@ -14,16 +15,17 @@ workflows:
     scripts:
       - name: Install deps & sync
         script: |
+          cd frontend
           npm ci
           npm run build
           npx cap sync ios
-          cd ios/App && pod install && cd -
+          cd ios/App && pod install && cd ../../..
 
       - name: Force bundle id (Info.plist)
         script: |
           echo "Setting CFBundleIdentifier to $BUNDLE_ID"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "ios/App/App/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "frontend/ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "frontend/ios/App/App/Info.plist"
 
       - name: Install signing (manual p12 + profile)
         script: |
@@ -44,7 +46,7 @@ workflows:
         script: |
           echo "=== Team ID ==="; echo "$APPLE_TEAM_ID"
           echo "=== CFBundleIdentifier ==="
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist" || true
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "frontend/ios/App/App/Info.plist" || true
           echo "=== Identities (after import) ==="
           security find-identity -v -p codesigning || true
           echo "=== Profiles dir ==="
