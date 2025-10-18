@@ -6,12 +6,11 @@ workflows:
     environment:
       vars:
         BUNDLE_ID: "com.orirot.givit"
-        # הפרויקט יושב תחת frontend
         XCODE_PROJECT_PATH: "frontend/ios/App"
         XCODE_SCHEME: "App"
         APPLE_TEAM_ID: $APPLE_TEAM_ID
-      xcode: 16.4
-      node: { version: v20.12.2 }
+      xcode: "16.4"
+      node: "20"   # ← חייב להיות מחרוזת/מספר, לא אובייקט
     scripts:
       - name: Install deps & sync
         script: |
@@ -98,9 +97,9 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        private_key: $APP_STORE_CONNECT_API_KEY_P8
+        api_key: $APP_STORE_CONNECT_API_KEY_ID         # Key ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID        # Issuer ID
+        private_key: $APP_STORE_CONNECT_API_KEY_P8     # תוכן ה-.p8 (PEM), לא Base64
         submit_to_testflight: true
         beta_groups:
           - "Internal Testers"
