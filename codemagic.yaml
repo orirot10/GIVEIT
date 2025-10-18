@@ -5,15 +5,16 @@ workflows:
     max_build_duration: 90
     environment:
       vars:
-        BUNDLE_ID: "com.orirot.givit"
-        XCODE_PROJECT_PATH: "frontend/ios/App"
-        XCODE_SCHEME: "App"
-        APPLE_TEAM_ID: $APPLE_TEAM_ID
+        BUNDLE_ID: "com.orirot.givit"           # ודא שזה ה-Bundle ID שלך
+        XCODE_PROJECT_PATH: "frontend/ios/App"  # נתיב ה-iOS בפרויקט
+        XCODE_SCHEME: "App"                     # שנה אם ה-Scheme שונה
+        APPLE_TEAM_ID: $APPLE_TEAM_ID           # לדוגמה: 39WVDVZKGE
       xcode: "16.4"
-      node: "20"   # ← חייב להיות מחרוזת/מספר, לא אובייקט
+      node: "20"
     scripts:
-      - name: Install deps & sync
+      - name: Install deps & sync (Capacitor)
         script: |
+          set -euo pipefail
           cd frontend
           npm ci
           npm run build
@@ -22,38 +23,53 @@ workflows:
 
       - name: Force bundle id (Info.plist)
         script: |
+          set -euo pipefail
           echo "Setting CFBundleIdentifier to $BUNDLE_ID"
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "frontend/ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "frontend/ios/App/App/Info.plist"
 
       - name: Install signing (manual p12 + profile)
         script: |
+          set -euo pipefail
+          # keychain
           security create-keychain -p "" codemagic.keychain
           security default-keychain -s codemagic.keychain
           security unlock-keychain -p "" codemagic.keychain
           security set-keychain-settings -t 3600 -l codemagic.keychain
 
+          # import p12
           echo "$P12_BASE64" | base64 --decode > dist.p12
           security import dist.p12 -k codemagic.keychain -P "$P12_PASSWORD" -A
 
+          # install provisioning profile (+ extract Name & UUID)
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$DIST_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
-          UUID=$(grep -a -o "[-A-Z0-9]\\{36\\}" profile.mobileprovision | head -n 1)
+          PROFILE_NAME=$(security cms -D -i profile.mobileprovision | /usr/libexec/PlistBuddy -c 'Print :Name' /dev/stdin)
+          UUID=$(security cms -D -i profile.mobileprovision | /usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin)
           cp profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
 
-      - name: Diagnostics (after import)
-        script: |
-          echo "=== Team ID ==="; echo "$APPLE_TEAM_ID"
-          echo "=== CFBundleIdentifier ==="
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "frontend/ios/App/App/Info.plist" || true
-          echo "=== Identities (after import) ==="
+          echo "Profile name: $PROFILE_NAME"
+          echo "Profile UUID:  $UUID"
+
+          echo "=== Identities ==="
           security find-identity -v -p codesigning || true
           echo "=== Profiles dir ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-          echo "Provisioning UUID: $UUID"
+
+      - name: Sanity check (paths & scheme)
+        script: |
+          set -euo pipefail
+          echo "Workspace path: $XCODE_PROJECT_PATH/App.xcworkspace"
+          ls -la "$XCODE_PROJECT_PATH" || true
+          ls -la "$XCODE_PROJECT_PATH/App.xcworkspace" || true
+          echo "Schemes:"
+          xcodebuild -list -workspace "$XCODE_PROJECT_PATH/App.xcworkspace" | sed -n '/Schemes:/,$p' || true
+          echo "CFBundleIdentifier:"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "frontend/ios/App/App/Info.plist" || true
 
       - name: Xcode archive (manual signing)
         script: |
+          set -euo pipefail
           xcodebuild \
             -workspace "$XCODE_PROJECT_PATH/App.xcworkspace" \
             -scheme "$XCODE_SCHEME" \
@@ -63,12 +79,19 @@ workflows:
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="$UUID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             clean archive | xcpretty
 
+          # וידוא שנוצר ארכיב
+          test -d "$CM_BUILD_DIR/App.xcarchive" || { echo "Archive not created"; exit 1; }
+          /usr/libexec/PlistBuddy -c "Print :ApplicationProperties:CFBundleIdentifier" "$CM_BUILD_DIR/App.xcarchive/Info.plist" || true
+
       - name: Export IPA (manual signing)
         script: |
+          set -euo pipefail
+          test -d "$CM_BUILD_DIR/App.xcarchive" || { echo "Archive missing, cannot export"; exit 1; }
+
           cat > "$CM_BUILD_DIR/ExportOptions.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -79,11 +102,14 @@ workflows:
             <key>provisioningProfiles</key>
             <dict>
               <key>com.orirot.givit</key>
-              <string>$(echo $UUID)</string>
+              <string>__PROFILE_NAME_PLACEHOLDER__</string>
             </dict>
           </dict>
           </plist>
           PLIST
+
+          # החלפת placeholder בשם הפרופיל (BSD sed במק)
+          sed -i '' "s/__PROFILE_NAME_PLACEHOLDER__/${PROFILE_NAME//\//\\/}/g" "$CM_BUILD_DIR/ExportOptions.plist"
 
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
@@ -97,10 +123,9 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY_P8
-        key_id: $APP_STORE_CONNECT_API_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        api_key: $APP_STORE_CONNECT_API_KEY_P8      # תוכן ה-.p8 (PEM), לא Base64
+        key_id: $APP_STORE_CONNECT_API_KEY_ID       # Key ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID     # Issuer ID
         submit_to_testflight: true
         beta_groups:
           - "Internal Testers"
-
