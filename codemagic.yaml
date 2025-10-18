@@ -6,9 +6,9 @@ workflows:
     environment:
       vars:
         BUNDLE_ID: "com.orirot.givit"           # ודא שזה ה-Bundle ID שלך
-        XCODE_PROJECT_PATH: "frontend/ios/App"  # נתיב ה-iOS בפרויקט
+        XCODE_PROJECT_PATH: "frontend/ios/App"  # אם ה-iOS תחת frontend
         XCODE_SCHEME: "App"                     # שנה אם ה-Scheme שונה
-        APPLE_TEAM_ID: $APPLE_TEAM_ID           # לדוגמה: 39WVDVZKGE
+        APPLE_TEAM_ID: $APPLE_TEAM_ID           # מוגדר ב-Environment variables
       xcode: "16.4"
       node: "20"
     scripts:
@@ -31,6 +31,13 @@ workflows:
       - name: Install signing (manual p12 + profile)
         script: |
           set -euo pipefail
+
+          # Validate required env vars exist (fail fast with clear messages)
+          : "${P12_BASE64:?Missing env var P12_BASE64 (Base64 of your .p12)}"
+          : "${P12_PASSWORD:?Missing env var P12_PASSWORD (password of .p12)}"
+          : "${DIST_PROFILE_BASE64:?Missing env var DIST_PROFILE_BASE64 (Base64 of .mobileprovision)}"
+          : "${APPLE_TEAM_ID:?Missing env var APPLE_TEAM_ID}"
+
           # keychain
           security create-keychain -p "" codemagic.keychain
           security default-keychain -s codemagic.keychain
@@ -123,9 +130,9 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY_P8      # תוכן ה-.p8 (PEM), לא Base64
-        key_id: $APP_STORE_CONNECT_API_KEY_ID       # Key ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID     # Issuer ID
+        api_key: $APP_STORE_CONNECT_API_KEY_P8   # תוכן קובץ ה-.p8 (PEM) מוגדר ב-Environment variables
+        key_id: $APP_STORE_CONNECT_API_KEY_ID    # Key ID (לא הדפסת כאן—כבר יש לך)
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID  # Issuer ID
         submit_to_testflight: true
         beta_groups:
           - "Internal Testers"
