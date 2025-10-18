@@ -1,31 +1,31 @@
-  # ---------------------------------------------------------------
-  ios_capacitor_release_manual:
-    name: iOS Capacitor (Manual signing via p12/profile)
+workflows:
+  ios_capacitor_manual_tf:
+    name: iOS Capacitor • Manual signing → TestFlight
     instance_type: mac_mini_m2
     max_build_duration: 90
     environment:
       vars:
-        BUNDLE_ID: "com.orirot.givit"
+        BUNDLE_ID: "com.orirot.givit"        # ודא שזה בדיוק מה שקיים ב-Apple
         XCODE_PROJECT_PATH: "ios/App"
         XCODE_SCHEME: "App"
-        APPLE_TEAM_ID: $APPLE_TEAM_ID
+        APPLE_TEAM_ID: $APPLE_TEAM_ID        # לדוגמה: 39WVDVZKGE
       xcode: 16.4
       node: { version: v20.12.2 }
     scripts:
-      - name: Install deps & sync (Capacitor)
+      - name: Install deps & sync
         script: |
           npm ci
           npm run build
           npx cap sync ios
           cd ios/App && pod install && cd -
 
-      - name: Fix bundle id (force in Info.plist)
+      - name: Force bundle id (Info.plist)
         script: |
           echo "Setting CFBundleIdentifier to $BUNDLE_ID"
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist"
 
-      - name: Install signing (manual)
+      - name: Install signing (manual p12 + profile)
         script: |
           security create-keychain -p "" codemagic.keychain
           security default-keychain -s codemagic.keychain
@@ -61,7 +61,7 @@
             CODE_SIGN_IDENTITY="Apple Distribution" \
             clean archive | xcpretty
 
-      - name: Export IPA (manual)
+      - name: Export IPA (manual signing)
         script: |
           cat > "$CM_BUILD_DIR/ExportOptions.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -89,12 +89,12 @@
     artifacts:
       - $CM_BUILD_DIR/export/*.ipa
 
-    # אפשר גם לפרסם ל-TestFlight אע"פ שהחתימה ידנית,
-    # כל עוד יש לך גם את מזהי ה-API (ID/ISSUER) בסודות.
+    # העלאה ל-TestFlight דרך Codemagic (לא דורשת מק אצלך)
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_API_KEY_ID
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        private_key: $APP_STORE_CONNECT_API_KEY_P8   # ה-PEM הגולמי (BEGIN/END)
         submit_to_testflight: true
         beta_groups:
           - "Internal Testers"
