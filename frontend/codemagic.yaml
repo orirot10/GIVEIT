@@ -40,9 +40,14 @@ workflows:
           UUID=$(grep -a -o "[-A-Z0-9]\\{36\\}" profile.mobileprovision | head -n 1)
           cp profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
 
+      - name: Diagnostics (after import)
+        script: |
+          echo "=== Team ID ==="; echo "$APPLE_TEAM_ID"
+          echo "=== CFBundleIdentifier ==="
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist" || true
           echo "=== Identities (after import) ==="
           security find-identity -v -p codesigning || true
-          echo "=== Profiles dir (after import) ==="
+          echo "=== Profiles dir ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
           echo "Provisioning UUID: $UUID"
 
