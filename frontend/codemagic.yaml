@@ -37,6 +37,12 @@ workflows:
           security find-identity -v -p codesigning || true
           echo "=== Profiles dir (after import) ==="
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+      
+      - name: Fix bundle id
+        script: |
+          echo "Setting CFBundleIdentifier to com.orirot.givit"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.orirot.givit" "ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist"
 
       - name: Archive (manual signing)
         script: |
