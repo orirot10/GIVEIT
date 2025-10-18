@@ -1,24 +1,16 @@
-workflows:
-  ios_capacitor_release_auto:
-    name: iOS Capacitor (Auto signing via ASC API)
+  # ---------------------------------------------------------------
+  ios_capacitor_release_manual:
+    name: iOS Capacitor (Manual signing via p12/profile)
     instance_type: mac_mini_m2
     max_build_duration: 90
     environment:
       vars:
-        BUNDLE_ID: "com.orirot.givit"     # ה-Bundle ID שלך
+        BUNDLE_ID: "com.orirot.givit"
         XCODE_PROJECT_PATH: "ios/App"
         XCODE_SCHEME: "App"
-        APPLE_TEAM_ID: $APPLE_TEAM_ID     # חייב להיות 39WVDVZKGE לפי הצילום שלך
+        APPLE_TEAM_ID: $APPLE_TEAM_ID
       xcode: 16.4
       node: { version: v20.12.2 }
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: "$BUNDLE_ID"
-        app_store_connect_api_key:
-          key_id: Encrypted(APP_STORE_CONNECT_API_KEY_ID)
-          issuer_id: Encrypted(APP_STORE_CONNECT_ISSUER_ID)
-          # חשוב: תוכן ה-.p8 הגולמי (PEM), לא base64
-          private_key: Encrypted(APP_STORE_CONNECT_API_KEY_P8)
     scripts:
       - name: Install deps & sync (Capacitor)
         script: |
@@ -33,17 +25,28 @@ workflows:
           /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier $BUNDLE_ID" "ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist"
 
-      - name: Diagnostics (before archive)
+      - name: Install signing (manual)
         script: |
-          echo "=== Team ID from env ==="; echo "$APPLE_TEAM_ID"
-          echo "=== CFBundleIdentifier (Info.plist) ==="
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "ios/App/App/Info.plist" || true
-          echo "=== Identities (before) ==="
-          security find-identity -v -p codesigning || true
-          echo "=== Profiles dir (before) ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          security create-keychain -p "" codemagic.keychain
+          security default-keychain -s codemagic.keychain
+          security unlock-keychain -p "" codemagic.keychain
+          security set-keychain-settings -t 3600 -l codemagic.keychain
 
-      - name: Xcode archive (automatic signing)
+          echo "$P12_BASE64" | base64 --decode > dist.p12
+          security import dist.p12 -k codemagic.keychain -P "$P12_PASSWORD" -A
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$DIST_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          UUID=$(grep -a -o "[-A-Z0-9]\\{36\\}" profile.mobileprovision | head -n 1)
+          cp profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+
+          echo "=== Identities (after import) ==="
+          security find-identity -v -p codesigning || true
+          echo "=== Profiles dir (after import) ==="
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          echo "Provisioning UUID: $UUID"
+
+      - name: Xcode archive (manual signing)
         script: |
           xcodebuild \
             -workspace "$XCODE_PROJECT_PATH/App.xcworkspace" \
@@ -51,12 +54,14 @@ workflows:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
-            -allowProvisioningUpdates \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="$UUID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             clean archive | xcpretty
 
-      - name: Export IPA (automatic)
+      - name: Export IPA (manual)
         script: |
           cat > "$CM_BUILD_DIR/ExportOptions.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -64,10 +69,12 @@ workflows:
           <plist version="1.0">
           <dict>
             <key>method</key><string>app-store</string>
-            <key>signingStyle</key><string>automatic</string>
-            <key>destination</key><string>export</string>
-            <key>uploadSymbols</key><true/>
-            <key>stripSwiftSymbols</key><true/>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>com.orirot.givit</key>
+              <string>$(echo $UUID)</string>
+            </dict>
           </dict>
           </plist>
           PLIST
@@ -75,18 +82,15 @@ workflows:
           xcodebuild -exportArchive \
             -archivePath "$CM_BUILD_DIR/App.xcarchive" \
             -exportOptionsPlist "$CM_BUILD_DIR/ExportOptions.plist" \
-            -exportPath "$CM_BUILD_DIR/export" \
-            -allowProvisioningUpdates | xcpretty
+            -exportPath "$CM_BUILD_DIR/export" | xcpretty
 
-          echo "=== Identities (after) ==="
-          security find-identity -v -p codesigning || true
-          echo "=== Profiles dir (after) ==="
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
           ls -la "$CM_BUILD_DIR/export"
 
     artifacts:
       - $CM_BUILD_DIR/export/*.ipa
 
+    # אפשר גם לפרסם ל-TestFlight אע"פ שהחתימה ידנית,
+    # כל עוד יש לך גם את מזהי ה-API (ID/ISSUER) בסודות.
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_API_KEY_ID
