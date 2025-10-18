@@ -97,9 +97,10 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_API_KEY_ID         # Key ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID        # Issuer ID
-        private_key: $APP_STORE_CONNECT_API_KEY_P8     # תוכן ה-.p8 (PEM), לא Base64
+        api_key: $APP_STORE_CONNECT_API_KEY_P8
+        key_id: $APP_STORE_CONNECT_API_KEY_ID
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
         beta_groups:
           - "Internal Testers"
+
