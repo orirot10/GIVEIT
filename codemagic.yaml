@@ -4,12 +4,14 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 120
     environment:
+      groups:
+        - o3
       vars:
-        BUNDLE_ID: "com.orirot.givit"
-        APPLE_TEAM_ID: "39WVDVZKGE"
-        ASC_ISSUER_ID: "cb979aca-72c6-42a9-8a75-6d6cf1fb264e"
-        ASC_KEY_ID: "JQ82YP1TDCU0"
-        APP_SPECIFIC_PASSWORD: "wlcl-ubxx-bhmq-kmji"
+        BUNDLE_ID: "${o3.BUNDLE_ID}"
+        APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"
+        ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"
+        ASC_KEY_ID: "${o3.ASC_KEY_ID}"
+        APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"
         XCODE_SCHEME: "Runner"  # שנה אם משתמש ב-Scheme אחר
       flutter: 3.24.0  # גרסת Flutter עדכנית, שנה לפי הצורך
     integrations:
@@ -31,8 +33,7 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_app_store: false  # העלאה ידנית
-        release_notes: "Initial release of GivIt - Smart rental platform"
+        submit_to_app_store: false  # העלאה ידנית, לא אוטומטית
     artifacts:
       - ios/ipa/*.ipa
       - ios/ipa/*.dSYM.zip
