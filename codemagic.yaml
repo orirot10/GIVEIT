@@ -12,10 +12,11 @@ workflows:
         ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"  # cb979aca-72c6-42a9-8a75-6d6cf1fb264e
         ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # JQ82YP1TDCU0
         APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"  # wlcl-ubxx-bhmq-kmji
-        XCODE_SCHEME: "App"
+        XCODE_SCHEME: "App"  # בדוק שם ה-Scheme
         GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"
         GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"
       node: 18
+    working_directory: frontend  # עבודה מתוך תיקיית frontend
     integrations:
       app_store_connect: GivItAPIKey
     scripts:
@@ -24,7 +25,7 @@ workflows:
           npm install
       - name: Build React app
         script: |
-          npm run build  # תלוי ב-package.json
+          npm run build  # יוצר dist בתוך frontend
       - name: Sync Capacitor
         script: |
           npx cap sync ios
