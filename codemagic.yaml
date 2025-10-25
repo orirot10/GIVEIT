@@ -7,18 +7,18 @@ workflows:
       groups:
         - o3
       vars:
-        BUNDLE_ID: "${o3.BUNDLE_ID}"  # com.orirot.givit
-        APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"  # 39WVDVZKGE
-        ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"  # cb979aca-72c6-42a9-8a75-6d6cf1fb264e
-        ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # YFD7W23V5Q
-        APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"  # wlcl-ubxx-bhmq-kmji
-        XCODE_SCHEME: "App"  # בדוק שם ה-Scheme
+        BUNDLE_ID: "${o3.BUNDLE_ID}"
+        APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"
+        ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"
+        ASC_KEY_ID: "${o3.ASC_KEY_ID}"
+        APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"
+        XCODE_SCHEME: "App"
         GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"
         GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"
-        CERTIFICATE: "${o3.CERTIFICATE}"  # אופציונלי, .p12 כ-base64
-        PRIVATE_KEY_PASSWORD: "${o3.PRIVATE_KEY_PASSWORD}"  # אופציונלי, סיסמה
+        CERTIFICATE: "${o3.CERTIFICATE}"
+        PRIVATE_KEY_PASSWORD: "${o3.PRIVATE_KEY_PASSWORD}"
       node: 18
-    working_directory: frontend  # עבודה מתוך תיקיית frontend
+    working_directory: frontend
     integrations:
       app_store_connect: GivItAPIKey
     scripts:
@@ -27,7 +27,7 @@ workflows:
           npm install
       - name: Build React app
         script: |
-          npm run build  # יוצר dist בתוך frontend
+          npm run build
       - name: Sync Capacitor
         script: |
           npx cap sync ios
@@ -36,11 +36,15 @@ workflows:
           npx cap copy ios
       - name: Set up code signing
         script: |
-          echo "Using Issuer ID: $ASC_ISSUER_ID and Key ID: $ASC_KEY_ID"
+          echo "Issuer ID: $ASC_ISSUER_ID, Key ID: $ASC_KEY_ID, Bundle ID: $BUNDLE_ID"
+          if [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_KEY_ID" ]; then
+            echo "Error: Missing Issuer ID or Key ID"
+            exit 1
+          fi
           app-store-connect fetch-signing-files $BUNDLE_ID \
             --platform IOS \
             --type IOS_APP_STORE \
-            || echo "Automatic signing failed, trying manual (if set)"
+            || echo "Automatic signing failed, trying manual"
           if [ -n "$CERTIFICATE" ]; then
             echo "$CERTIFICATE" | base64 --decode > ios/certificate.p12
             security create-keychain -p "" build.keychain
@@ -48,6 +52,8 @@ workflows:
             security unlock-keychain -p "" build.keychain
             security import ios/certificate.p12 -k build.keychain -P "$PRIVATE_KEY_PASSWORD" -T /usr/bin/codesign
             security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+          else
+            echo "No manual certificate provided, relying on automatic signing"
           fi
       - name: Build IPA
         script: |
