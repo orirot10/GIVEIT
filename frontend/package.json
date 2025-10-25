@@ -3,18 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "ios:build": "npm run build && npx cap sync ios",
-    "ios:open": "npx cap open ios",
-    "ios:run": "npm run build && npx cap sync ios && npx cap run ios",
-    "android:build": "npm run build && npx cap sync android",
-    "android:open": "npx cap open android",
-    "android:run": "npm run build && npx cap sync android && npx cap run android"
-  },
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "lint": "eslint .",
+  "preview": "vite preview",
+  "ios:build": "npm run build && npx cap sync ios",
+  "ios:open": "npx cap open ios",
+  "ios:run": "npm run build && npx cap sync ios && npx cap run ios",
+  "android:build": "npm run build && npx cap sync android",
+  "android:open": "npx cap open android",
+  "android:run": "npm run build && npx cap sync android && npx cap run android"
+},
   "dependencies": {
     "@capacitor/android": "^6.2.1",
     "@capacitor/cli": "^6.2.1",
