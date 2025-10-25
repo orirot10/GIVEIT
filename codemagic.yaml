@@ -12,10 +12,10 @@ workflows:
         ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"  # cb979aca-72c6-42a9-8a75-6d6cf1fb264e
         ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # JQ82YP1TDCU0
         APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"  # wlcl-ubxx-bhmq-kmji
-        XCODE_SCHEME: "App"  # שם ה-Scheme, בדוק בפרויקט
-        GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"  # הוסף משתנה מאובטח
-        GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"  # הוסף משתנה
-      node: 18  # התאם לגרסת Node שלך
+        XCODE_SCHEME: "App"  # בדוק שם ה-Scheme בפרויקט
+        GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"
+        GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"
+      node: 18  # תואם ל-Vite 6.2.0
     integrations:
       app_store_connect: GivItAPIKey
     scripts:
@@ -24,13 +24,13 @@ workflows:
           npm install
       - name: Build React app
         script: |
-          npm run build  # בנה לתיקייה dist
+          npm run build  # יוצר dist
       - name: Sync Capacitor
         script: |
           npx cap sync ios
-          # הזרק מפתחות אם נדרש
-          echo "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" > .env
-          echo "GOOGLE_AUTH_SERVER_CLIENT_ID=$GOOGLE_AUTH_SERVER_CLIENT_ID" >> .env
+          # הזרק מפתחות ל-.env
+          echo "VITE_GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" > .env
+          echo "VITE_GOOGLE_AUTH_SERVER_CLIENT_ID=$GOOGLE_AUTH_SERVER_CLIENT_ID" >> .env
           npx cap copy ios
       - name: Set up code signing
         script: |
