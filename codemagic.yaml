@@ -10,13 +10,11 @@ workflows:
         BUNDLE_ID: "${o3.BUNDLE_ID}"  # com.orirot.givit
         APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"  # 39WVDVZKGE
         ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"  # cb979aca-72c6-42a9-8a75-6d6cf1fb264e
-        ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # JQ82YP1TDCU0
+        ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # YFD7W23V5Q (עדכן אם שונה)
         APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"  # wlcl-ubxx-bhmq-kmji
         XCODE_SCHEME: "App"  # בדוק שם ה-Scheme
         GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"
         GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"
-        CERTIFICATE: "${o3.CERTIFICATE}"  # אופציונלי, העלה .p12 כ-base64
-        PRIVATE_KEY_PASSWORD: "${o3.PRIVATE_KEY_PASSWORD}"  # אופציונלי, הסיסמה של .p12
       node: 18
     working_directory: frontend  # עבודה מתוך תיקיית frontend
     integrations:
@@ -36,20 +34,9 @@ workflows:
           npx cap copy ios
       - name: Set up code signing
         script: |
-          # נסה חתימה אוטומטית עם API Key
           app-store-connect fetch-signing-files $BUNDLE_ID \
             --platform IOS \
-            --type IOS_APP_STORE \
-            || echo "Automatic signing failed, trying manual (if set)"
-          # חתימה ידנית אם CERTIFICATE מוגדר
-          if [ -n "$CERTIFICATE" ]; then
-            echo "$CERTIFICATE" | base64 --decode > ios/certificate.p12
-            security create-keychain -p "" build.keychain
-            security default-keychain -s build.keychain
-            security unlock-keychain -p "" build.keychain
-            security import ios/certificate.p12 -k build.keychain -P "$PRIVATE_KEY_PASSWORD" -T /usr/bin/codesign
-            security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
-          fi
+            --type IOS_APP_STORE
       - name: Build IPA
         script: |
           xcodebuild -workspace ios/App/App.xcworkspace \
