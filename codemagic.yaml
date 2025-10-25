@@ -12,14 +12,26 @@ workflows:
         ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"  # cb979aca-72c6-42a9-8a75-6d6cf1fb264e
         ASC_KEY_ID: "${o3.ASC_KEY_ID}"  # JQ82YP1TDCU0
         APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"  # wlcl-ubxx-bhmq-kmji
-        XCODE_SCHEME: "Runner"
-      flutter: 3.24.0
+        XCODE_SCHEME: "App"  # שם ה-Scheme, בדוק בפרויקט
+        GOOGLE_MAPS_API_KEY: "${o3.GOOGLE_MAPS_API_KEY}"  # הוסף משתנה מאובטח
+        GOOGLE_AUTH_SERVER_CLIENT_ID: "${o3.GOOGLE_AUTH_SERVER_CLIENT_ID}"  # הוסף משתנה
+      node: 18  # התאם לגרסת Node שלך
     integrations:
-      app_store_connect: GivItAPIKey  # תואם את השם שהגדרת
+      app_store_connect: GivItAPIKey
     scripts:
-      - name: Install Flutter dependencies
+      - name: Install Node dependencies
         script: |
-          flutter pub get
+          npm install
+      - name: Build React app
+        script: |
+          npm run build  # בנה לתיקייה dist
+      - name: Sync Capacitor
+        script: |
+          npx cap sync ios
+          # הזרק מפתחות אם נדרש
+          echo "GOOGLE_MAPS_API_KEY=$GOOGLE_MAPS_API_KEY" > .env
+          echo "GOOGLE_AUTH_SERVER_CLIENT_ID=$GOOGLE_AUTH_SERVER_CLIENT_ID" >> .env
+          npx cap copy ios
       - name: Set up code signing
         script: |
           app-store-connect fetch-signing-files $BUNDLE_ID \
@@ -28,12 +40,19 @@ workflows:
             --certificate-type IOS_DISTRIBUTION
       - name: Build IPA
         script: |
-          flutter build ipa --release \
-            --export-options-plist=ios/ExportOptions.plist
+          xcodebuild -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath $CM_BUILD_DIR/build.xcarchive \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath $CM_BUILD_DIR/build.xcarchive \
+            -exportPath $CM_BUILD_DIR/ipa \
+            -exportOptionsPlist ios/ExportOptions.plist
     publishing:
       app_store_connect:
         auth: integration
         submit_to_app_store: false
     artifacts:
-      - ios/ipa/*.ipa
-      - ios/ipa/*.dSYM.zip
+      - $CM_BUILD_DIR/ipa/*.ipa
+      - $CM_BUILD_DIR/*.dSYM.zip
