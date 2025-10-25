@@ -1,7 +1,7 @@
 {
   "appId": "com.orirot.givit",
   "appName": "GivIt",
-  "webDir": "dist",
+  "webDir": "build",
   "bundledWebRuntime": false,
   "server": {
     "cleartext": false,
