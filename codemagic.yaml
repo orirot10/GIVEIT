@@ -1,18 +1,21 @@
 workflows:
-  ios-app-store:
+  ios-app-store:  # שים לב לשם זה
     name: GivIt iOS App Store Deploy
     instance_type: mac_mini_m1
     max_build_duration: 120
     environment:
       groups:
-        - o3  # קבוצת המשתנים שלך
+        - o3
       vars:
-        BUNDLE_ID: "${o3.BUNDLE_ID}"  # com.orirot.givit
-        APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"  # 39WVDVZKGE
-        # שאר המשתנים מהקבוצה o3
+        BUNDLE_ID: "${o3.BUNDLE_ID}"
+        APPLE_TEAM_ID: "${o3.APPLE_TEAM_ID}"
+        ASC_ISSUER_ID: "${o3.ASC_ISSUER_ID}"
+        ASC_KEY_ID: "${o3.ASC_KEY_ID}"
+        APP_SPECIFIC_PASSWORD: "${o3.APP_SPECIFIC_PASSWORD}"
+        XCODE_SCHEME: "Runner"
       flutter: 3.24.0
     integrations:
-      app_store_connect: GivItAPIKey  # עכשיו זה אמור להתאים
+      app_store_connect: GivItAPIKey
     scripts:
       - name: Install Flutter dependencies
         script: |
@@ -29,8 +32,8 @@ workflows:
             --export-options-plist=ios/ExportOptions.plist
     publishing:
       app_store_connect:
-        auth: integration  # משתמש באינטגרציה
-        submit_to_app_store: false  # ידני
+        auth: integration
+        submit_to_app_store: false
     artifacts:
       - ios/ipa/*.ipa
       - ios/ipa/*.dSYM.zip
