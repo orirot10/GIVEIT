@@ -36,8 +36,7 @@ workflows:
         script: |
           app-store-connect fetch-signing-files $BUNDLE_ID \
             --platform IOS \
-            --type IOS_APP_STORE \
-            --certificate-type IOS_DISTRIBUTION
+            --type IOS_APP_STORE  # שינוי ל--type במקום --certificate-type
       - name: Build IPA
         script: |
           xcodebuild -workspace ios/App/App.xcworkspace \
