@@ -213,22 +213,20 @@
   },
   "categories": {
     "rental": {
-      "Tools": "כלים",
-      "Electronics": "אלקטרוניקה",
-      "Vehicles": "רכבים",
-      "Sports": "ספורט",
-      "Furniture": "ריהוט",
-      "Clothes": "בגדים",
-      "Other": "אחר"
+      "tools_equipment": "כלים וציוד",
+      "events_leisure": "אירועים ופנאי",
+      "transport_mobility": "תחבורה וניידות",
+      "home_family_services": "שירותי בית ומשפחה",
+      "education_personal_services": "חינוך ושירותים אישיים",
+      "technology_media": "טכנולוגיה ומדיה"
     },
     "service": {
-      "Repair": "תיקון",
-      "Cleaning": "ניקיון",
-      "Tutoring": "הדרכה",
-      "Moving": "הובלה",
-      "Pet Care": "טיפול בחיות",
-      "Beauty": "יופי",
-      "Other": "אחר"
+      "tools_equipment": "כלים וציוד",
+      "events_leisure": "אירועים ופנאי",
+      "transport_mobility": "תחבורה וניידות",
+      "home_family_services": "שירותי בית ומשפחה",
+      "education_personal_services": "חינוך ושירותים אישיים",
+      "technology_media": "טכנולוגיה ומדיה"
     }
   },
   "terms": {

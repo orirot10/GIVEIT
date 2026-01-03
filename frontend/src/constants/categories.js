@@ -1,91 +1,51 @@
-// Bilingual category and tag definitions for rentals and services.
-// Each tag stores English and Hebrew labels along with a short label used in filters.
+// Unified category system for both rentals and services.
+// Each category stores English and Hebrew labels along with a short label used in filters.
+
+// ---------------------- Unified Categories ----------------------
+const unifiedCategoryData = [
+  {
+    value: 'tools_equipment',
+    en: 'Tools & Equipment',
+    he: 'כלים וציוד',
+    short: { en: 'Tools', he: 'כלים' }
+  },
+  {
+    value: 'events_leisure',
+    en: 'Events & Leisure',
+    he: 'אירועים ופנאי',
+    short: { en: 'Events', he: 'אירועים' }
+  },
+  {
+    value: 'transport_mobility',
+    en: 'Transport & Mobility',
+    he: 'תחבורה וניידות',
+    short: { en: 'Transport', he: 'תחבורה' }
+  },
+  {
+    value: 'home_family_services',
+    en: 'Home & Family Services',
+    he: 'שירותי בית ומשפחה',
+    short: { en: 'Home', he: 'בית' }
+  },
+  {
+    value: 'education_personal_services',
+    en: 'Education & Personal Services',
+    he: 'חינוך ושירותים אישיים',
+    short: { en: 'Education', he: 'חינוך' }
+  },
+  {
+    value: 'technology_media',
+    en: 'Technology & Media',
+    he: 'טכנולוגיה ומדיה',
+    short: { en: 'Tech', he: 'טכנולוגיה' }
+  }
+];
 
 // ---------------------- Service Categories ----------------------
-export const serviceCategoryData = [
-  {
-    value: 'tutoring',
-    en: 'Tutoring',
-    he: 'שיעורים',
-    short: { en: 'Tut', he: 'שיעור פרטי' }
-  },
-  {
-    value: 'summaries',
-    en: 'Summaries',
-    he: 'ש.ב ',
-    short: { en: 'Summ', he: 'ש.ב' }
-  },
-  {
-    value: 'transport',
-    en: 'Transport',
-    he: 'הובלה',
-    short: { en: 'Trans', he: 'הובלה' }
-  },
-  {
-    value: 'care',
-    en: 'Care',
-    he: 'טיפול',
-    short: { en: 'Care', he: 'טיפול' }
-  },
-  {
-    value: 'tech_repairs',
-    en: 'Tech Repairs',
-    he: 'תיקונים',
-    short: { en: 'Repair', he: 'תיקון' }
-  },
-  {
-    value: 'events',
-    en: 'Events',
-    he: 'אירועים',
-    short: { en: 'Events', he: 'אירוע' }
-  },
-  {
-    value: 'beauty_fitness',
-    en: 'Beauty & Fitness',
-    he: 'יופי וכושר',
-    short: { en: 'Beauty', he: 'יופי' }
-  }
-];
+export const serviceCategoryData = unifiedCategoryData;
 
 // ---------------------- Rental Categories ----------------------
-export const rentalCategoryData = [
-  {
-    value: 'study_equipment',
-    en: 'Study Equipment',
-    he: 'ציוד לימודי',
-    short: { en: 'Study', he: 'לימוד' }
-  },
-  {
-    value: 'sports_equipment',
-    en: 'Sports Equipment',
-    he: 'ציוד ספורט',
-    short: { en: 'Sport', he: 'ספורט' }
-  },
-  {
-    value: 'home_items',
-    en: 'Home Items',
-    he: 'ציוד ביתי',
-    short: { en: 'Home', he: 'ביתי' }
-  },
-  {
-    value: 'transport',
-    en: 'Transport',
-    he: 'תחבורה קלה',
-    short: { en: 'Trans', he: 'תחבורה' }
-  },
-  {
-    value: 'event_gear',
-    en: 'Event Gear',
-    he: 'ציוד אירועים',
-    short: { en: 'Event', he: 'ציוד' }
-  },
-  {
-    value: 'entertainment',
-    en: 'Entertainment',
-    he: 'פנאי ובידור',
-    short: { en: 'Fun', he: 'פנאי' }
-  }
-];
+export const rentalCategoryData = unifiedCategoryData;
 
 // ---------------------- Helper Functions ----------------------
 

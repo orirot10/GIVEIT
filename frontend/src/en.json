@@ -199,22 +199,20 @@
   },
   "categories": {
     "rental": {
-      "Tools": "Tools",
-      "Electronics": "Electronics",
-      "Vehicles": "Vehicles",
-      "Sports": "Sports",
-      "Furniture": "Furniture",
-      "Clothes": "Clothes",
-      "Other": "Other"
+      "tools_equipment": "Tools & Equipment",
+      "events_leisure": "Events & Leisure",
+      "transport_mobility": "Transport & Mobility",
+      "home_family_services": "Home & Family Services",
+      "education_personal_services": "Education & Personal Services",
+      "technology_media": "Technology & Media"
     },
     "service": {
-      "Repair": "Repair",
-      "Cleaning": "Cleaning",
-      "Tutoring": "Tutoring",
-      "Moving": "Moving",
-      "Pet Care": "Pet Care",
-      "Beauty": "Beauty",
-      "Other": "Other"
+      "tools_equipment": "Tools & Equipment",
+      "events_leisure": "Events & Leisure",
+      "transport_mobility": "Transport & Mobility",
+      "home_family_services": "Home & Family Services",
+      "education_personal_services": "Education & Personal Services",
+      "technology_media": "Technology & Media"
     }
   },
   "terms": {
